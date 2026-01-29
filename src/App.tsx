@@ -23,7 +23,6 @@ import Profile from './pages/Profile';
 import Login from './pages/Login';
 
 const theme = createTheme({
-  primaryColor: 'cyan',
   fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, sans-serif',
   defaultRadius: 'md',
   colors: {
