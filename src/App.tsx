@@ -43,6 +43,13 @@ const theme = createTheme({
       '#101113',
     ],
   },
+  components: {
+    Modal: {
+      defaultProps: {
+        lockScroll: false,
+      },
+    },
+  },
 });
 
 function ThemeToggle() {

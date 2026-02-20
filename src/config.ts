@@ -14,6 +14,7 @@ interface AppConfig {
   PROXY_STORAGE_PREFIX?: string;
   VPN_CATEGORY: string;
   VPN_STORAGE_PREFIX?: string;
+  VISIBLE_CATEGORIES: string;
 }
 
 declare global {
@@ -41,6 +42,7 @@ function getConfig(): AppConfig {
     PROXY_STORAGE_PREFIX: runtimeConfig?.PROXY_STORAGE_PREFIX || import.meta.env.VITE_PROXY_STORAGE_PREFIX || '',
     VPN_CATEGORY: runtimeConfig?.VPN_CATEGORY || import.meta.env.VITE_VPN_CATEGORY || '',
     VPN_STORAGE_PREFIX: runtimeConfig?.VPN_STORAGE_PREFIX || import.meta.env.VITE_VPN_STORAGE_PREFIX || '',
+    VISIBLE_CATEGORIES: runtimeConfig?.VISIBLE_CATEGORIES || import.meta.env.VITE_VISIBLE_CATEGORIES || '',
   };
 }
 

@@ -52,9 +52,10 @@ services:
 | `PASSKEY_ENABLE` | Показать настройки Passkey | `true` |
 | `BITRIX_WIDGET_SCRIPT_URL` | 	URL виждета Битрих-24 (https://cdn-ru.bitrix24.ru/b********/crm/site_button/loader_****.js) | - |
 | `PROXY_CATEGORY` | Категория прокси чтобы показать ссылку на подписку (vpn-remna) | - |
-| `PROXY_STORAGE_PREFIX` | префикс в хранилище, например 'vpm_remna_' | 'vpm_mrzb_' |
+| `PROXY_STORAGE_PREFIX` | префикс для категории proxy в хранилище, например 'vpm_remna_' | 'vpm_mrzb_' |
 | `VPN_CATEGORY` | Категория VPN чтобы покаать QR или возможность скачать файл конфигурации (vpn-wg) | - |
-| `VPN_STORAGE_PREFIX` | рефикс в хранилище например 'wg_key_' | 'vpn' |
+| `VPN_STORAGE_PREFIX` | Префикс для категории vpn в хранилище например 'wg_key_' | 'vpn' |
+| `VISIBLE_CATEGORIES` | Категории для отабражения при покупке и уже купленных услуг (vpn-mz,vpm-mz-trial)| - |
 
 ### Telegram Widget
 Для работы с авторизацией через Telegram Widget нужно в астройках бота  который указан в `TELGRAM_BOT_NAME` указать домен на котором расположена ваше приложение `shm-client`

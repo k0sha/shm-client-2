@@ -4,6 +4,7 @@ import { Modal, Stack, Text, Card, Group, Badge, Loader, Center, Button, Paper, 
 import { IconArrowLeft, IconCreditCard, IconCheck, IconWallet } from '@tabler/icons-react';
 import { servicesApi, userApi } from '../api/client';
 import { notifications } from '@mantine/notifications';
+import { config } from '../config';
 
 interface OrderService {
   service_id: number;
@@ -259,6 +260,16 @@ export default function OrderServiceModal({
 
   const groupedServices = services.reduce((acc, service) => {
     const category = normalizeCategory(service.category || 'other');
+
+    if (config.VISIBLE_CATEGORIES) {
+      const visibleCategories = config.VISIBLE_CATEGORIES.split(',').map(c => c.trim().toLowerCase());
+      const rawCategory = (service.category || 'other').toLowerCase();
+      const normalizedCategory = category.toLowerCase();
+      if (!visibleCategories.includes(rawCategory) && !visibleCategories.includes(normalizedCategory)) {
+        return acc;
+      }
+    }
+
     if (!acc[category]) {
       acc[category] = [];
     }
