@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Card, Text, Stack, Group, Button, TextInput, Avatar, Title, Modal, Loader, Center, Collapse, useMantineColorScheme } from '@mantine/core';
-import { IconUser, IconPhone, IconBrandTelegram, IconWallet, IconCreditCard, IconChevronDown, IconChevronUp } from '@tabler/icons-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Card, Text, Stack, Group, Button, TextInput, Avatar, Title, Modal, Loader, Center, Collapse, Alert, useMantineColorScheme } from '@mantine/core';
+import { IconUser, IconPhone, IconBrandTelegram, IconWallet, IconCreditCard, IconChevronDown, IconChevronUp, IconMail, IconAlertCircle } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { useTranslation } from 'react-i18next';
 import { userApi, telegramApi } from '../api/client';
@@ -9,22 +9,20 @@ import PromoModal from '../components/PromoModal';
 import SecuritySettings from '../components/SecuritySettings';
 import { useStore } from '../store/useStore';
 
+const RESEND_COOLDOWN_MS = 3 * 60 * 1000;
+const RESEND_STORAGE_KEY = 'email_verify_last_sent';
 interface UserProfile {
   user_id: number;
   login: string;
   full_name?: string;
   phone?: string;
+  email?: string;
+  email_verified?: number;
   balance: number;
   credit?: number;
   bonus?: number;
   gid: number;
   telegram_user_id?: number;
-  settings?: {
-    telegram?: {
-      username?: string;
-      chat_id?: number;
-    };
-  };
 }
 
 interface ForecastItem {
@@ -51,7 +49,7 @@ export default function Profile() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
-  const [formData, setFormData] = useState({ full_name: '', phone: '' });
+  const [formData, setFormData] = useState({ full_name: '', phone: '', email: '', email_verified: 0 });
   const [telegramUsername, setTelegramUsername] = useState<string | null>(null);
   const [payModalOpen, setPayModalOpen] = useState(false);
   const [promoModalOpen, setPromoModalOpen] = useState(false);
@@ -59,9 +57,36 @@ export default function Profile() {
   const [telegramInput, setTelegramInput] = useState('');
   const [telegramSaving, setTelegramSaving] = useState(false);
   const [forecast, setForecast] = useState<ForecastData | null>(null);
+  const [emailModalOpen, setEmailModalOpen] = useState(false);
+  const [emailInput, setEmailInput] = useState('');
+  const [emailSaving, setEmailSaving] = useState(false);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const [emailVerified, setEmailVerified] = useState(false);
+  const [verifyModalOpen, setVerifyModalOpen] = useState(false);
+  const [verifyCode, setVerifyCode] = useState('');
+  const [verifySending, setVerifySending] = useState(false);
+  const [verifyConfirming, setVerifyConfirming] = useState(false);
   const [forecastOpen, setForecastOpen] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
   const { colorScheme } = useMantineColorScheme();
   const { t } = useTranslation();
+
+  const updateCooldown = useCallback(() => {
+    const lastSent = localStorage.getItem(RESEND_STORAGE_KEY);
+    if (lastSent) {
+      const elapsed = Date.now() - parseInt(lastSent, 10);
+      const remaining = Math.max(0, RESEND_COOLDOWN_MS - elapsed);
+      setResendCooldown(Math.ceil(remaining / 1000));
+    } else {
+      setResendCooldown(0);
+    }
+  }, []);
+
+  useEffect(() => {
+    updateCooldown();
+    const interval = setInterval(updateCooldown, 1000);
+    return () => clearInterval(interval);
+  }, [updateCooldown]);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -73,12 +98,16 @@ export default function Profile() {
         setFormData({
           full_name: data.full_name || '',
           phone: data.phone || '',
+          email: data.email || '',
+          email_verified: data.email_verified || 0,
         });
         try {
           const telegramResponse = await telegramApi.getSettings();
           setTelegramUsername(telegramResponse.data.username || null);
         } catch {
         }
+        setUserEmail(data.email || null);
+        setEmailVerified(data.email_verified === 1);
         try {
           const forecastResponse = await userApi.getForecast();
           const forecastData = forecastResponse.data.data;
@@ -144,6 +173,144 @@ export default function Profile() {
       });
     } finally {
       setTelegramSaving(false);
+    }
+  };
+
+  const openEmailModal = () => {
+    setEmailInput(userEmail || '');
+    setEmailModalOpen(true);
+  };
+
+  const isValidEmail = (email: string) => {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  };
+
+  const getEmailErrorMessage = (serverMsg: string): string => {
+    const errorMap: Record<string, string> = {
+      'is not email': t('profile.invalidEmail'),
+      'Email mismatch. Use the email shown in your profile.': t('profile.emailMismatch'),
+      'Invalid code': t('profile.invalidCode'),
+      'Code expired': t('profile.codeExpired'),
+    };
+    return errorMap[serverMsg] || serverMsg;
+  };
+
+  const handleSaveEmail = async () => {
+    const email = emailInput.trim();
+
+    if (!isValidEmail(email)) {
+      notifications.show({
+        title: t('common.error'),
+        message: t('profile.invalidEmail'),
+        color: 'red',
+      });
+      return;
+    }
+
+    setEmailSaving(true);
+    try {
+      const response = await userApi.setEmail(email);
+      const data = response.data?.data;
+
+      if (Array.isArray(data) && data[0]?.msg && data[0].msg !== 'Successful') {
+        notifications.show({
+          title: t('common.error'),
+          message: getEmailErrorMessage(data[0].msg),
+          color: 'red',
+        });
+        return;
+      }
+
+      setUserEmail(email || null);
+      setEmailModalOpen(false);
+      notifications.show({
+        title: t('common.success'),
+        message: t('profile.emailSaved'),
+        color: 'green',
+      });
+      setEmailVerified(false);
+    } catch {
+      notifications.show({
+        title: t('common.error'),
+        message: t('profile.emailSaveError'),
+        color: 'red',
+      });
+    } finally {
+      setEmailSaving(false);
+    }
+  };
+
+  const handleSendVerifyCode = async () => {
+    if (!userEmail) return;
+    if (resendCooldown > 0) return;
+
+    setVerifySending(true);
+    try {
+      const response = await userApi.sendVerifyCode(userEmail);
+      const data = response.data?.data;
+
+      if (Array.isArray(data) && data[0]?.msg && data[0].msg !== 'Verification code sent') {
+        notifications.show({
+          title: t('common.error'),
+          message: getEmailErrorMessage(data[0].msg),
+          color: 'red',
+        });
+        return;
+      }
+
+      localStorage.setItem(RESEND_STORAGE_KEY, Date.now().toString());
+      updateCooldown();
+
+      setVerifyModalOpen(true);
+      setVerifyCode('');
+      notifications.show({
+        title: t('common.success'),
+        message: t('profile.verifyCodeSent'),
+        color: 'green',
+      });
+    } catch {
+      notifications.show({
+        title: t('common.error'),
+        message: t('profile.verifyCodeError'),
+        color: 'red',
+      });
+    } finally {
+      setVerifySending(false);
+    }
+  };
+
+  const handleConfirmEmail = async () => {
+    if (!verifyCode.trim()) return;
+
+    setVerifyConfirming(true);
+    try {
+      const response = await userApi.confirmEmail(verifyCode.trim());
+      const data = response.data?.data;
+
+      if (Array.isArray(data) && data[0]?.msg && data[0].msg !== 'Email verified successfully') {
+        notifications.show({
+          title: t('common.error'),
+          message: getEmailErrorMessage(data[0].msg),
+          color: 'red',
+        });
+        return;
+      }
+
+      setEmailVerified(true);
+      setVerifyModalOpen(false);
+      notifications.show({
+        title: t('common.success'),
+        message: t('profile.emailVerifiedSuccess'),
+        color: 'green',
+      });
+    } catch {
+      notifications.show({
+        title: t('common.error'),
+        message: t('profile.emailVerifyError'),
+        color: 'red',
+      });
+    } finally {
+      setVerifyConfirming(false);
     }
   };
 
@@ -293,6 +460,47 @@ export default function Profile() {
 
       <Card withBorder radius="md" p="lg">
         <Group justify="space-between" mb="md">
+          <Text fw={500}>Email</Text>
+          <Group gap="xs">
+            {userEmail && !emailVerified && (
+              <Button
+                variant="light"
+                size="xs"
+                color="orange"
+                onClick={handleSendVerifyCode}
+                loading={verifySending}
+                disabled={resendCooldown > 0}
+              >
+                {resendCooldown > 0
+                  ? `${t('profile.verify')} (${Math.floor(resendCooldown / 60)}:${(resendCooldown % 60).toString().padStart(2, '0')})`
+                  : t('profile.verify')}
+              </Button>
+            )}
+            <Button variant="light" size="xs" onClick={openEmailModal}>
+              {userEmail ? t('profile.change') : t('profile.link')}
+            </Button>
+          </Group>
+        </Group>
+        <Group>
+          <IconMail size={24} color={emailVerified ? '#22c55e' : '#666'} />
+          {userEmail ? (
+            <div>
+              <Text size="sm">{userEmail}</Text>
+              <Text size="xs" c={emailVerified ? 'green' : 'orange'}>
+                {emailVerified ? t('profile.emailVerified') : t('profile.emailNotVerified')}
+              </Text>
+            </div>
+          ) : (
+            <Text size="sm" c="dimmed">{t('profile.emailNotLinked')}</Text>
+          )}
+        </Group>
+        <Text size="xs" c="dimmed" mt="md">
+          {t('profile.emailDescription')}
+        </Text>
+      </Card>
+
+      <Card withBorder radius="md" p="lg">
+        <Group justify="space-between" mb="md">
           <Text fw={500}>{t('profile.telegram')}</Text>
           <Button variant="light" size="xs" onClick={openTelegramModal}>
             {telegramUsername ? t('profile.change') : t('profile.link')}
@@ -347,6 +555,80 @@ export default function Profile() {
             <Button onClick={handleSaveTelegram} loading={telegramSaving}>
               {t('common.save')}
             </Button>
+          </Group>
+        </Stack>
+      </Modal>
+
+      <Modal
+        opened={emailModalOpen}
+        onClose={() => setEmailModalOpen(false)}
+        title={t('profile.linkEmail')}
+      >
+        <Stack gap="md">
+          {profile && isValidEmail(profile.login) && (
+            <Alert variant="light" color="orange" icon={<IconAlertCircle size={16} />}>
+              {t('profile.emailLoginWarning')}
+            </Alert>
+          )}
+          <TextInput
+            label={t('profile.emailAddress')}
+            placeholder="example@email.com"
+            type="email"
+            value={emailInput}
+            onChange={(e) => setEmailInput(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSaveEmail()}
+          />
+          <Text size="xs" c="dimmed">
+            {t('profile.emailHint')}
+          </Text>
+          <Group justify="flex-end">
+            <Button variant="light" onClick={() => setEmailModalOpen(false)}>
+              {t('common.cancel')}
+            </Button>
+            <Button onClick={handleSaveEmail} loading={emailSaving}>
+              {t('common.save')}
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
+
+      <Modal
+        opened={verifyModalOpen}
+        onClose={() => setVerifyModalOpen(false)}
+        title={t('profile.verifyEmail')}
+      >
+        <Stack gap="md">
+          <Text size="sm">
+            {t('profile.verifyEmailDescription', { email: userEmail })}
+          </Text>
+          <TextInput
+            label={t('profile.verifyCode')}
+            placeholder="123456"
+            value={verifyCode}
+            onChange={(e) => setVerifyCode(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleConfirmEmail()}
+            maxLength={6}
+          />
+          <Group justify="space-between">
+            <Button
+              variant="subtle"
+              size="xs"
+              onClick={handleSendVerifyCode}
+              loading={verifySending}
+              disabled={resendCooldown > 0}
+            >
+              {resendCooldown > 0
+                ? `${t('profile.resendCode')} (${Math.floor(resendCooldown / 60)}:${(resendCooldown % 60).toString().padStart(2, '0')})`
+                : t('profile.resendCode')}
+            </Button>
+            <Group gap="xs">
+              <Button variant="light" onClick={() => setVerifyModalOpen(false)}>
+                {t('common.cancel')}
+              </Button>
+              <Button onClick={handleConfirmEmail} loading={verifyConfirming}>
+                {t('profile.confirmEmail')}
+              </Button>
+            </Group>
           </Group>
         </Stack>
       </Modal>

@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import { Card, Text, Stack, Button, TextInput, PasswordInput, Divider, Title, Center, Modal, Group } from '@mantine/core';
-import { IconLogin, IconUserPlus, IconFingerprint, IconShieldLock, IconBrandTelegram, IconMailForward } from '@tabler/icons-react';
+import { Card, Text, Stack, Button, TextInput, PasswordInput, Divider, Title, Center, Modal, Group, Loader } from '@mantine/core';
+import { IconLogin, IconUserPlus, IconFingerprint, IconShieldLock, IconBrandTelegram, IconMailForward, IconLock } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { useTranslation } from 'react-i18next';
 import { auth, passkeyApi, userApi } from '../api/client';
-import { setCookie } from '../api/cookie';
+import { setCookie, getResetTokenCookie, removeResetTokenCookie, parseAndSaveResetToken } from '../api/cookie';
 import { useStore } from '../store/useStore';
 import TelegramLoginButton, { TelegramUser } from '../components/TelegramLoginButton';
 import { config } from '../config';
@@ -42,6 +42,10 @@ export default function Login() {
   const [showLoginForm, setShowLoginForm] = useState(false);
   const [showResetPassword, setShowResetPassword] = useState(false);
   const [resetLoading, setResetLoading] = useState(false);
+  const [showNewPasswordForm, setShowNewPasswordForm] = useState(false);
+  const [resetToken, setResetToken] = useState<string | null>(null);
+  const [newPasswordData, setNewPasswordData] = useState({ password: '', confirmPassword: '' });
+  const [verifyingToken, setVerifyingToken] = useState(false);
   const { setUser, setTelegramPhoto } = useStore();
   const { t } = useTranslation();
   const isWebAuthnSupported = !!window.PublicKeyCredential;
@@ -65,6 +69,76 @@ export default function Login() {
     setShowLoginForm(false);
     void handleTelegramWebAppAuth();
   }, [hasTelegramWebAppAutoAuth, telegramWebApp?.initData]);
+
+  useEffect(() => {
+    const checkResetToken = async () => {
+      const urlToken = parseAndSaveResetToken();
+      const token = urlToken || getResetTokenCookie();
+
+      if (!token) return;
+
+      setVerifyingToken(true);
+      setResetToken(token);
+
+      try {
+        const response = await userApi.verifyResetToken(token);
+        const msg = response.data?.data?.[0]?.msg || response.data?.data?.msg;
+
+        if (msg === 'Successful') {
+          setShowNewPasswordForm(true);
+        } else {
+          notifications.show({ title: t('common.error'), message: t('auth.invalidResetToken'), color: 'red' });
+          removeResetTokenCookie();
+          setResetToken(null);
+        }
+      } catch {
+        notifications.show({ title: t('common.error'), message: t('auth.invalidResetToken'), color: 'red' });
+        removeResetTokenCookie();
+        setResetToken(null);
+      } finally {
+        setVerifyingToken(false);
+      }
+    };
+
+    checkResetToken();
+  }, []);
+
+  const handleNewPasswordSubmit = async () => {
+    if (!newPasswordData.password || !newPasswordData.confirmPassword) {
+      notifications.show({ title: t('common.error'), message: t('auth.fillAllFields'), color: 'red' });
+      return;
+    }
+
+    if (newPasswordData.password !== newPasswordData.confirmPassword) {
+      notifications.show({ title: t('common.error'), message: t('auth.passwordsMismatch'), color: 'red' });
+      return;
+    }
+
+    if (!resetToken) {
+      notifications.show({ title: t('common.error'), message: t('auth.invalidResetToken'), color: 'red' });
+      return;
+    }
+
+    setResetLoading(true);
+    try {
+      const response = await userApi.resetPasswordWithToken(resetToken, newPasswordData.password);
+      const msg = response.data?.data?.[0]?.msg || response.data?.data?.msg;
+
+      if (msg === 'Password reset successful') {
+        notifications.show({ title: t('common.success'), message: t('auth.passwordResetSuccess'), color: 'green' });
+      } else {
+        notifications.show({ title: t('common.error'), message: t('auth.invalidResetToken'), color: 'red' });
+      }
+    } catch {
+      notifications.show({ title: t('common.error'), message: t('auth.invalidResetToken'), color: 'red' });
+    } finally {
+      removeResetTokenCookie();
+      setResetToken(null);
+      setShowNewPasswordForm(false);
+      setNewPasswordData({ password: '', confirmPassword: '' });
+      setResetLoading(false);
+    }
+  };
 
   const handleLogin = async (otpTokenParam?: string) => {
     if (!formData.login || !formData.password) {
@@ -515,6 +589,67 @@ export default function Login() {
           </Group>
         </Stack>
       </Modal>
+
+      <Modal
+        opened={showNewPasswordForm}
+        onClose={() => {
+          setShowNewPasswordForm(false);
+          removeResetTokenCookie();
+          setResetToken(null);
+          setNewPasswordData({ password: '', confirmPassword: '' });
+        }}
+        title={
+          <Group gap="xs">
+            <IconLock size={20} />
+            <Text fw={500}>{t('auth.newPasswordTitle')}</Text>
+          </Group>
+        }
+        centered
+      >
+        <Stack gap="md">
+          <Text size="sm" c="dimmed">{t('auth.newPasswordDescription')}</Text>
+          <PasswordInput
+            label={t('auth.newPasswordLabel')}
+            placeholder={t('auth.passwordPlaceholder')}
+            value={newPasswordData.password}
+            onChange={(e) => setNewPasswordData({ ...newPasswordData, password: e.target.value })}
+            autoFocus
+          />
+          <PasswordInput
+            label={t('auth.confirmNewPasswordLabel')}
+            placeholder={t('auth.confirmPasswordPlaceholder')}
+            value={newPasswordData.confirmPassword}
+            onChange={(e) => setNewPasswordData({ ...newPasswordData, confirmPassword: e.target.value })}
+          />
+          <Group justify="flex-end" gap="sm">
+            <Button variant="default" onClick={() => {
+              setShowNewPasswordForm(false);
+              removeResetTokenCookie();
+              setResetToken(null);
+              setNewPasswordData({ password: '', confirmPassword: '' });
+            }}>
+              {t('common.cancel')}
+            </Button>
+            <Button
+              leftSection={<IconLock size={16} />}
+              onClick={handleNewPasswordSubmit}
+              loading={resetLoading}
+              disabled={!newPasswordData.password || !newPasswordData.confirmPassword}
+            >
+              {t('auth.resetPasswordButton')}
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
+
+      {verifyingToken && (
+        <Modal opened={true} onClose={() => {}} withCloseButton={false} centered>
+          <Stack align="center" gap="md">
+            <Loader />
+            <Text>{t('auth.verifyingToken')}</Text>
+          </Stack>
+        </Modal>
+      )}
     </Center>
   );
 }

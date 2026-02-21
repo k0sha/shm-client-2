@@ -56,7 +56,15 @@
     "resetPasswordSend": "Отправить",
     "resetSuccess": "Запрос на сброс пароля отправлен. Проверьте email.",
     "resetNotFound": "Пользователь с таким логином или email не найден",
-    "resetEnterLogin": "Введите логин или email"
+    "resetEnterLogin": "Введите логин или email",
+    "newPasswordTitle": "Установите новый пароль",
+    "newPasswordDescription": "Введите новый пароль для вашего аккаунта.",
+    "newPasswordLabel": "Новый пароль",
+    "confirmNewPasswordLabel": "Подтвердите пароль",
+    "resetPasswordButton": "Сбросить пароль",
+    "passwordResetSuccess": "Пароль успешно сброшен. Пожалуйста, войдите.",
+    "invalidResetToken": "Недействительный или просроченный токен сброса пароля.",
+    "verifyingToken": "Проверка токена..."
   },
   "nav": {
     "home": "Главная",

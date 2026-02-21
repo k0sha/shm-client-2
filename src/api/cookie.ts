@@ -1,5 +1,3 @@
-// Cookie utilities for session management
-
 const COOKIE_NAME = 'session-id';
 const COOKIE_DAYS = 3;
 
@@ -26,7 +24,6 @@ export function removeCookie(): void {
   document.cookie = `${COOKIE_NAME}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=Lax`;
 }
 
-// Extend cookie expiration (call on each API request)
 export function extendCookie(): void {
   const value = getCookie();
   if (value) {
@@ -60,13 +57,11 @@ export function removePartnerCookie(): void {
   document.cookie = `${PARTNER_COOKIE_NAME}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=Lax`;
 }
 
-// Parse and save partner_id from URL, then remove from URL
 export function parseAndSavePartnerId(): void {
   const urlParams = new URLSearchParams(window.location.search);
   const partnerId = urlParams.get('partner_id');
   if (partnerId) {
     setPartnerCookie(partnerId);
-    // Remove partner_id from URL
     urlParams.delete('partner_id');
     const newSearch = urlParams.toString();
     const newUrl = window.location.pathname + (newSearch ? '?' + newSearch : '') + window.location.hash;
@@ -79,10 +74,49 @@ export function parseAndSaveSessionId(): void {
   const sessionId = urlParams.get('session_id');
   if (sessionId) {
     setCookie(sessionId);
-    // Remove session_id from URL
     urlParams.delete('session_id');
     const newSearch = urlParams.toString();
     const newUrl = window.location.pathname + (newSearch ? '?' + newSearch : '') + window.location.hash;
     window.history.replaceState({}, '', newUrl);
   }
+}
+
+const RESET_TOKEN_COOKIE_NAME = 'reset_token';
+const RESET_TOKEN_COOKIE_MINUTES = 60;
+
+export function setResetTokenCookie(value: string): void {
+  const expires = new Date();
+  expires.setTime(expires.getTime() + RESET_TOKEN_COOKIE_MINUTES * 60 * 1000);
+  document.cookie = `${RESET_TOKEN_COOKIE_NAME}=${value};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+}
+
+export function getResetTokenCookie(): string | null {
+  const name = RESET_TOKEN_COOKIE_NAME + '=';
+  const decodedCookie = decodeURIComponent(document.cookie);
+  const ca = decodedCookie.split(';');
+  for (let i = 0; i < ca.length; i++) {
+    let c = ca[i].trim();
+    if (c.indexOf(name) === 0) {
+      return c.substring(name.length, c.length);
+    }
+  }
+  return null;
+}
+
+export function removeResetTokenCookie(): void {
+  document.cookie = `${RESET_TOKEN_COOKIE_NAME}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=Lax`;
+}
+
+export function parseAndSaveResetToken(): string | null {
+  const urlParams = new URLSearchParams(window.location.search);
+  const token = urlParams.get('token');
+  if (token) {
+    setResetTokenCookie(token);
+    urlParams.delete('token');
+    const newSearch = urlParams.toString();
+    const newUrl = window.location.pathname + (newSearch ? '?' + newSearch : '') + window.location.hash;
+    window.history.replaceState({}, '', newUrl);
+    return token;
+  }
+  return null;
 }

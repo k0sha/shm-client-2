@@ -26,7 +26,8 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
-    const isAuthRequest = error.config?.url?.includes('/auth');
+    const url = error.config?.url || '';
+    const isAuthRequest = url.includes('/auth') || url.includes('/passwd/reset');
     if (error.response?.status === 401 && !isAuthRequest) {
       removeCookie();
       window.location.href = '/';
@@ -123,6 +124,8 @@ export const userApi = {
   updateProfile: (data: Record<string, unknown>) => api.post('/user', data),
   changePassword: (password: string) => api.post('/user/passwd', { password }),
   resetPassword: (params: { login?: string; email?: string }) => api.post('/user/passwd/reset', params),
+  verifyResetToken: (token: string) => api.get('/user/passwd/reset/verify', { params: { token } }),
+  resetPasswordWithToken: (token: string, password: string) => api.post('/user/passwd/reset/verify', { token, password }),
   getServices: () => api.get('/user/service', { params: { limit: 1000 } }),
   stopService: (userServiceId: number) => api.post('/user/service/stop', { user_service_id: userServiceId }),
   changeService: (userServiceId: number, serviceId: number, finish_active: number) => api.post('/user/service/change', { user_service_id: userServiceId, service_id: serviceId, finish_active: finish_active }),
@@ -130,6 +133,9 @@ export const userApi = {
   getPaySystems: () => api.get('/user/pay/paysystems'),
   getForecast: () => api.get('/user/pay/forecast'),
   deleteAutopayment: (paySystem: string) => api.delete('/user/autopayment', { params: { pay_system: paySystem } }),
+  setEmail: (email: string) => api.put('/user/email/set', { email: email }),
+  sendVerifyCode: (email: string) => api.post('/user/email/verify', { email: email }),
+  confirmEmail: (code: string) => api.post('/user/email/verify', { code: code }),
 };
 
 export const storageApi = {
@@ -204,7 +210,7 @@ export const passkeyApi = {
   //     clientDataJSON: string;
   //     attestationObject: string;
   //   };
-  //   name?: string;   
+  //   name?: string;
   // }) => api.post('/user/passkey/register', data),
   // authOptionsPublic: () => api.get<{ data: PasskeyAuthOptions }>('/user/auth/passkey', {}),
   // authPublic: (data: {
@@ -304,7 +310,7 @@ export const passwordAuthApi = {
   // status: () => api.get<{ data: PasswordAuthStatus }>('/user/password-auth'),
   // disable: () => api.delete('/user/password-auth'),
   // enable: () => api.post('/user/password-auth'),
-  
+
   status: () => api.get<{ data: PasswordAuthStatus }>('/user/password-auth/status'),
   disable: () => api.post('/user/password-auth/disable'),
   enable: () => api.post('/user/password-auth/enable'),

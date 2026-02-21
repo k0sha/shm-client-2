@@ -56,7 +56,15 @@
     "resetPasswordSend": "Send",
     "resetSuccess": "Password reset request sent. Check your email.",
     "resetNotFound": "User with this login or email not found",
-    "resetEnterLogin": "Enter login or email"
+    "resetEnterLogin": "Enter login or email",
+    "newPasswordTitle": "Set new password",
+    "newPasswordDescription": "Enter a new password for your account.",
+    "newPasswordLabel": "New password",
+    "confirmNewPasswordLabel": "Confirm password",
+    "resetPasswordButton": "Reset password",
+    "passwordResetSuccess": "Password reset successfully. Please log in.",
+    "invalidResetToken": "Invalid or expired reset token.",
+    "verifyingToken": "Verifying token..."
   },
   "nav": {
     "home": "Home",
