@@ -34,6 +34,12 @@ function arrayBufferToBase64Url(buffer: ArrayBuffer): string {
 
 export default function Login() {
   const [mode, setMode] = useState<'login' | 'register'>('login');
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.has('register')) {
+      setMode('register');
+    }
+  }, [location.search]);
   const [loading, setLoading] = useState(false);
   const [passkeyLoading, setPasskeyLoading] = useState(false);
   const [formData, setFormData] = useState({ login: '', password: '', confirmPassword: '', login_or_email: '' });
