@@ -291,6 +291,14 @@ export default function OrderServiceModal({
   const groupedServices = services.reduce((acc, service) => {
     const category = normalizeCategory(service.category || 'other');
 
+    let categoryTitle;
+    if (category === 'vpn' && config.VPN_CATEGORY_TITLE) {
+      categoryTitle = config.VPN_CATEGORY_TITLE;
+    } else if (category === 'proxy' && config.PROXY_CATEGORY_TITLE) {
+      categoryTitle = config.PROXY_CATEGORY_TITLE;
+    } else {
+      categoryTitle = t(`categories.${category}`, category);
+    }
     if (config.VISIBLE_CATEGORIES) {
       const visibleCategories = config.VISIBLE_CATEGORIES.split(',').map(c => c.trim().toLowerCase());
       const rawCategory = (service.category || 'other').toLowerCase();
@@ -301,14 +309,15 @@ export default function OrderServiceModal({
     }
 
     if (!acc[category]) {
-      acc[category] = [];
+      acc[category] = {
+        title: categoryTitle,
+        services: [],
+      };
     }
-    acc[category].push(service);
+
+    acc[category].services.push(service);
     return acc;
-  }, {} as Record<string, OrderService[]>);
-  Object.values(groupedServices).forEach(categoryServices => {
-    categoryServices.sort((a, b) => a.cost - b.cost);
-  });
+  }, {} as Record<string, { title: string; services: OrderService[] }>);
 
   return (
     <Modal
@@ -507,13 +516,13 @@ export default function OrderServiceModal({
         </Center>
       ) : (
         <Stack gap="md">
-          {Object.entries(groupedServices).map(([category, categoryServices]) => (
+          {Object.entries(groupedServices).map(([category, group ]) => (
             <div key={category}>
               <Text fw={500} size="sm" c="dimmed" mb="xs">
-                {t(`categories.${category}`)}
+                { group.title }
               </Text>
               <Stack gap="xs">
-                {categoryServices.map((service) => (
+                {group.services.map((service) => (
                   <Card
                     key={service.service_id}
                     withBorder

@@ -818,11 +818,19 @@ export default function Services() {
             const page = categoryPages[category] || 1;
             const totalPages = Math.ceil(categoryServices.length / perPage);
             const paginatedServices = categoryServices.slice((page - 1) * perPage, page * perPage);
+            let categoryTitle;
+            if ( category === 'vpn' && config.VPN_CATEGORY_TITLE ) {
+              categoryTitle = config.VPN_CATEGORY_TITLE
+            } else if ( category === 'proxy' && config.PROXY_CATEGORY_TITLE ) {
+              categoryTitle = config.PROXY_CATEGORY_TITLE
+            } else {
+              categoryTitle = t(`categories.${category}`, category);
+            }
             return (
             <Accordion.Item key={category} value={category}>
               <Accordion.Control>
                 <Group>
-                  <Text fw={500}>{t(`categories.${category}`, category)}</Text>
+                  <Text fw={500}>{ categoryTitle }</Text>
                   <Badge variant="light" size="sm">{categoryServices.length}</Badge>
                 </Group>
               </Accordion.Control>
