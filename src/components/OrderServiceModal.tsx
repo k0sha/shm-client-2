@@ -52,6 +52,24 @@ function normalizeCategory(category: string): string {
   return 'other';
 }
 
+function formatPeriod(value: number, t: any) {
+  if (!value) return '-';
+
+  const [m, rest = ''] = value.toString().split('.');
+
+  const months = Number(m);
+  const days = Number(rest.slice(0, 2) || 0);
+  const hours = Number(rest.slice(2, 4) || 0);
+
+  const parts: string[] = [];
+
+  if (months) parts.push(`${months} ${t('common.months')}`);
+  if (days) parts.push(`${days} ${t('common.days')}`);
+  if (hours) parts.push(`${hours} ${t('common.hours')}`);
+
+  return parts.join(' ');
+}
+
 export default function OrderServiceModal({
   opened,
   onClose,
@@ -372,7 +390,7 @@ export default function OrderServiceModal({
                      selectedService.period === 3 ? t('common.months3') :
                      selectedService.period === 6 ? t('common.months6') :
                      selectedService.period === 12 ? t('common.year') :
-                     `${selectedService.period} ${t('common.months')}`}
+                     formatPeriod(selectedService.period, t)}
                   </Text>
                 </div>
               </Group>
@@ -529,7 +547,8 @@ export default function OrderServiceModal({
                              service.period === 3 ? t('common.months3') :
                              service.period === 6 ? t('common.months6') :
                              service.period === 12 ? t('common.year') :
-                             `${service.period} ${t('common.months')}`}
+                             formatPeriod(service.period, t)
+                            }
                         </Text>
                       </Group>
                     </Group>

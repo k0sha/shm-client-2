@@ -19,8 +19,7 @@ interface Withdraw {
   end_date: string;
 }
 
-function formatPeriod(value: number) {
-  const { t } = useTranslation();
+function formatPeriod(value: number, t: any) {
   if (!value) return '---';
 
   const [m, rest = ''] = value.toString().split('.');
@@ -99,7 +98,7 @@ export default function Withdrawals() {
     { title: t('payments.discount'), accessor: (w) => w.discount > 0 ? <Text size="sm" c="green">-{w.discount}%</Text> : <Text size="sm" c="dimmed">-</Text>, sortable: true, sortKey: 'discount' },
     { title: t('profile.bonus'), accessor: (w) => w.bonus > 0 ? <Text size="sm" c="red">-{w.bonus} ₽</Text> : <Text size="sm" c="dimmed">-</Text>, sortable: true, sortKey: 'bonus' },
     { title: t('withdrawals.total'), accessor: (w) => <Text size="sm" fw={500} w={80} c="red">{w.total && w.total > 0 ? '-'  : undefined }{w.total} ₽</Text>, sortable: true, sortKey: 'total'},
-    { title: t('order.period'), accessor: (w) => <Badge variant="light" color="blue">{formatPeriod(w.months)} { w.qnt && w.qnt > 1 ? ` × ${w.qnt}` : undefined }</Badge>, sortable: true, sortKey: 'months' },
+    { title: t('order.period'), accessor: (w) => <Badge variant="light" color="blue">{formatPeriod(w.months, t)} { w.qnt && w.qnt > 1 ? ` × ${w.qnt}` : undefined }</Badge>, sortable: true, sortKey: 'months' },
   ];
   if (initialLoading) {
     return (
