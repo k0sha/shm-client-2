@@ -6,6 +6,7 @@ interface AppConfig {
   TELEGRAM_WEBAPP_AUTO_AUTH_ENABLE: string;
   TELEGRAM_WEBAPP_PROFILE: string;
   SUPPORT_LINK: string;
+  DEFAULT_LANGUAGE: string;
   SHM_BASE_PATH: string;
   OTP_ENABLE: string;
   PASSKEY_ENABLE: string;
@@ -39,6 +40,7 @@ interface AppConfig {
   ANDROID_APP_NAME: string;
   APPLE_TV_APP_NAME: string;
   ANDROID_TV_APP_NAME: string;
+  CAPTCHA_ENABLED: string;
 }
 
 declare global {
@@ -58,6 +60,7 @@ function getConfig(): AppConfig {
     TELEGRAM_WEBAPP_AUTO_AUTH_ENABLE: runtimeConfig?.TELEGRAM_WEBAPP_AUTO_AUTH_ENABLE || import.meta.env.VITE_TELEGRAM_WEBAPP_AUTO_AUTH_ENABLE || 'false',
     TELEGRAM_WEBAPP_PROFILE: runtimeConfig?.TELEGRAM_WEBAPP_PROFILE || import.meta.env.VITE_TELEGRAM_WEBAPP_PROFILE || '',
     SUPPORT_LINK: runtimeConfig?.SUPPORT_LINK || import.meta.env.VITE_SUPPORT_LINK || '',
+    DEFAULT_LANGUAGE: runtimeConfig?.DEFAULT_LANGUAGE || import.meta.env.VITE_DEFAULT_LANGUAGE || 'ru',
     SHM_BASE_PATH: runtimeConfig?.SHM_BASE_PATH || import.meta.env.VITE_SHM_BASE_PATH || '/',
     OTP_ENABLE: runtimeConfig?.OTP_ENABLE || import.meta.env.VITE_OTP_ENABLE || 'true',
     PASSKEY_ENABLE: runtimeConfig?.PASSKEY_ENABLE || import.meta.env.VITE_PASSKEY_ENABLE || 'true',
@@ -91,6 +94,7 @@ function getConfig(): AppConfig {
     ANDROID_APP_NAME: runtimeConfig?.ANDROID_APP_NAME || import.meta.env.VITE_ANDROID_APP_NAME || 'Скачать для Android',
     APPLE_TV_APP_NAME: runtimeConfig?.APPLE_TV_APP_NAME || import.meta.env.VITE_APPLE_TV_APP_NAME || 'Скачать для Apple TV',
     ANDROID_TV_APP_NAME: runtimeConfig?.ANDROID_TV_APP_NAME || import.meta.env.VITE_ANDROID_TV_APP_NAME || 'Скачать для Android TV',
+    CAPTCHA_ENABLED: runtimeConfig?.CAPTCHA_ENABLED || import.meta.env.VITE_CAPTCHA_ENABLED || 'false',
   };
 }
 

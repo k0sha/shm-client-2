@@ -45,6 +45,8 @@ export default function Login() {
   const [passkeyLoading, setPasskeyLoading] = useState(false);
   const [loginOrEmail, setLoginOrEmail] = useState('');
   const requireEmailRegister = config.EMAIL_REQUIRED === 'true' && config.EMAIL_VERIFY_REQUIRED === 'true';
+  const [captcha, setCaptcha] = useState<{ question: string; token: string } | null>(null);
+  const [captchaAnswer, setCaptchaAnswer] = useState('');
   const [showOtp, setShowOtp] = useState(false);
   const [otpToken, setOtpToken] = useState('');
   const [showLoginForm, setShowLoginForm] = useState(false);
@@ -84,6 +86,24 @@ export default function Login() {
   const autoAuthTriggeredRef = useRef(false);
   const autoAuthAttemptKey = 'tg_webapp_auto_auth_attempted';
   const autoAuthCooldownMs = 60 * 1000;
+
+  const fetchCaptcha = async () => {
+    try {
+      const res = await auth.getCaptcha();
+      const raw = res.data?.data;
+      setCaptcha(Array.isArray(raw) ? raw[0] : raw);
+      setCaptchaAnswer('');
+    } catch { /* silent */ }
+  };
+
+  useEffect(() => {
+    if (mode === 'register' && config.CAPTCHA_ENABLED === 'true') {
+      void fetchCaptcha();
+    } else {
+      setCaptcha(null);
+      setCaptchaAnswer('');
+    }
+  }, [mode]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!hasTelegramWebAppAutoAuth || autoAuthTriggeredRef.current || !telegramWebApp?.initData) {
@@ -225,14 +245,29 @@ export default function Login() {
       return;
     }
 
+    if (config.CAPTCHA_ENABLED === 'true' && (!captcha || !captchaAnswer.trim())) {
+      notifications.show({ title: t('common.error'), message: t('auth.captchaRequired'), color: 'red' });
+      return;
+    }
+
     setLoading(true);
     try {
-      await auth.register(login, password);
+      await auth.register(login, password, captcha?.token, captchaAnswer || undefined);
       notifications.show({ title: t('common.success'), message: t('auth.registerSuccess'), color: 'green' });
       setMode('login');
       form.setValues({ confirmPassword: '' });
-    } catch {
-      notifications.show({ title: t('common.error'), message: t('auth.registerError'), color: 'red' });
+      setCaptchaAnswer('');
+    } catch (error: unknown) {
+      const axiosError = error as { response?: { data?: { error?: string } } };
+      const errMsg = axiosError.response?.data?.error || '';
+      if (errMsg === 'Invalid captcha') {
+        notifications.show({ title: t('common.error'), message: t('auth.captchaInvalid'), color: 'red' });
+      } else if (errMsg === 'Captcha required') {
+        notifications.show({ title: t('common.error'), message: t('auth.captchaRequired'), color: 'red' });
+      } else {
+        notifications.show({ title: t('common.error'), message: t('auth.registerError'), color: 'red' });
+      }
+      if (config.CAPTCHA_ENABLED === 'true') void fetchCaptcha();
     } finally {
       setLoading(false);
     }
@@ -483,6 +518,22 @@ export default function Login() {
                       name="confirm-password"
                       {...form.getInputProps('confirmPassword')}
                     />
+                  )}
+                  {mode === 'register' && config.CAPTCHA_ENABLED === 'true' && (
+                    <Group gap="xs" align="flex-end">
+                      <TextInput
+                        style={{ flex: 1 }}
+                        label={t('auth.captchaLabel')}
+                        description={captcha ? `${captcha.question} = ?` : '…'}
+                        placeholder={t('auth.captchaPlaceholder')}
+                        value={captchaAnswer}
+                        onChange={(e) => setCaptchaAnswer(e.target.value.replace(/\D/g, ''))}
+                        disabled={!captcha}
+                      />
+                      <Button variant="subtle" size="compact-sm" px={8} onClick={fetchCaptcha} title={t('auth.captchaRefresh')}>
+                        ↻
+                      </Button>
+                    </Group>
                   )}
                   <Button
                     type="submit"

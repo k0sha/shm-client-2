@@ -59,6 +59,7 @@ services:
 | `TELEGRAM_WEBAPP_AUTO_AUTH_ENABLE` | Автоматическая авторизация через телеграмм вебапп | `false` |
 | `TELEGRAM_WEBAPP_PROFILE` | Название бота (профиля) в SHM | - |
 | `SUPPORT_LINK` | Ссылка на поддержку | - |
+| `DEFAULT_LANGUAGE` | Язык системы по умолчанию | ru |
 | `OTP_ENABLE` | Показать настройки OTP | `true` |
 | `PASSKEY_ENABLE` | Показать настройки Passkey | `true` |
 | `PASSKEY_AUTH_DISABLED` | Скрыть кнопку авторизации через Passkey | `false` |

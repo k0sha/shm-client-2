@@ -86,11 +86,15 @@ export const auth = {
     return response;
   },
 
-  register: async (username: string, password: string) => {
+  register: async (username: string, password: string, captchaToken?: string, captchaAnswer?: string) => {
     const partnerId = getPartnerCookie();
     const data: Record<string, string> = { login: username, password };
     if (partnerId) {
       data.partner_id = partnerId;
+    }
+    if (captchaToken && captchaAnswer !== undefined) {
+      data.captcha_token = captchaToken;
+      data.captcha_answer = captchaAnswer;
     }
     const response = await api.put('/user', data);
     if (partnerId) {
@@ -98,6 +102,7 @@ export const auth = {
     }
     return response;
   },
+  getCaptcha: () => api.get<{ data: { question: string; token: string } }>('/user/captcha'),
 
   telegramWebAppAuth: async (initData: string, profile: string) => {
     const partnerId = getPartnerCookie();
