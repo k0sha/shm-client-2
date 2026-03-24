@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Text, Stack, Group, Badge, Button, Divider, Modal, ActionIcon, Loader, Center, Paper, Title, Tabs, Code, Tooltip, Accordion, Box, Select, NumberInput, Pagination } from '@mantine/core';
+import { Card, Timeline, Text, Stack, Group, Badge, Button, Divider, Modal, ActionIcon, Loader, Center, Paper, Title, Tabs, Code, Tooltip, Accordion, Box, Select, NumberInput, Pagination } from '@mantine/core';
 import { IconQrcode, IconCopy, IconCheck, IconDownload, IconRefresh, IconTrash, IconPlus, IconPlayerStop, IconExchange, IconCreditCard, IconWallet, IconDeviceMobileCog } from '@tabler/icons-react';
 import { useDisclosure, useClipboard } from '@mantine/hooks';
 import { useTranslation } from 'react-i18next';
@@ -262,7 +262,31 @@ function ServiceDetail({ service, onDelete, onChangeTariff }: ServiceDetailProps
   };
 
   const handleConfigure = () => {
-    const link = `happ://add/${subscriptionUrl}`;
+    const link = subscriptionUrl;
+    if ( link ) {
+      const tgWebApp = window.Telegram?.WebApp;
+      if (tgWebApp && isTelegramWebApp) {
+        tgWebApp.openLink(link);
+      } else {
+        window.open(link, '_blank');
+      }
+    }
+  };
+
+
+  function detectPlatform(): string {
+    const ua = navigator.userAgent;
+    if (/iPhone|iPad|iPod/i.test(ua)) return 'IOS';
+    if (/Android/i.test(ua) && /Mobile/i.test(ua)) return 'ANDROID';
+    if (/Windows NT/i.test(ua)) return 'WINDOWS';
+    if (/Linux/i.test(ua)) return 'LINUX';
+    if (/Macintosh|Mac OS X/i.test(ua)) return 'MAC';
+    return '';
+  }
+
+  const handleOpenUrlSchema = () => {
+    const urlSchema = config[`${detectPlatform()}_PROXY_URL_SCHEMA` as keyof typeof config];
+    const link = `${urlSchema}${subscriptionUrl}`;
     if ( link ) {
       const tgWebApp = window.Telegram?.WebApp;
       if (tgWebApp && isTelegramWebApp) {
@@ -287,15 +311,15 @@ function ServiceDetail({ service, onDelete, onChangeTariff }: ServiceDetailProps
           }
           setActiveTab('config');
         } catch {
-          if (!config.PROXY_STORAGE_PREFIX) {
-            try {
-              const remnaResponse = await api.get(`/storage/manage/vpn_remna_${service.user_service_id}?format=json`);
-              const url = remnaResponse.data.subscription_url || remnaResponse.data.response?.subscriptionUrl;
-              if (url) {
-                setSubscriptionUrl(url);
-              }
-            } catch {
+        }
+        if (!subscriptionUrl ) {
+          try {
+            const remnaResponse = await api.get(`/storage/manage/vpn_remna_${service.user_service_id}?format=json`);
+            const url = remnaResponse.data.subscription_url || remnaResponse.data.response?.subscriptionUrl;
+            if (url) {
+              setSubscriptionUrl(url);
             }
+          } catch {
           }
         }
       } else if (category === 'vpn') {
@@ -346,6 +370,13 @@ function ServiceDetail({ service, onDelete, onChangeTariff }: ServiceDetailProps
   const isVpnOrProxy = isVpn || isProxy;
   const statusColor = statusColors[service.status] || 'gray';
   const statusLabel = t(`status.${service.status}`, service.status);
+  const urlSchema = isProxy && config[`${detectPlatform()}_PROXY_URL_SCHEMA` as keyof typeof config];
+  const hasProxyAppUrls = [
+    config.PROXY_APP_WINDOWS_URL, config.PROXY_APP_LINUX_URL, config.PROXY_APP_MAC_URL, config.PROXY_APP_IOS_URL, config.PROXY_APP_ANDROID_URL,
+  ].some(Boolean);
+  const hasVpnAppUrls = [
+    config.VPN_APP_WINDOWS_URL, config.VPN_APP_LINUX_URL, config.VPN_APP_MAC_URL, config.VPN_APP_IOS_URL, config.VPN_APP_ANDROID_URL,
+  ].some(Boolean);
 
   return (
     <Stack gap="md">
@@ -425,13 +456,37 @@ function ServiceDetail({ service, onDelete, onChangeTariff }: ServiceDetailProps
                     </Tooltip>
                   </Group>
 
-                  <Divider my="md" />
+                  <Divider my="xs" />
 
                   <Group gap="xs">
-
-                    <AppDownloadBlock />
-
-                    {(isVpn && storageData) || (isProxy && subscriptionUrl) ? (
+                    {hasProxyAppUrls ? (
+                      <Timeline active={1} bulletSize={24} lineWidth={2}>
+                        <Timeline.Item bullet={<IconDownload size={12} />} title={t('services.stepDownloadApp')}>
+                          <AppDownloadBlock type="proxy" />
+                        </Timeline.Item>
+                        <Timeline.Item bullet={<IconDeviceMobileCog size={12} />} title={t('services.stepConfigureApp') + ' ' + (urlSchema ? t('services.deviceConfig') : t('services.openSubLink'))}>
+                          <Group gap="xs" mt="xs">
+                            <Button
+                              leftSection={<IconQrcode size={16} />}
+                              variant="light"
+                              onClick={() => setQrModalOpen(true)}
+                            >
+                              {t('services.qrCode')}
+                            </Button>
+                            <Button
+                              component="a"
+                              color="green"
+                              onClick={() => urlSchema ? handleOpenUrlSchema() : handleConfigure()}
+                              leftSection={<IconDeviceMobileCog size={16} />}
+                              variant="light"
+                            >
+                              {urlSchema ? t('services.deviceConfig') : t('services.openSubLink')}
+                            </Button>
+                          </Group>
+                        </Timeline.Item>
+                      </Timeline>
+                    ) : (
+                    <Group gap="xs" mt="xs">
                       <Button
                         leftSection={<IconQrcode size={16} />}
                         variant="light"
@@ -439,33 +494,68 @@ function ServiceDetail({ service, onDelete, onChangeTariff }: ServiceDetailProps
                       >
                         {t('services.qrCode')}
                       </Button>
-                    ) : null}
-                    <Button
-                      component="a"
-                      color="green"
-                      onClick={() => handleConfigure()}
-                      leftSection={<IconDeviceMobileCog size={16} />}
-                      variant="light"
-                    >
-                      {t('services.DeviceConfig')}
-                    </Button>
+                      <Button
+                        component="a"
+                        color="green"
+                        onClick={() => handleConfigure()}
+                        leftSection={<IconDeviceMobileCog size={16} />}
+                        variant="light"
+                      >
+                        {t('services.openSubLink')}
+                      </Button>
+                    </Group>
+                    )}
                   </Group>
                 </Paper>
               )}
-
-              <Group>
-
-              {isVpn && storageData && (
-                <Button
-                  leftSection={<IconDownload size={16} />}
-                  variant="light"
-                  onClick={downloadConfig}
-                  loading={downloading}
-                >
-                  {t('services.downloadConfig')}
-                </Button>
+              { isVpn && storageData && (
+                <Paper withBorder p="md" radius="md">
+                  {hasVpnAppUrls ? (
+                    <Timeline active={1} bulletSize={24} lineWidth={2}>
+                      <Timeline.Item bullet={<IconDownload size={12} />} title={t('services.stepDownloadApp')}>
+                        <AppDownloadBlock type="vpn" />
+                      </Timeline.Item>
+                      <Timeline.Item bullet={<IconDeviceMobileCog size={12} />} title={t('services.stepConfigureApp') + ' ' +  (t('services.downloadConfig'))}>
+                        <Group gap="xs" mt="xs">
+                          <Button
+                            leftSection={<IconQrcode size={16} />}
+                            variant="light"
+                            onClick={() => setQrModalOpen(true)}
+                            >
+                              {t('services.qrCode')}
+                            </Button>
+                          <Button
+                            leftSection={<IconDownload size={16} />}
+                            variant="light"
+                            onClick={downloadConfig}
+                            loading={downloading}
+                          >
+                            {t('services.downloadConfig')}
+                          </Button>
+                        </Group>
+                      </Timeline.Item>
+                    </Timeline>
+                    ) : (
+                    <Group gap="xs" mt="xs">
+                      <Button
+                        leftSection={<IconQrcode size={16} />}
+                        variant="light"
+                        onClick={() => setQrModalOpen(true)}
+                      >
+                        {t('services.qrCode')}
+                      </Button>
+                      <Button
+                        leftSection={<IconDownload size={16} />}
+                        variant="light"
+                        onClick={downloadConfig}
+                        loading={downloading}
+                      >
+                        {t('services.downloadConfig')}
+                      </Button>
+                    </Group>
+                  )}
+                </Paper>
               )}
-              </Group>
 
               <QrModal
                 opened={qrModalOpen}
@@ -836,18 +926,12 @@ export default function Services() {
           <Button leftSection={<IconPlus size={16} />} onClick={ config.EMAIL_VERIFY_REQUIRED === "true" && !userEmailVerified ? () => setConfirmEmailNotVerified(true) : openOrderModal}>
             {t('services.orderService')}
           </Button>
-          <Button leftSection={<IconRefresh size={16} />} variant="light" onClick={() => fetchServices()}>
+          <Button leftSection={<IconRefresh size={16} />} variant="light" color="cyan" onClick={() => fetchServices()}>
             {t('common.refresh')}
           </Button>
         </Group>
       </Group>
 
-      <Card withBorder radius="md" p="lg">
-        <Group justify="space-between" mb="sm">
-          <Text fw={500}>{t('apps.downloadTitle')}</Text>
-        </Group>
-        <AppDownloadBlock />
-      </Card>
       {Object.keys(groupedServices).length === 0 ? (
         <Paper withBorder p="xl" radius="md">
           <Center>

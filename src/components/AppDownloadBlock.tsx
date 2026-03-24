@@ -4,7 +4,6 @@ import {
   IconBrandApple,
   IconBrandAndroid,
   IconBrandUbuntu,
-  IconDeviceTv,
   IconDownload,
   IconChevronDown,
 } from '@tabler/icons-react';
@@ -17,6 +16,10 @@ interface AppPlatform {
   url: string;
   icon: React.ReactNode;
   detect: () => boolean;
+}
+
+interface AppDownloadBlockProps {
+  type?: 'vpn' | 'proxy';
 }
 
 function getIconColor(key: string) {
@@ -42,58 +45,56 @@ function detectPlatform(): string {
   return '';
 }
 
-export default function AppDownloadBlock() {
+export default function AppDownloadBlock({ type }: AppDownloadBlockProps) {
   const { t } = useTranslation();
   const downloadLabel = t('services.download');
+
+  function resolveName(vpnName: string, proxyName: string): string {
+    if (type === 'vpn') return vpnName || downloadLabel;
+    if (type === 'proxy') return proxyName || downloadLabel;
+    return downloadLabel;
+  }
+
+  function resolveUrl(vpnUrl: string, proxyUrl: string): string {
+    if (type === 'vpn') return vpnUrl || '';
+    if (type === 'proxy') return proxyUrl || '';
+    return '';
+  }
 
   const allPlatforms: AppPlatform[] = [
     {
       key: 'windows',
-      name: config.WINDOWS_APP_NAME || downloadLabel,
-      url: config.APP_WINDOWS_URL,
+      name: resolveName(config.VPN_WINDOWS_APP_NAME, config.PROXY_WINDOWS_APP_NAME),
+      url: resolveUrl(config.VPN_APP_WINDOWS_URL, config.PROXY_APP_WINDOWS_URL),
       icon: <IconBrandWindows size={20} color={getIconColor('windows')} />,
       detect: () => false,
     },
     {
       key: 'linux',
-      name: config.LINUX_APP_NAME || downloadLabel,
-      url: config.APP_LINUX_URL,
+      name: resolveName(config.VPN_LINUX_APP_NAME, config.PROXY_LINUX_APP_NAME),
+      url: resolveUrl(config.VPN_APP_LINUX_URL, config.PROXY_APP_LINUX_URL),
       icon: <IconBrandUbuntu size={20} color={getIconColor('linux')} />,
       detect: () => false,
     },
     {
       key: 'macos',
-      name: config.MAC_APP_NAME || downloadLabel,
-      url: config.APP_MAC_URL,
+      name: resolveName(config.VPN_MAC_APP_NAME, config.PROXY_MAC_APP_NAME),
+      url: resolveUrl(config.VPN_APP_MAC_URL, config.PROXY_APP_MAC_URL),
       icon: <IconBrandApple size={20} color={getIconColor('macos')} />,
       detect: () => false,
     },
     {
       key: 'ios',
-      name: config.IOS_APP_NAME || downloadLabel,
-      url: config.APP_IOS_URL,
+      name: resolveName(config.VPN_IOS_APP_NAME, config.PROXY_IOS_APP_NAME),
+      url: resolveUrl(config.VPN_APP_IOS_URL, config.PROXY_APP_IOS_URL),
       icon: <IconBrandApple size={20} color={getIconColor('ios')} />,
       detect: () => false,
     },
     {
       key: 'android',
-      name: config.ANDROID_APP_NAME || downloadLabel,
-      url: config.APP_ANDROID_URL,
+      name: resolveName(config.VPN_ANDROID_APP_NAME, config.PROXY_ANDROID_APP_NAME),
+      url: resolveUrl(config.VPN_APP_ANDROID_URL, config.PROXY_APP_ANDROID_URL),
       icon: <IconBrandAndroid size={20} color={getIconColor('android')} />,
-      detect: () => false,
-    },
-    {
-      key: 'apple_tv',
-      name: config.APPLE_TV_APP_NAME || downloadLabel,
-      url: config.APP_APPLE_TV_URL,
-      icon: <IconDeviceTv size={20} color={getIconColor('macos')} />,
-      detect: () => false,
-    },
-    {
-      key: 'androidtv',
-      name: config.ANDROID_TV_APP_NAME || downloadLabel,
-      url: config.APP_ANDROID_TV_URL,
-      icon: <IconDeviceTv size={20} color={getIconColor('androidtv')} />,
       detect: () => false,
     },
   ].filter((p) => !!p.url);

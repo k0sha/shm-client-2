@@ -221,7 +221,7 @@ export interface PasskeyAuthOptions {
 export const passkeyApi = {
   list: () => api.get<{ data: { credentials: PasskeyCredential[]; enabled: boolean } }>('/user/passkey'),
   rename: (credentialId: string, name: string) => api.post('/user/passkey', { credential_id: credentialId, name }),
-  delete: (credentialId: string) => api.delete('/user/passkey/delete' + encodeURIComponent(credentialId)),
+  delete: (credentialId: string) => api.delete('/user/passkey', { params: { credential_id: credentialId } }),
   registerOptions: () => api.get<{ data: PasskeyRegisterOptions }>('/user/passkey/register'),
   registerComplete: (data: {
     credential_id: string;

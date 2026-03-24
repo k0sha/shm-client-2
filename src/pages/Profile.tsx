@@ -17,6 +17,7 @@ const RESEND_STORAGE_KEY = 'email_verify_last_sent';
 interface UserProfile {
   user_id: number;
   login: string;
+  login2: string;
   full_name?: string;
   phone?: string;
   balance: number;
@@ -24,7 +25,6 @@ interface UserProfile {
   discount: number;
   bonus: number;
   gid: number;
-  telegram_user_id?: number;
 }
 
 interface ForecastNextItem {
@@ -65,7 +65,7 @@ export default function Profile() {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
-  const [formData, setFormData] = useState({ full_name: '', phone: '' });
+  const [formData, setFormData] = useState({ full_name: '', phone: '', login2: '' });
   const [telegramUsername, setTelegramUsername] = useState<string | null>(null);
   const [telegramLoading, setTelegramLoading] = useState(false);
   const [payModalOpen, setPayModalOpen] = useState(false);
@@ -125,7 +125,8 @@ export default function Profile() {
         setProfile(data);
         setFormData({
           full_name: data.full_name || '',
-          phone: data.phone || ''
+          phone: data.phone || '',
+          login2: data.login2 || '',
         });
         try {
           const forecastResponse = await userApi.getForecast();
@@ -437,10 +438,10 @@ export default function Profile() {
             <Group justify="space-between" align="center">
               <div>
                 <Group gap="xs" align="baseline">
-                  {t('profile.balance')}: <Text color="green" size="xl" fw={700}>{profile.balance?.toFixed(2) || '0.00'} {t('common.currency')}</Text>
+                  {t('profile.balance')}: <Text c="cyan" size="xl" fw={700}>{profile.balance || '0.00'} {t('common.currency')}</Text>
                 </Group>
               </div>
-              <Button leftSection={<IconCreditCard size={18} />} color="green" onClick={() => { setPayModalAmount(forecast?.total ?? undefined); setPayModalOpen(true); }}>
+              <Button leftSection={<IconCreditCard size={18} />} color="cyan" onClick={() => { setPayModalAmount(forecast?.total ?? undefined); setPayModalOpen(true); }}>
                 {t('profile.topUp')}
               </Button>
             </Group>
@@ -451,7 +452,7 @@ export default function Profile() {
               <div>
                   <Text size="xm" c="dimmed">{t('profile.bonus')}: {profile.bonus}</Text>
               </div>
-              <Button onClick={() => setPromoModalOpen(true)} color="green">
+              <Button onClick={() => setPromoModalOpen(true)} color="cyan">
                 {t('profile.enterPromo')}
               </Button>
             </Group>
@@ -488,13 +489,26 @@ export default function Profile() {
                 onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
                 disabled={!editing}
               />
-              <TextInput
-                label={t('profile.phone')}
-                leftSection={<IconPhone size={16} />}
-                value={formData.phone}
-                onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                disabled={!editing}
-              />
+              {/* <Grid>
+                <Grid.Col span={{ base: 12, sm: 6 }}>
+                  <TextInput
+                    label={t('profile.login2')}
+                    leftSection={<IconBrandTelegram size={16} />}
+                    value={formData.login2}
+                    onChange={(e) => setFormData({ ...formData, login2: e.target.value })}
+                    disabled={!editing}
+                  />
+                </Grid.Col>
+                <Grid.Col span={{ base: 12, sm: 6 }}> */}
+                  <TextInput
+                    label={t('profile.phone')}
+                    leftSection={<IconPhone size={16} />}
+                    value={formData.phone}
+                    onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                    disabled={!editing}
+                  />
+                {/* </Grid.Col>
+              </Grid> */}
             </Stack>
             <Divider my="md" />
 
@@ -550,7 +564,7 @@ export default function Profile() {
             <div>
               <Text fw={500}>{t('profile.forecast')}</Text>
               <Text size="sm" c={forecast.total > 0 ? 'red' : 'green'} fw={600}>
-                {t('profile.toPay')}: {forecast.total.toFixed(2)} {t('common.currency')}
+                {t('profile.toPay')}: {forecast.total} {t('common.currency')}
               </Text>
             </div>
             {forecastOpen ? <IconChevronUp size={20} /> : <IconChevronDown size={20} />}
@@ -580,7 +594,7 @@ export default function Profile() {
                       </div>
                       <div style={{ textAlign: 'right' }}>
                         <Text size="sm" c="dimmed">
-                          {item.total.toFixed(2)} {t('common.currency')}
+                          {item.total} {t('common.currency')}
                         </Text>
                         <Text size="xs" c={item.status === 'NOT PAID' ? 'red' : 'green'}>
                           {t(`status.${item.status}`)}
@@ -600,7 +614,7 @@ export default function Profile() {
                         </div>
                         <div style={{ textAlign: 'right' }}>
                           <Text size="sm" fw={700} c="red">
-                            {item.next.total.toFixed(2)} {t('common.currency')}
+                            {item.next.total} {t('common.currency')}
                           </Text>
                         </div>
                       </Group>
@@ -612,12 +626,12 @@ export default function Profile() {
                 <Card withBorder radius="sm" p="sm" bg={colorScheme === 'dark' ? 'rgba(239, 68, 68, 0.15)' : 'red.0'}>
                   <Group justify="space-between" wrap="nowrap">
                     <Text size="sm" fw={500} c="red">{t('profile.debt')}</Text>
-                    <Text size="sm" fw={700} c="red">{forecast.dept.toFixed(2)} {t('common.currency')}</Text>
+                    <Text size="sm" fw={700} c="red">{forecast.dept} {t('common.currency')}</Text>
                   </Group>
                 </Card>
               )}
               <Button leftSection={<IconCreditCard size={18} />} onClick={() => { setPayModalAmount(forecast?.total ?? undefined); setPayModalOpen(true); }}>
-                {t('profile.toPay')} {forecast.total.toFixed(2)} {t('common.currency')}
+                {t('profile.toPay')} {forecast.total} {t('common.currency')}
               </Button>
             </Stack>
           </Collapse>

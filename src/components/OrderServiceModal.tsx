@@ -159,7 +159,7 @@ export default function OrderServiceModal({
     setLoading(true);
     try {
       const response = await servicesApi.order_list(
-        isChangeMode && currentService?.category ? { category: currentService.category } : undefined
+        config.SERVICE_CHANGE_ALL_CATEGORY === 'false' && isChangeMode && currentService?.category ? { category: currentService.category } : undefined
       );
       const data: OrderService[] = response.data.data || [];
       const filtered = isChangeMode && currentService?.service_id
@@ -428,7 +428,7 @@ export default function OrderServiceModal({
             <Stack gap="sm">
               {config.ALLOW_SERVICE_CHANGE_FORCE === 'false' && canDeferChange && (
                 <Checkbox
-                  label={t('services.changeAfterEnd')}
+                  label={selectedService.partial_renew ? t('services.changeAfterEndRenewal') : t('services.changeAfterEnd')}
                   checked={finishAfterActive}
                   onChange={(event) => setFinishAfterActive(event.currentTarget.checked)}
                 />

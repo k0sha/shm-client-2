@@ -25,21 +25,35 @@ interface AppConfig {
   ALLOW_SERVICE_DELETE: string;
   ALLOW_SERVICE_CHANGE: string;
   ALLOW_SERVICE_CHANGE_FORCE: string;
+  SERVICE_CHANGE_ALL_CATEGORY: string;
   ALLOW_TELEGRAM_PIN: string;
-  APP_WINDOWS_URL: string;
-  APP_LINUX_URL: string;
-  APP_MAC_URL: string;
-  APP_IOS_URL: string;
-  APP_ANDROID_URL: string;
-  APP_APPLE_TV_URL: string;
-  APP_ANDROID_TV_URL: string;
-  WINDOWS_APP_NAME: string;
-  LINUX_APP_NAME: string;
-  MAC_APP_NAME: string;
-  IOS_APP_NAME: string;
-  ANDROID_APP_NAME: string;
+  VPN_APP_WINDOWS_URL: string;
+  VPN_APP_LINUX_URL: string;
+  VPN_APP_MAC_URL: string;
+  VPN_APP_IOS_URL: string;
+  VPN_APP_ANDROID_URL: string;
+  PROXY_APP_WINDOWS_URL: string;
+  PROXY_APP_LINUX_URL: string;
+  PROXY_APP_MAC_URL: string;
+  PROXY_APP_IOS_URL: string;
+  PROXY_APP_ANDROID_URL: string;
+  VPN_WINDOWS_APP_NAME: string;
+  VPN_LINUX_APP_NAME: string;
+  VPN_MAC_APP_NAME: string;
+  VPN_IOS_APP_NAME: string;
+  VPN_ANDROID_APP_NAME: string;
+  PROXY_WINDOWS_APP_NAME: string;
+  PROXY_LINUX_APP_NAME: string;
+  PROXY_MAC_APP_NAME: string;
+  PROXY_IOS_APP_NAME: string;
+  PROXY_ANDROID_APP_NAME: string;
   APPLE_TV_APP_NAME: string;
   ANDROID_TV_APP_NAME: string;
+  WINDOWS_PROXY_URL_SCHEMA: string;
+  LINUX_PROXY_URL_SCHEMA: string;
+  MAC_PROXY_URL_SCHEMA: string;
+  IOS_PROXY_URL_SCHEMA: string;
+  ANDROID_PROXY_URL_SCHEMA: string;
   CAPTCHA_ENABLED: string;
 }
 
@@ -73,28 +87,43 @@ function getConfig(): AppConfig {
     VPN_CATEGORY_TITLE: runtimeConfig?.VPN_CATEGORY_TITLE || import.meta.env.VITE_VPN_CATEGORY_TITLE|| '',
     VPN_STORAGE_PREFIX: runtimeConfig?.VPN_STORAGE_PREFIX || import.meta.env.VITE_VPN_STORAGE_PREFIX || '',
     VISIBLE_CATEGORIES: runtimeConfig?.VISIBLE_CATEGORIES || import.meta.env.VITE_VISIBLE_CATEGORIES || '',
-    EMAIL_REQUIRED: runtimeConfig?.EMAIL_REQUIRED || import.meta.env.VITE_EMAIL_REQUIRED || 'false',
+    EMAIL_REQUIRED: runtimeConfig?.EMAIL_REQUIRED || import.meta.env.VITE_EMAIL_REQUIRED || 'true',
     EMAIL_VERIFY_REQUIRED: runtimeConfig?.EMAIL_VERIFY_REQUIRED || import.meta.env.VITE_EMAIL_VERIFY_REQUIRED || 'false',
     ALLOW_SERVICE_BLOCKED: runtimeConfig?.ALLOW_SERVICE_BLOCKED || import.meta.env.VITE_ALLOW_SERVICE_BLOCKED || 'true',
     ALLOW_SERVICE_DELETE: runtimeConfig?.ALLOW_SERVICE_DELETE || import.meta.env.VITE_ALLOW_SERVICE_DELETE || 'true',
     ALLOW_SERVICE_CHANGE: runtimeConfig?.ALLOW_SERVICE_CHANGE || import.meta.env.VITE_ALLOW_SERVICE_CHANGE || 'true',
     ALLOW_SERVICE_CHANGE_FORCE: runtimeConfig?.ALLOW_SERVICE_CHANGE_FORCE || import.meta.env.VITE_ALLOW_SERVICE_CHANGE_FORCE || 'false',
-    ALLOW_TELEGRAM_PIN: runtimeConfig?.ALLOW_TELEGRAM_PIN || import.meta.env.VITE_ALLOW_TELEGRAM_PIN || 'true',
-    APP_WINDOWS_URL: runtimeConfig?.APP_WINDOWS_URL || import.meta.env.VITE_APP_WINDOWS_URL || 'https://github.com/Happ-proxy/happ-desktop/releases/latest/download/setup-Happ.x64.exe',
-    APP_LINUX_URL: runtimeConfig?.APP_LINUX_URL || import.meta.env.VITE_APP_LINUX_URL || 'https://github.com/Happ-proxy/happ-desktop/releases/latest/download/Happ.linux.x64.deb',
-    APP_MAC_URL: runtimeConfig?.APP_MAC_URL || import.meta.env.VITE_APP_MAC_URL || 'https://apps.apple.com/ru/app/happ-proxy-utility-plus/id6746188973',
-    APP_IOS_URL: runtimeConfig?.APP_IOS_URL || import.meta.env.VITE_APP_IOS_URL || 'https://apps.apple.com/ru/app/happ-proxy-utility-plus/id6746188973',
-    APP_ANDROID_URL: runtimeConfig?.APP_ANDROID_URL || import.meta.env.VITE_APP_ANDROID_URL || 'https://play.google.com/store/apps/details?id=com.happproxy',
-    APP_APPLE_TV_URL: runtimeConfig?.APP_APPLE_TV_URL || import.meta.env.VITE_APP_APPLE_TV_URL || 'https://apps.apple.com/us/app/happ-proxy-utility-for-tv/id6748297274',
-    APP_ANDROID_TV_URL: runtimeConfig?.APP_ANDROID_TV_URL || import.meta.env.VITE_APP_ANDROID_TV_URL || 'https://play.google.com/store/apps/details?id=com.happproxy',
-    WINDOWS_APP_NAME: runtimeConfig?.WINDOWS_APP_NAME || import.meta.env.VITE_WINDOWS_APP_NAME || 'Скачать для Windows',
-    LINUX_APP_NAME: runtimeConfig?.LINUX_APP_NAME || import.meta.env.VITE_LINUX_APP_NAME || 'Скачать для Linux',
-    MAC_APP_NAME: runtimeConfig?.MAC_APP_NAME || import.meta.env.VITE_MAC_APP_NAME || 'Скачать для Mac',
-    IOS_APP_NAME: runtimeConfig?.IOS_APP_NAME || import.meta.env.VITE_IOS_APP_NAME || 'Скачать для iOS',
-    ANDROID_APP_NAME: runtimeConfig?.ANDROID_APP_NAME || import.meta.env.VITE_ANDROID_APP_NAME || 'Скачать для Android',
+    SERVICE_CHANGE_ALL_CATEGORY: runtimeConfig?.SERVICE_CHANGE_ALL_CATEGORY || import.meta.env.VITE_SERVICE_CHANGE_ALL_CATEGORY || 'true',
+    ALLOW_TELEGRAM_PIN: runtimeConfig?.ALLOW_TELEGRAM_PIN || import.meta.env.VITE_ALLOW_TELEGRAM_PIN || 'false',
+    VPN_APP_WINDOWS_URL: runtimeConfig?.VPN_APP_WINDOWS_URL || import.meta.env.VITE_VPN_APP_WINDOWS_URL || '',
+    VPN_APP_LINUX_URL: runtimeConfig?.VPN_APP_LINUX_URL || import.meta.env.VITE_VPN_APP_LINUX_URL || '',
+    VPN_APP_MAC_URL: runtimeConfig?.VPN_APP_MAC_URL || import.meta.env.VITE_VPN_APP_MAC_URL || '',
+    VPN_APP_IOS_URL: runtimeConfig?.VPN_APP_IOS_URL || import.meta.env.VITE_VPN_APP_IOS_URL || '',
+    VPN_APP_ANDROID_URL: runtimeConfig?.VPN_APP_ANDROID_URL || import.meta.env.VITE_VPN_APP_ANDROID_URL || '',
+    PROXY_APP_WINDOWS_URL: runtimeConfig?.PROXY_APP_WINDOWS_URL || import.meta.env.VITE_PROXY_APP_WINDOWS_URL || '',
+    PROXY_APP_LINUX_URL: runtimeConfig?.PROXY_APP_LINUX_URL || import.meta.env.VITE_PROXY_APP_LINUX_URL || '',
+    PROXY_APP_MAC_URL: runtimeConfig?.PROXY_APP_MAC_URL || import.meta.env.VITE_PROXY_APP_MAC_URL || 'https://admin.vpnchr.com/downloads/proxy-macos.dmg',
+    PROXY_APP_IOS_URL: runtimeConfig?.PROXY_APP_IOS_URL || import.meta.env.VITE_PROXY_APP_IOS_URL || '',
+    PROXY_APP_ANDROID_URL: runtimeConfig?.PROXY_APP_ANDROID_URL || import.meta.env.VITE_PROXY_APP_ANDROID_URL || '',
+    VPN_WINDOWS_APP_NAME: runtimeConfig?.VPN_WINDOWS_APP_NAME || import.meta.env.VITE_VPN_WINDOWS_APP_NAME || 'Скачать для Windows',
+    VPN_LINUX_APP_NAME: runtimeConfig?.VPN_LINUX_APP_NAME || import.meta.env.VITE_VPN_LINUX_APP_NAME || 'Скачать для Linux',
+    VPN_MAC_APP_NAME: runtimeConfig?.VPN_MAC_APP_NAME || import.meta.env.VITE_VPN_MAC_APP_NAME || 'Скачать для Mac',
+    VPN_IOS_APP_NAME: runtimeConfig?.VPN_IOS_APP_NAME || import.meta.env.VITE_VPN_IOS_APP_NAME || 'Скачать для iOS',
+    VPN_ANDROID_APP_NAME: runtimeConfig?.VPN_ANDROID_APP_NAME || import.meta.env.VITE_VPN_ANDROID_APP_NAME || 'Скачать для Android',
+    PROXY_WINDOWS_APP_NAME: runtimeConfig?.PROXY_WINDOWS_APP_NAME || import.meta.env.VITE_PROXY_WINDOWS_APP_NAME || 'Скачать для Windows',
+    PROXY_LINUX_APP_NAME: runtimeConfig?.PROXY_LINUX_APP_NAME || import.meta.env.VITE_PROXY_LINUX_APP_NAME || 'Скачать для Linux',
+    PROXY_MAC_APP_NAME: runtimeConfig?.PROXY_MAC_APP_NAME || import.meta.env.VITE_PROXY_MAC_APP_NAME || 'Скачать для Mac',
+    PROXY_IOS_APP_NAME: runtimeConfig?.PROXY_IOS_APP_NAME || import.meta.env.VITE_PROXY_IOS_APP_NAME || 'Скачать для iOS',
+    PROXY_ANDROID_APP_NAME: runtimeConfig?.PROXY_ANDROID_APP_NAME || import.meta.env.VITE_PROXY_ANDROID_APP_NAME || 'Скачать для Android',
     APPLE_TV_APP_NAME: runtimeConfig?.APPLE_TV_APP_NAME || import.meta.env.VITE_APPLE_TV_APP_NAME || 'Скачать для Apple TV',
     ANDROID_TV_APP_NAME: runtimeConfig?.ANDROID_TV_APP_NAME || import.meta.env.VITE_ANDROID_TV_APP_NAME || 'Скачать для Android TV',
-    CAPTCHA_ENABLED: runtimeConfig?.CAPTCHA_ENABLED || import.meta.env.VITE_CAPTCHA_ENABLED || 'false',
+    WINDOWS_PROXY_URL_SCHEMA: runtimeConfig?.WINDOWS_PROXY_URL_SCHEMA || import.meta.env.VITE_WINDOWS_PROXY_URL_SCHEMA || '',
+    LINUX_PROXY_URL_SCHEMA: runtimeConfig?.LINUX_PROXY_URL_SCHEMA || import.meta.env.VITE_LINUX_PROXY_URL_SCHEMA || '',
+    MAC_PROXY_URL_SCHEMA: runtimeConfig?.MAC_PROXY_URL_SCHEMA || import.meta.env.VITE_MAC_PROXY_URL_SCHEMA || 'happ://add/',
+    IOS_PROXY_URL_SCHEMA: runtimeConfig?.IOS_PROXY_URL_SCHEMA || import.meta.env.VITE_IOS_PROXY_URL_SCHEMA || '',
+    ANDROID_PROXY_URL_SCHEMA: runtimeConfig?.ANDROID_PROXY_URL_SCHEMA || import.meta.env.VITE_ANDROID_PROXY_URL_SCHEMA || '',
+    CAPTCHA_ENABLED: 'false',
+    // CAPTCHA_ENABLED: runtimeConfig?.CAPTCHA_ENABLED || import.meta.env.VITE_CAPTCHA_ENABLED || 'false',
   };
 }
 

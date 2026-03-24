@@ -44,7 +44,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [passkeyLoading, setPasskeyLoading] = useState(false);
   const [loginOrEmail, setLoginOrEmail] = useState('');
-  const requireEmailRegister = config.EMAIL_REQUIRED === 'true' && config.EMAIL_VERIFY_REQUIRED === 'true';
+  const requireEmailRegister = config.EMAIL_REQUIRED === 'true';
   const [captcha, setCaptcha] = useState<{ question: string; token: string } | null>(null);
   const [captchaAnswer, setCaptchaAnswer] = useState('');
   const [showOtp, setShowOtp] = useState(false);

@@ -83,7 +83,7 @@ export default function PayModal({ opened, onClose, initialAmount }: PayModalPro
       notifications.show({
         title: t('common.success'),
         message: t('payments.autopaymentDeleted'),
-        color: 'green',
+        color: 'cyan',
       });
       setDeleteConfirmOpen(false);
       setAutopaymentToDelete(null);
@@ -123,7 +123,7 @@ export default function PayModal({ opened, onClose, initialAmount }: PayModalPro
           notifications.show({
             title: t('common.success'),
             message: t('payments.paymentSuccess'),
-            color: 'green',
+            color: 'cyan',
           });
           onClose();
         } else {

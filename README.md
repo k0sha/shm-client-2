@@ -31,7 +31,7 @@ services:
 #   admin:
 #     ...
   client:
-    image: bkeenke/shm-client:latest
+    image: danuk/shm-client-2:latest
     pull_policy: always
     restart: always
     ports:
@@ -77,21 +77,35 @@ services:
 | `ALLOW_SERVICE_DELETE` | Разрешить пользователю удалять услугу | true |
 | `ALLOW_SERVICE_CHANGE` | Разрешить пользователю сменить услугу | true |
 | `ALLOW_SERVICE_CHANGE_FORCE` | Разрешить сменить услугу сразу (не спрашивая пользователя) | false |
+| `SERVICE_CHANGE_ALL_CATEGORY` | Разрешить сменить услугу на все доступные категории ( если false то можно сменить только на такую же категорию как и в текущей услуге)| true |
 | `ALLOW_TELEGRAM_PIN` | Разрешить привязку аккаунта Telegram | true |
-| `APP_WINDOWS_URL` | Ссылка на скачивание приложения для Windows | - |
-| `APP_LINUX_URL` | Ссылка на скачивание приложения для Linux | - |
-| `APP_MAC_URL` | Ссылка на скачивание приложения для macOS | - |
-| `APP_IOS_URL` | Ссылка на скачивание приложения для iOS | - |
-| `APP_ANDROID_URL` | Ссылка на скачивание приложения для Android | - |
-| `APP_APPLE_TV_URL` | Ссылка на скачивание приложения для Apple TV | - |
-| `APP_ANDROID_TV_URL` | Ссылка на скачивание приложения для Android TV | - |
-| `WINDOWS_APP_NAME` | Название кнопки скачивания для Windows | `Скачать для Windows` |
-| `LINUX_APP_NAME` | Название кнопки скачивания для Linux | `Скачать для Linux` |
-| `MAC_APP_NAME` | Название кнопки скачивания для macOS | `Скачать для Mac` |
-| `IOS_APP_NAME` | Название кнопки скачивания для iOS | `Скачать для iOS` |
-| `ANDROID_APP_NAME` | Название кнопки скачивания для Android | `Скачать для Android` |
+| `VPN_APP_WINDOWS_URL` | Ссылка на скачивание VPN-приложения для Windows | - |
+| `VPN_APP_LINUX_URL` | Ссылка на скачивание VPN-приложения для Linux | - |
+| `VPN_APP_MAC_URL` | Ссылка на скачивание VPN-приложения для macOS | - |
+| `VPN_APP_IOS_URL` | Ссылка на скачивание VPN-приложения для iOS | - |
+| `VPN_APP_ANDROID_URL` | Ссылка на скачивание VPN-приложения для Android | - |
+| `PROXY_APP_WINDOWS_URL` | Ссылка на скачивание Proxy-приложения для Windows | - |
+| `PROXY_APP_LINUX_URL` | Ссылка на скачивание Proxy-приложения для Linux | - |
+| `PROXY_APP_MAC_URL` | Ссылка на скачивание Proxy-приложения для macOS | - |
+| `PROXY_APP_IOS_URL` | Ссылка на скачивание Proxy-приложения для iOS | - |
+| `PROXY_APP_ANDROID_URL` | Ссылка на скачивание Proxy-приложения для Android | - |
+| `VPN_WINDOWS_APP_NAME` | Название кнопки VPN для Windows | `Скачать для Windows` |
+| `VPN_LINUX_APP_NAME` | Название кнопки VPN для Linux | `Скачать для Linux` |
+| `VPN_MAC_APP_NAME` | Название кнопки VPN для macOS | `Скачать для Mac` |
+| `VPN_IOS_APP_NAME` | Название кнопки VPN для iOS | `Скачать для iOS` |
+| `VPN_ANDROID_APP_NAME` | Название кнопки VPN для Android | `Скачать для Android` |
+| `PROXY_WINDOWS_APP_NAME` | Название кнопки Proxy для Windows | `Скачать для Windows` |
+| `PROXY_LINUX_APP_NAME` | Название кнопки Proxy для Linux | `Скачать для Linux` |
+| `PROXY_MAC_APP_NAME` | Название кнопки Proxy для macOS | `Скачать для Mac` |
+| `PROXY_IOS_APP_NAME` | Название кнопки Proxy для iOS | `Скачать для iOS` |
+| `PROXY_ANDROID_APP_NAME` | Название кнопки Proxy для Android | `Скачать для Android` |
 | `APPLE_TV_APP_NAME` | Название кнопки скачивания для Apple TV | `Скачать для Apple TV` |
 | `ANDROID_TV_APP_NAME` | Название кнопки скачивания для Android TV | `Скачать для Android TV` |
+| `WINDOWS_PROXY_URL_SCHEMA` | URL-схема для открытия подписки на Windows | `` |
+| `LINUX_PROXY_URL_SCHEMA` | URL-схема для открытия подписки на Linux | `` |
+| `MAC_PROXY_URL_SCHEMA` | URL-схема для открытия подписки на macOS | `` |
+| `IOS_PROXY_URL_SCHEMA` | URL-схема для открытия подписки на iOS | `` |
+| `ANDROID_PROXY_URL_SCHEMA` | URL-схема для открытия подписки на Android | `` |
 
 
 ### Telegram Widget
