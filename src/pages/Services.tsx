@@ -13,6 +13,7 @@ import AppDownloadBlock from '../components/AppDownloadBlock';
 import { config } from '../config';
 import { useStore } from '../store/useStore';
 import { isTelegramWebApp } from '../constants/webapp';
+import { prettifyServiceName } from '../utils/serviceName';
 
 interface ForecastItem {
   name: string;
@@ -382,7 +383,7 @@ function ServiceDetail({ service, onDelete, onChangeTariff }: ServiceDetailProps
     <Stack gap="md">
       <Group justify="space-between">
         <div>
-          <Text fw={700} size="lg">#{service.user_service_id} - {service.service.name}</Text>
+          <Text fw={700} size="lg">#{service.user_service_id} - {prettifyServiceName(service.service.name)}</Text>
           <Badge color={statusColor} variant="light">
             {statusLabel}
           </Badge>
@@ -417,7 +418,7 @@ function ServiceDetail({ service, onDelete, onChangeTariff }: ServiceDetailProps
                 {nextServiceLoading ? (
                   <Text size="sm">{t('common.loading')}</Text>
                 ) : nextServiceInfo ? (
-                  <Text size="sm">{nextServiceInfo.name} - {nextServiceInfo.cost} {t('common.currency')}</Text>
+                  <Text size="sm">{prettifyServiceName(nextServiceInfo.name)} - {nextServiceInfo.cost} {t('common.currency')}</Text>
                 ) : (
                   <Text size="sm">{service.next}</Text>
                 )}
@@ -431,7 +432,7 @@ function ServiceDetail({ service, onDelete, onChangeTariff }: ServiceDetailProps
                   const childStatusLabel = t(`status.${child.status}`, child.status);
                   return (
                     <Group key={child.user_service_id} justify="space-between" ml="md">
-                      <Text size="sm">{child.service.name}</Text>
+                      <Text size="sm">{prettifyServiceName(child.service.name)}</Text>
                       <Badge size="sm" color={childStatusColor} variant="light">{childStatusLabel}</Badge>
                     </Group>
                   );
@@ -735,7 +736,7 @@ function ServiceCard({ service, onClick, isChild = false, isLastChild = false }:
         >
           <Group justify="space-between">
             <div>
-              <Text fw={500} size="sm">#{service.user_service_id} - {service.service.name}</Text>
+              <Text fw={500} size="sm">#{service.user_service_id} - {prettifyServiceName(service.service.name)}</Text>
               {service.expire && (
                 <Text size="xs" c="dimmed">
                   {new Date(service.expire as string).toLocaleDateString(i18n.language === 'ru' ? 'ru-RU' : 'en-US')}
@@ -766,7 +767,7 @@ function ServiceCard({ service, onClick, isChild = false, isLastChild = false }:
     >
       <Group justify="space-between">
         <div>
-          <Text fw={500}>#{service.user_service_id} - {service.service.name}</Text>
+          <Text fw={500}>#{service.user_service_id} - {prettifyServiceName(service.service.name)}</Text>
           {service.expire && (
             <Text size="xs" c="dimmed">
               {new Date(service.expire as string).toLocaleDateString(i18n.language === 'ru' ? 'ru-RU' : 'en-US')}
