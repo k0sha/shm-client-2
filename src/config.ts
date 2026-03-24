@@ -13,6 +13,7 @@ interface AppConfig {
   PASSKEY_ENABLE: string;
   PASSKEY_AUTH_DISABLED: string;
   BITRIX_WIDGET_SCRIPT_URL: string;
+  PROXY_REDIRECT_URL: string;
   PROXY_CATEGORY: string;
   PROXY_CATEGORY_TITLE: string;
   PROXY_STORAGE_PREFIX?: string;
@@ -82,6 +83,7 @@ function getConfig(): AppConfig {
     PASSKEY_ENABLE: runtimeConfig?.PASSKEY_ENABLE || import.meta.env.VITE_PASSKEY_ENABLE || 'true',
     PASSKEY_AUTH_DISABLED: runtimeConfig?.PASSKEY_AUTH_DISABLED || import.meta.env.VITE_PASSKEY_AUTH_DISABLED || 'false',
     BITRIX_WIDGET_SCRIPT_URL: runtimeConfig?.BITRIX_WIDGET_SCRIPT_URL || import.meta.env.VITE_BITRIX_WIDGET_SCRIPT_URL || '',
+    PROXY_REDIRECT_URL: runtimeConfig?.PROXY_REDIRECT_URL || import.meta.env.VITE_PROXY_REDIRECT_URL || '',
     PROXY_CATEGORY: runtimeConfig?.PROXY_CATEGORY || import.meta.env.VITE_PROXY_CATEGORY || '',
     PROXY_CATEGORY_TITLE: runtimeConfig?.PROXY_CATEGORY_TITLE || import.meta.env.VITE_PROXY_CATEGORY_TITLE || '',
     PROXY_STORAGE_PREFIX: runtimeConfig?.PROXY_STORAGE_PREFIX || import.meta.env.VITE_PROXY_STORAGE_PREFIX || '',

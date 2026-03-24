@@ -14,6 +14,7 @@ import { config } from '../config';
 import { useStore } from '../store/useStore';
 import { isTelegramWebApp } from '../constants/webapp';
 import { prettifyServiceName } from '../utils/serviceName';
+import { buildRedirectLink } from '../utils/redirectLink';
 
 interface ForecastItem {
   name: string;
@@ -263,14 +264,14 @@ function ServiceDetail({ service, onDelete, onChangeTariff }: ServiceDetailProps
   };
 
   const handleConfigure = () => {
-    const link = subscriptionUrl;
-    if ( link ) {
-      const tgWebApp = window.Telegram?.WebApp;
-      if (tgWebApp && isTelegramWebApp) {
-        tgWebApp.openLink(link);
-      } else {
-        window.open(link, '_blank');
-      }
+    if (!subscriptionUrl) return;
+
+    const tgWebApp = window.Telegram?.WebApp;
+
+    if (tgWebApp && isTelegramWebApp) {
+      tgWebApp.openLink(buildRedirectLink(subscriptionUrl));
+    } else {
+      window.open(subscriptionUrl, '_blank');
     }
   };
 
@@ -287,14 +288,16 @@ function ServiceDetail({ service, onDelete, onChangeTariff }: ServiceDetailProps
 
   const handleOpenUrlSchema = () => {
     const urlSchema = config[`${detectPlatform()}_PROXY_URL_SCHEMA` as keyof typeof config];
+
+    if (!urlSchema || !subscriptionUrl) return;
+
     const link = `${urlSchema}${subscriptionUrl}`;
-    if ( link ) {
-      const tgWebApp = window.Telegram?.WebApp;
-      if (tgWebApp && isTelegramWebApp) {
-        tgWebApp.openLink(link);
-      } else {
-        window.open(link, '_blank');
-      }
+    const tgWebApp = window.Telegram?.WebApp;
+
+    if (tgWebApp && isTelegramWebApp) {
+      tgWebApp.openLink(buildRedirectLink(link));
+    } else {
+      window.open(link, '_blank');
     }
   };
 
