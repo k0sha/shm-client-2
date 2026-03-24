@@ -5,6 +5,7 @@ import { IconArrowLeft, IconCreditCard, IconCheck, IconWallet } from '@tabler/ic
 import { servicesApi, userApi } from '../api/client';
 import { notifications } from '@mantine/notifications';
 import { config } from '../config';
+import { prettifyServiceName } from '../utils/serviceName';
 
 interface OrderService {
   service_id: number;
@@ -208,7 +209,7 @@ export default function OrderServiceModal({
 
       notifications.show({
         title: t('common.success'),
-        message: t('order.orderSuccess', { name: selectedService.name }),
+        message: t('order.orderSuccess', { name: prettifyServiceName(selectedService.name) }),
         color: 'green',
       });
 
@@ -245,7 +246,7 @@ export default function OrderServiceModal({
 
       notifications.show({
         title: t('common.success'),
-        message: t('order.orderPaySuccess', { name: selectedService.name }),
+        message: t('order.orderPaySuccess', { name: prettifyServiceName(selectedService.name) }),
         color: 'green',
       });
 
@@ -368,7 +369,7 @@ export default function OrderServiceModal({
           <Paper withBorder p="md" radius="md">
             <Stack gap="sm">
               <Group justify="space-between">
-                <Text fw={700} size="lg">{selectedService.name}</Text>
+                <Text fw={700} size="lg">{prettifyServiceName(selectedService.name)}</Text>
               </Group>
 
               <Divider />
@@ -551,7 +552,7 @@ export default function OrderServiceModal({
                   >
                     <Group justify="space-between">
                       <div>
-                        <Text fw={500}>{service.name}</Text>
+                        <Text fw={500}>{prettifyServiceName(service.name)}</Text>
                         {service.descr && (
                           <Text size="xs" c="dimmed" lineClamp={1}>
                             {service.descr}
