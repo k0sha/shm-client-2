@@ -821,8 +821,11 @@ export default function Services() {
   const navigate = useNavigate();
 
   const handleEmailNotVerified = async () => {
-    setOpenVerifyModal(true);
+    setConfirmEmailNotVerified(false);
     navigate('/');
+    setTimeout(() => {
+      setOpenVerifyModal(true);
+    }, 0);
   };
 
   const fetchServices = async (background = false) => {
