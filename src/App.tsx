@@ -71,7 +71,7 @@ function ThemeToggle() {
 
 function WebAppHeader({ onShowVersion }: { onShowVersion?: () => void }) {
   const navigate = useNavigate();
-  const { logout, user } = useStore();
+  const { logout } = useStore();
   const longPressProps = useLongPress(onShowVersion ?? (() => {}));
   const computedColorScheme = useComputedColorScheme('light');
   const { setColorScheme } = useMantineColorScheme();
