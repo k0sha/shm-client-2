@@ -825,7 +825,7 @@ export default function Services() {
     navigate('/');
     setTimeout(() => {
       setOpenVerifyModal(true);
-    }, 0);
+    }, 150);
   };
 
   const fetchServices = async (background = false) => {
