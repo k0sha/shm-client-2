@@ -1,5 +1,4 @@
-import { ActionIcon, Menu } from '@mantine/core';
-import { IconLanguage } from '@tabler/icons-react';
+import { ActionIcon, Menu, Text } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
 
 const languages = [
@@ -16,7 +15,7 @@ export default function LanguageSwitcher() {
     <Menu shadow="md" width={150}>
       <Menu.Target>
         <ActionIcon variant="default" size="lg" aria-label="Change language" title={`Current language: ${currentLang.label}`}>
-          <IconLanguage size={18} />
+          <Text size="sm" style={{ lineHeight: 1 }}>{currentLang.flag}</Text>
         </ActionIcon>
       </Menu.Target>
 
