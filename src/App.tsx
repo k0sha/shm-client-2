@@ -97,35 +97,60 @@ function WebAppHeader({ onShowVersion }: { onShowVersion?: () => void }) {
   };
 
   return (
-    <Group justify="flex-end" p="sm" gap="xs">
-     <Text size="sm" style={{ cursor: 'pointer' }} onClick={() => navigate('/')} {...longPressProps}>{user?.login}</Text>
-     { config.SUPPORT_LINK &&  <ActionIcon
-        onClick={handleSupportLink}
-        variant="subtle"
-        size="lg"
-        color="blue"
+    <Group justify="space-between" p="sm" gap="xs" wrap="nowrap">
+      <Group
+        gap="sm"
+        onClick={() => navigate('/')}
+        style={{ cursor: 'pointer' }}
+        wrap="nowrap"
+        {...longPressProps}
       >
-        <IconHeadset size={20} />
-      </ActionIcon> }
-      <LanguageSwitcher />
-      <ActionIcon
-        onClick={handleThemeToggle}
-        variant="subtle"
-        size="lg"
-        color={computedColorScheme === 'dark' ? 'gray' : 'gray'}
-      >
-        {computedColorScheme === 'light' ? <IconMoon size={20} /> : <IconSun size={20} />}
-      </ActionIcon>
-      {!hasTelegramWebAppAutoAuth && (
-        <ActionIcon
-          onClick={handleLogout}
+        {config.LOGO_LINK && (
+          <Box
+            component="img"
+            src={config.LOGO_LINK}
+            alt={config.APP_NAME}
+            style={{
+              width: 28,
+              height: 28,
+              objectFit: 'contain',
+              borderRadius: 8,
+              display: 'block',
+              flexShrink: 0,
+            }}
+          />
+        )}
+        <Text size="sm" fw={700} lineClamp={1}>{config.APP_NAME}</Text>
+      </Group>
+      <Group gap="xs" wrap="nowrap">
+        { config.SUPPORT_LINK &&  <ActionIcon
+          onClick={handleSupportLink}
           variant="subtle"
           size="lg"
-          color="red"
+          color="blue"
         >
-          <IconLogout size={20} />
+          <IconHeadset size={20} />
+        </ActionIcon> }
+        <LanguageSwitcher />
+        <ActionIcon
+          onClick={handleThemeToggle}
+          variant="subtle"
+          size="lg"
+          color={computedColorScheme === 'dark' ? 'gray' : 'gray'}
+        >
+          {computedColorScheme === 'light' ? <IconMoon size={20} /> : <IconSun size={20} />}
         </ActionIcon>
-      )}
+        {!hasTelegramWebAppAutoAuth && (
+          <ActionIcon
+            onClick={handleLogout}
+            variant="subtle"
+            size="lg"
+            color="red"
+          >
+            <IconLogout size={20} />
+          </ActionIcon>
+        )}
+      </Group>
     </Group>
   );
 }
@@ -478,14 +503,33 @@ function AppContent() {
       >
         <AppShell.Header>
           <Group h="100%" px="md" justify="space-between" wrap="nowrap">
-            <Group>
+            <Group
+              gap="sm"
+              onClick={() => navigate('/')}
+              style={{ cursor: 'pointer' }}
+              wrap="nowrap"
+              {...longPressProps}
+            >
+              {config.LOGO_LINK && (
+                <Box
+                  component="img"
+                  src={config.LOGO_LINK}
+                  alt={config.APP_NAME}
+                  style={{
+                    width: 32,
+                    height: 32,
+                    objectFit: 'contain',
+                    borderRadius: 8,
+                    display: 'block',
+                    flexShrink: 0,
+                  }}
+                />
+              )}
               <Text
                 size="lg"
                 fw={700}
-                onClick={() => navigate('/')}
-                style={{ cursor: 'pointer' }}
                 visibleFrom={config.APP_NAME.length > 10 ? 'sm' : undefined}
-                {...longPressProps}
+                lineClamp={1}
               >
                 {config.APP_NAME}
               </Text>
