@@ -802,7 +802,21 @@ export default function Services() {
   const [categoryPages, setCategoryPages] = useState<Record<string, number>>({});
   const perPage = 5;
   const { t } = useTranslation();
-  const { userEmailVerified, setOpenVerifyModal } = useStore();
+  const { userEmail, userEmailVerified, setOpenVerifyModal } = useStore();
+  const hasEmail = !!userEmail?.trim();
+  const needsEmailGate = config.EMAIL_VERIFY_REQUIRED === 'true' && (!hasEmail || !userEmailVerified);
+
+  const emailGateTitle = hasEmail
+    ? 'Не удалось подтвердить email'
+    : 'Добавьте email';
+
+  const emailGateMessage = hasEmail
+    ? 'Для заказа услуги необходимо подтвердить email.'
+    : 'Для заказа услуги необходимо добавить email. После добавления его нужно будет сразу подтвердить.';
+
+  const emailGateAction = hasEmail
+    ? 'Подтвердить email'
+    : 'Добавить email';
   const [confirmEmailNotVerified, setConfirmEmailNotVerified] = useState(false);
   const navigate = useNavigate();
 
@@ -927,7 +941,7 @@ export default function Services() {
       <Group justify="space-between">
         <Title order={2}>{t('services.title')}</Title>
         <Group>
-          <Button leftSection={<IconPlus size={16} />} onClick={ config.EMAIL_VERIFY_REQUIRED === "true" && !userEmailVerified ? () => setConfirmEmailNotVerified(true) : openOrderModal}>
+          <Button leftSection={<IconPlus size={16} />} onClick={needsEmailGate ? () => setConfirmEmailNotVerified(true) : openOrderModal}>
             {t('services.orderService')}
           </Button>
           <Button leftSection={<IconRefresh size={16} />} variant="light" color="cyan" onClick={() => fetchServices()}>
@@ -941,7 +955,7 @@ export default function Services() {
           <Center>
             <Stack align="center" gap="md">
               <Text c="dimmed">{t('services.noServices')}</Text>
-              <Button leftSection={<IconPlus size={16} />} onClick={ config.EMAIL_VERIFY_REQUIRED === "true"  && !userEmailVerified ? () => setConfirmEmailNotVerified(true) : openOrderModal}>
+              <Button leftSection={<IconPlus size={16} />} onClick={needsEmailGate ? () => setConfirmEmailNotVerified(true) : openOrderModal}>
                 {t('services.orderService')}
               </Button>
             </Stack>
@@ -1061,9 +1075,9 @@ export default function Services() {
         opened={confirmEmailNotVerified}
         onClose={() => setConfirmEmailNotVerified(false)}
         onConfirm={handleEmailNotVerified}
-        title={t('services.emailNotVerifiedtitle')}
-        message={t('services.emailNotVerifiedDesc')}
-        confirmLabel={t('services.emailNotVerifiedAction')}
+        title={emailGateTitle}
+        message={emailGateMessage}
+        confirmLabel={emailGateAction}
         confirmColor="orange"
       />
 
