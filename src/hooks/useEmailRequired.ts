@@ -70,12 +70,21 @@ export function useEmailRequired() {
   };
 
   useEffect(() => {
-    if (!openVerifyModal || !userEmail) return;
+    if (!openVerifyModal) return;
+
     setOpenVerifyModal(false);
+
+    if (!userEmail) {
+      setEmailInput('');
+      setModalOpen(true);
+      return;
+    }
+
     const lastSent = localStorage.getItem(RESEND_STORAGE_KEY);
     const cooldownRemaining = lastSent
       ? Math.max(0, RESEND_COOLDOWN_MS - (Date.now() - parseInt(lastSent, 10)))
       : 0;
+
     if (cooldownRemaining > 0) {
       setPendingEmail(userEmail);
       setVerifyCode('');
