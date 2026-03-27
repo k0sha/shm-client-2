@@ -1,7 +1,7 @@
 interface AppConfig {
   APP_NAME: string;
   APP_DESCRIPTION: string;
-  LOGO_LINK: string;
+  LOGO_URL: string;
   TELEGRAM_BOT_NAME: string;
   TELEGRAM_BOT_AUTH_ENABLE: string;
   TELEGRAM_BOT_AUTH_PROFILE: string;
@@ -19,6 +19,8 @@ interface AppConfig {
   PROXY_CATEGORY: string;
   PROXY_CATEGORY_TITLE: string;
   PROXY_STORAGE_PREFIX?: string;
+  SHOW_PROXY_SUB_LINK: string;
+  SHOW_PROXY_QR: string;
   VPN_CATEGORY: string;
   VPN_CATEGORY_TITLE: string;
   VPN_STORAGE_PREFIX?: string;
@@ -73,7 +75,7 @@ function getConfig(): AppConfig {
   return {
     APP_NAME: runtimeConfig?.APP_NAME || import.meta.env.VITE_APP_NAME || 'SHM Client',
     APP_DESCRIPTION: runtimeConfig?.APP_DESCRIPTION || import.meta.env.VITE_APP_DESCRIPTION || '',
-    LOGO_LINK: runtimeConfig?.LOGO_LINK || import.meta.env.VITE_LOGO_LINK || '',
+    LOGO_URL: runtimeConfig?.LOGO_URL || import.meta.env.VITE_LOGO_URL || './favicon.jpg',
     TELEGRAM_BOT_NAME: runtimeConfig?.TELEGRAM_BOT_NAME || import.meta.env.VITE_TELEGRAM_BOT_NAME || '',
     TELEGRAM_BOT_AUTH_ENABLE: runtimeConfig?.TELEGRAM_BOT_AUTH_ENABLE || import.meta.env.VITE_TELEGRAM_BOT_AUTH_ENABLE || 'false',
     TELEGRAM_BOT_AUTH_PROFILE: runtimeConfig?.TELEGRAM_BOT_AUTH_PROFILE || import.meta.env.VITE_TELEGRAM_BOT_AUTH_PROFILE || 'telegram_bot',
@@ -91,6 +93,8 @@ function getConfig(): AppConfig {
     PROXY_CATEGORY: runtimeConfig?.PROXY_CATEGORY || import.meta.env.VITE_PROXY_CATEGORY || '',
     PROXY_CATEGORY_TITLE: runtimeConfig?.PROXY_CATEGORY_TITLE || import.meta.env.VITE_PROXY_CATEGORY_TITLE || '',
     PROXY_STORAGE_PREFIX: runtimeConfig?.PROXY_STORAGE_PREFIX || import.meta.env.VITE_PROXY_STORAGE_PREFIX || '',
+    SHOW_PROXY_SUB_LINK: runtimeConfig?.SHOW_PROXY_SUB_LINK || import.meta.env.VITE_SHOW_PROXY_SUB_LINK || 'true',
+    SHOW_PROXY_QR: runtimeConfig?.SHOW_PROXY_QR || import.meta.env.VITE_SHOW_PROXY_QR || 'true',
     VPN_CATEGORY: runtimeConfig?.VPN_CATEGORY || import.meta.env.VITE_VPN_CATEGORY || '',
     VPN_CATEGORY_TITLE: runtimeConfig?.VPN_CATEGORY_TITLE || import.meta.env.VITE_VPN_CATEGORY_TITLE|| '',
     VPN_STORAGE_PREFIX: runtimeConfig?.VPN_STORAGE_PREFIX || import.meta.env.VITE_VPN_STORAGE_PREFIX || '',

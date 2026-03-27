@@ -9,7 +9,7 @@ import { IconSun, IconMoon, IconLogout, IconHeadset } from '@tabler/icons-react'
 import { useTranslation } from 'react-i18next';
 import { useStore } from './store/useStore';
 import { NAV_ITEMS } from './constants/navigation';
-import { auth, userEmailApi } from './api/client';
+import { auth } from './api/client';
 import { getCookie, removeCookie, parseAndSavePartnerId, parseAndSaveSessionId } from './api/cookie';
 import { config } from './config';
 import LanguageSwitcher from './components/LanguageSwitcher';
@@ -71,7 +71,7 @@ function ThemeToggle() {
 
 function WebAppHeader({ onShowVersion }: { onShowVersion?: () => void }) {
   const navigate = useNavigate();
-  const { logout } = useStore();
+  const { logout, user } = useStore();
   const longPressProps = useLongPress(onShowVersion ?? (() => {}));
   const computedColorScheme = useComputedColorScheme('light');
   const { setColorScheme } = useMantineColorScheme();
@@ -97,60 +97,35 @@ function WebAppHeader({ onShowVersion }: { onShowVersion?: () => void }) {
   };
 
   return (
-    <Group justify="space-between" p="sm" gap="xs" wrap="nowrap">
-      <Group
-        gap="sm"
-        onClick={() => navigate('/')}
-        style={{ cursor: 'pointer' }}
-        wrap="nowrap"
-        {...longPressProps}
+    <Group justify="flex-end" p="sm" gap="xs">
+     <Text size="sm" style={{ cursor: 'pointer' }} onClick={() => navigate('/')} {...longPressProps}>{user?.login}</Text>
+     { config.SUPPORT_LINK &&  <ActionIcon
+        onClick={handleSupportLink}
+        variant="subtle"
+        size="lg"
+        color="blue"
       >
-        {config.LOGO_LINK && (
-          <Box
-            component="img"
-            src={config.LOGO_LINK}
-            alt={config.APP_NAME}
-            style={{
-              width: 28,
-              height: 28,
-              objectFit: 'contain',
-              borderRadius: 8,
-              display: 'block',
-              flexShrink: 0,
-            }}
-          />
-        )}
-        <Text size="sm" fw={700} lineClamp={1}>{config.APP_NAME}</Text>
-      </Group>
-      <Group gap="xs" wrap="nowrap">
-        { config.SUPPORT_LINK &&  <ActionIcon
-          onClick={handleSupportLink}
-          variant="subtle"
-          size="lg"
-          color="blue"
-        >
-          <IconHeadset size={20} />
-        </ActionIcon> }
-        <LanguageSwitcher />
+        <IconHeadset size={20} />
+      </ActionIcon> }
+      <LanguageSwitcher />
+      <ActionIcon
+        onClick={handleThemeToggle}
+        variant="subtle"
+        size="lg"
+        color={computedColorScheme === 'dark' ? 'gray' : 'gray'}
+      >
+        {computedColorScheme === 'light' ? <IconMoon size={20} /> : <IconSun size={20} />}
+      </ActionIcon>
+      {!hasTelegramWebAppAutoAuth && (
         <ActionIcon
-          onClick={handleThemeToggle}
+          onClick={handleLogout}
           variant="subtle"
           size="lg"
-          color={computedColorScheme === 'dark' ? 'gray' : 'gray'}
+          color="red"
         >
-          {computedColorScheme === 'light' ? <IconMoon size={20} /> : <IconSun size={20} />}
+          <IconLogout size={20} />
         </ActionIcon>
-        {!hasTelegramWebAppAutoAuth && (
-          <ActionIcon
-            onClick={handleLogout}
-            variant="subtle"
-            size="lg"
-            color="red"
-          >
-            <IconLogout size={20} />
-          </ActionIcon>
-        )}
-      </Group>
+      )}
     </Group>
   );
 }
@@ -232,7 +207,7 @@ function BottomNavigation({ onPayments, onWithdrawals }: { onPayments: () => voi
 function AppContent() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, userEmail, isAuthenticated, isLoading, setUser, setIsLoading, setUserEmail, setUserEmailVerified, setIsEmailLoaded, logout } = useStore();
+  const { user, userEmail, isAuthenticated, isLoading, setUser, setIsLoading, logout } = useStore();
   const isMobile = useMediaQuery('(max-width: 768px)');
   const { t } = useTranslation();
   const {
@@ -316,7 +291,6 @@ function AppContent() {
       const token = getCookie();
 
       if (!token) {
-        setIsEmailLoaded(true);
         setIsLoading(false);
         return;
       }
@@ -326,19 +300,6 @@ function AppContent() {
         const responseData = response.data.data;
         const userData: any = Array.isArray(responseData) ? responseData[0] : responseData;
         setUser(userData);
-        try {
-          const emailResp = await userEmailApi.getEmail();
-          const emailData = emailResp.data.data;
-          const emailObj = Array.isArray(emailData) ? emailData[0] : emailData;
-          if (emailObj && emailObj.email) {
-            setUserEmail(emailObj.email);
-          }
-          setUserEmailVerified(emailObj?.email_verified || 0);
-        } catch {
-          setUserEmail(null);
-        } finally {
-          setIsEmailLoaded(true);
-        }
       } catch {
         removeCookie();
       } finally {
@@ -503,33 +464,18 @@ function AppContent() {
       >
         <AppShell.Header>
           <Group h="100%" px="md" justify="space-between" wrap="nowrap">
-            <Group
-              gap="sm"
-              onClick={() => navigate('/')}
-              style={{ cursor: 'pointer' }}
-              wrap="nowrap"
-              {...longPressProps}
-            >
-              {config.LOGO_LINK && (
-                <Box
-                  component="img"
-                  src={config.LOGO_LINK}
-                  alt={config.APP_NAME}
-                  style={{
-                    width: 32,
-                    height: 32,
-                    objectFit: 'contain',
-                    borderRadius: 8,
-                    display: 'block',
-                    flexShrink: 0,
-                  }}
+            <Group gap="xs" onClick={() => navigate('/')} style={{ cursor: 'pointer' }} {...longPressProps}>
+              {config.LOGO_URL && (
+                <img
+                  src={config.LOGO_URL}
+                  alt=""
+                  style={{ height: 32, width: 32, objectFit: 'contain', flexShrink: 0 }}
                 />
               )}
               <Text
                 size="lg"
                 fw={700}
                 visibleFrom={config.APP_NAME.length > 10 ? 'sm' : undefined}
-                lineClamp={1}
               >
                 {config.APP_NAME}
               </Text>

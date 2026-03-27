@@ -17,21 +17,15 @@
 
 ```yaml
 services:
-#   admin:
-#     ...
   client:
     image: danuk/shm-client-2:latest
-    pull_policy: always
-    restart: always
     ports:
-      - "8082:80"
+      - "3001:80"
     environment:
-      - SHM_URL=http://api
-      - APP_NAME=My Service
-    depends_on:
-      - api
-#   mysql:
-#     ....
+      SHM_URL: "https://api.mydomain.com"
+      APP_NAME: "My Company"
+      APP_DESCRIPTION: "My Company Description"
+    restart: unless-stopped
 ```
 
 ### Переменные окружения
@@ -43,6 +37,7 @@ services:
 | `SHM_BASE_PATH` | Базовый путь (например `/cabinet`) | `/` |
 | `APP_NAME` | Название приложения | `SHM Client` |
 | `APP_DESCRIPTION` | Описание приложения | Powerful and flexible client for SHM |
+| `LOGO_URL` | Ссылка на логитип приложения | локальный favicon.jpg |
 | `TELEGRAM_BOT_NAME` | Username Telegram бота (без @) s| - |
 | `TELEGRAM_BOT_AUTH_ENABLE` | Включить авторизацию через Telegram виджет | `false` |
 | `TELEGRAM_BOT_AUTH_PROFILE` | Название бота (профиля) в SHM | `telegram_bot` |
@@ -58,6 +53,8 @@ services:
 | `PROXY_CATEGORY` | Категория прокси чтобы показать ссылку на подписку (vpn-remna,vpn-trial) | - |
 | `PROXY_CATEGORY_TITLE` | Название категории | VPN Подписка |
 | `PROXY_STORAGE_PREFIX` | префикс для категории proxy в хранилище, например 'vpm_remna_' | 'vpm_mrzb_' |
+| `SHOW_PROXY_SUB_LINK` | Показывать ссылку на подписку для категории proxy | `true`|
+| `SHOW_PROXY_QR` | Показывать кнопку `QR` на ссылку подписки для категории proxy | `true`|
 | `VPN_CATEGORY` | Категория VPN чтобы показать QR или возможность скачать файл конфигурации (vpn-wg,vpn-awg) | - |
 | `VPN_CATEGORY_TITLE` | Название категории | VPN |
 | `VPN_STORAGE_PREFIX` | Префикс для категории vpn в хранилище например 'wg_key_' | 'vpn' |
@@ -70,33 +67,33 @@ services:
 | `ALLOW_SERVICE_CHANGE_FORCE` | Разрешить сменить услугу сразу (не спрашивая пользователя) | false |
 | `SERVICE_CHANGE_ALL_CATEGORY` | Разрешить сменить услугу на все доступные категории ( если false то можно сменить только на такую же категорию как и в текущей услуге)| true |
 | `ALLOW_TELEGRAM_PIN` | Разрешить привязку аккаунта Telegram | true |
-| `VPN_APP_WINDOWS_URL` | Ссылка на скачивание VPN-приложения для Windows | - |
-| `VPN_APP_LINUX_URL` | Ссылка на скачивание VPN-приложения для Linux | - |
-| `VPN_APP_MAC_URL` | Ссылка на скачивание VPN-приложения для macOS | - |
-| `VPN_APP_IOS_URL` | Ссылка на скачивание VPN-приложения для iOS | - |
-| `VPN_APP_ANDROID_URL` | Ссылка на скачивание VPN-приложения для Android | - |
-| `PROXY_APP_WINDOWS_URL` | Ссылка на скачивание Proxy-приложения для Windows | - |
-| `PROXY_APP_LINUX_URL` | Ссылка на скачивание Proxy-приложения для Linux | - |
-| `PROXY_APP_MAC_URL` | Ссылка на скачивание Proxy-приложения для macOS | - |
-| `PROXY_APP_IOS_URL` | Ссылка на скачивание Proxy-приложения для iOS | - |
-| `PROXY_APP_ANDROID_URL` | Ссылка на скачивание Proxy-приложения для Android | - |
-| `VPN_WINDOWS_APP_NAME` | Название кнопки VPN для Windows | `Скачать для Windows` |
-| `VPN_LINUX_APP_NAME` | Название кнопки VPN для Linux | `Скачать для Linux` |
-| `VPN_MAC_APP_NAME` | Название кнопки VPN для macOS | `Скачать для Mac` |
-| `VPN_IOS_APP_NAME` | Название кнопки VPN для iOS | `Скачать для iOS` |
-| `VPN_ANDROID_APP_NAME` | Название кнопки VPN для Android | `Скачать для Android` |
-| `PROXY_WINDOWS_APP_NAME` | Название кнопки Proxy для Windows | `Скачать для Windows` |
-| `PROXY_LINUX_APP_NAME` | Название кнопки Proxy для Linux | `Скачать для Linux` |
-| `PROXY_MAC_APP_NAME` | Название кнопки Proxy для macOS | `Скачать для Mac` |
-| `PROXY_IOS_APP_NAME` | Название кнопки Proxy для iOS | `Скачать для iOS` |
-| `PROXY_ANDROID_APP_NAME` | Название кнопки Proxy для Android | `Скачать для Android` |
-| `APPLE_TV_APP_NAME` | Название кнопки скачивания для Apple TV | `Скачать для Apple TV` |
-| `ANDROID_TV_APP_NAME` | Название кнопки скачивания для Android TV | `Скачать для Android TV` |
-| `WINDOWS_PROXY_URL_SCHEMA` | URL-схема для открытия подписки на Windows | `` |
-| `LINUX_PROXY_URL_SCHEMA` | URL-схема для открытия подписки на Linux | `` |
-| `MAC_PROXY_URL_SCHEMA` | URL-схема для открытия подписки на macOS | `` |
-| `IOS_PROXY_URL_SCHEMA` | URL-схема для открытия подписки на iOS | `` |
-| `ANDROID_PROXY_URL_SCHEMA` | URL-схема для открытия подписки на Android | `` |
+| `VPN_APP_WINDOWS_URL` | Ссылка на скачивание приложения для категории VPN для Windows | - |
+| `VPN_APP_LINUX_URL` | Ссылка на скачивание приложения для категории VPN для Linux | - |
+| `VPN_APP_MAC_URL` | Ссылка на скачивание приложения для категории VPN для macOS | - |
+| `VPN_APP_IOS_URL` | Ссылка на скачивание приложения для категории VPN для iOS | - |
+| `VPN_APP_ANDROID_URL` | Ссылка на скачивание приложения для категории VPN для Android | - |
+| `PROXY_APP_WINDOWS_URL` | Ссылка на скачивание приложения для категории PROXY для Windows | - |
+| `PROXY_APP_LINUX_URL` | Ссылка на скачивание приложения для категории PROXY для Linux | - |
+| `PROXY_APP_MAC_URL` | Ссылка на скачивание приложения для категории PROXY для macOS | - |
+| `PROXY_APP_IOS_URL` | Ссылка на скачивание приложения для категории PROXY для iOS | - |
+| `PROXY_APP_ANDROID_URL` | Ссылка на скачивание приложения для категории PROXY для Android | - |
+| `VPN_WINDOWS_APP_NAME` | Название кнопки для категории VPN для Windows | `Скачать` |
+| `VPN_LINUX_APP_NAME` | Название кнопки для категории VPN для Linux | `Скачать` |
+| `VPN_MAC_APP_NAME` | Название кнопки для категории VPN для macOS | `Скачать` |
+| `VPN_IOS_APP_NAME` | Название кнопки для категории VPN для iOS | `Скачать` |
+| `VPN_ANDROID_APP_NAME` | Название кнопки для категории VPN для Android | `Скачать` |
+| `PROXY_WINDOWS_APP_NAME` | Название кнопки для категории PROXY для Windows | `Скачать` |
+| `PROXY_LINUX_APP_NAME` | Название кнопки для категории PROXY для Linux | `Скачать` |
+| `PROXY_MAC_APP_NAME` | Название кнопки для категории PROXY для macOS | `Скачать` |
+| `PROXY_IOS_APP_NAME` | Название кнопки для категории PROXY для iOS | `Скачать` |
+| `PROXY_ANDROID_APP_NAME` | Название кнопки для категории PROXY для Android | `Скачать` |
+| `APPLE_TV_APP_NAME` | Название кнопки для категории PROXY для Apple TV | `Скачать` |
+| `ANDROID_TV_APP_NAME` | Название кнопки для категории PROXY для Android TV | `Скачать` |
+| `WINDOWS_PROXY_URL_SCHEMA` | URL-схема для открытия подписки на Windows (`happ://add/`) | `` |
+| `LINUX_PROXY_URL_SCHEMA` | URL-схема для открытия подписки на Linux (`happ://add/`) | `` |
+| `MAC_PROXY_URL_SCHEMA` | URL-схема для открытия подписки на macOS (`happ://add/`) | `` |
+| `IOS_PROXY_URL_SCHEMA` | URL-схема для открытия подписки на iOS (`happ://add/`) | `` |
+| `ANDROID_PROXY_URL_SCHEMA` | URL-схема для открытия подписки на Android (`happ://add/`) | `` |
 
 
 ### Telegram Widget

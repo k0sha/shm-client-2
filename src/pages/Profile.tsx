@@ -97,7 +97,8 @@ export default function Profile() {
   const { colorScheme } = useMantineColorScheme();
   const clipboard = useClipboard({ timeout: 1000 });
   const { t } = useTranslation();
-  const partnerLink = `${window.location.origin}${window.location.pathname}?partner_id=${profile?.user_id || 0}`;
+  const basePath = config.SHM_BASE_PATH && config.SHM_BASE_PATH !== '/' ? config.SHM_BASE_PATH : '';
+  const partnerLink = `${window.location.origin}${basePath}?partner_id=${profile?.user_id || 0}`;
 
   const updateCooldown = useCallback(() => {
     const lastSent = localStorage.getItem(RESEND_STORAGE_KEY);
@@ -424,8 +425,7 @@ export default function Profile() {
               <div style={{ maxWidth: '80%' }}>
                 <Text size="sm"> {partnerLink}
                   <Tooltip label={clipboard.copied ? t('common.copied') : t('common.copy')}>
-                    <ActionIcon color={clipboard.copied ? 'teal' : 'gray'} variant="subtle" onClick={() => clipboard.copy(`${window.location.origin}${window.location.pathname}?partner_id=${profile.user_id}`)}>
-                      {clipboard.copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
+                    <ActionIcon color={clipboard.copied ? 'teal' : 'gray'} variant="subtle" onClick={() => clipboard.copy(partnerLink)}>                      {clipboard.copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
                     </ActionIcon>
                   </Tooltip>
                 </Text>
