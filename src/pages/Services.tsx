@@ -73,7 +73,7 @@ function normalizeCategory(category: string): string {
     return 'vpn';
   }
 
-  if (category.match(/remna|remnawave|marzban|marz|mz/i)) {
+  if (category === 'k0sha_vpn' || category.match(/remna|remnawave|marzban|marz|mz/i)) {
     return 'proxy';
   }
   if (category.match(/^(vpn|wg|awg)/i)) {
