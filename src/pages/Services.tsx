@@ -307,7 +307,8 @@ function ServiceDetail({ service, onDelete, onChangeTariff }: ServiceDetailProps
   useEffect(() => {
     const fetchData = async () => {
       if (category === 'proxy') {
-        const rawPrefix = config.PROXY_STORAGE_PREFIX ? config.PROXY_STORAGE_PREFIX : 'vpn_mrzb_';
+        const hasCustomPrefix = !!config.PROXY_STORAGE_PREFIX;
+        const rawPrefix = hasCustomPrefix ? config.PROXY_STORAGE_PREFIX : 'vpn_mrzb_';
         const prefix = rawPrefix.endsWith('_') ? rawPrefix : `${rawPrefix}_`;
         try {
           const mzResponse = await api.get(`/storage/manage/${prefix}${service.user_service_id}?format=json`);
@@ -318,7 +319,7 @@ function ServiceDetail({ service, onDelete, onChangeTariff }: ServiceDetailProps
           setActiveTab('config');
         } catch {
         }
-        if (!subscriptionUrl ) {
+        if (!hasCustomPrefix && !subscriptionUrl) {
           try {
             const remnaResponse = await api.get(`/storage/manage/vpn_remna_${service.user_service_id}?format=json`);
             const url = remnaResponse.data.subscription_url || remnaResponse.data.response?.subscriptionUrl;
