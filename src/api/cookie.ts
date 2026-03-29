@@ -57,6 +57,46 @@ export function removePartnerCookie(): void {
   document.cookie = `${PARTNER_COOKIE_NAME}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=Lax`;
 }
 
+const INVITE_START_STORAGE_KEY = 'invite_start';
+
+export function setInviteStart(value: string): void {
+  try {
+    window.localStorage.setItem(INVITE_START_STORAGE_KEY, value);
+  } catch {
+    // ignore storage errors
+  }
+}
+
+export function getInviteStart(): string | null {
+  try {
+    return window.localStorage.getItem(INVITE_START_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function removeInviteStart(): void {
+  try {
+    window.localStorage.removeItem(INVITE_START_STORAGE_KEY);
+  } catch {
+    // ignore storage errors
+  }
+}
+
+export function parseAndSaveInviteStart(): string | null {
+  const urlParams = new URLSearchParams(window.location.search);
+  const start = urlParams.get('start');
+  if (start) {
+    setInviteStart(start);
+    urlParams.delete('start');
+    const newSearch = urlParams.toString();
+    const newUrl = window.location.pathname + (newSearch ? '?' + newSearch : '') + window.location.hash;
+    window.history.replaceState({}, '', newUrl);
+    return start;
+  }
+  return null;
+}
+
 export function parseAndSavePartnerId(): void {
   const urlParams = new URLSearchParams(window.location.search);
   const partnerId = urlParams.get('partner_id');

@@ -5,7 +5,7 @@ import { IconLogin, IconUserPlus, IconHeadset, IconFingerprint, IconShieldLock, 
 import { notifications } from '@mantine/notifications';
 import { useTranslation } from 'react-i18next';
 import { auth, passkeyApi, userApi } from '../api/client';
-import { setCookie, getResetTokenCookie, removeResetTokenCookie, parseAndSaveResetToken } from '../api/cookie';
+import { setCookie, getInviteStart, getResetTokenCookie, removeInviteStart, removeResetTokenCookie, parseAndSaveResetToken } from '../api/cookie';
 import { useStore } from '../store/useStore';
 import TelegramLoginButton, { TelegramUser } from '../components/TelegramLoginButton';
 import { config } from '../config';
@@ -71,6 +71,21 @@ function getPartnerIdFromSearch(search: string): string | null {
   return partnerId && partnerId.trim() ? partnerId.trim() : null;
 }
 
+function getPartnerIdFromInviteStart(start: string | null): string | null {
+  if (!start) {
+    return null;
+  }
+
+  try {
+    const decoded = fromBase64Url(start.trim());
+    const decodedParams = new URLSearchParams(decoded);
+    const partnerId = decodedParams.get('partner_id');
+    return partnerId && partnerId.trim() ? partnerId.trim() : null;
+  } catch {
+    return null;
+  }
+}
+
 function ThemeToggle() {
   const { setColorScheme } = useMantineColorScheme();
   const computedColorScheme = useComputedColorScheme('light');
@@ -95,6 +110,12 @@ export default function Login() {
     if (decodedSearch) {
       const nextUrl = `${window.location.pathname}?${decodedSearch}${window.location.hash}`;
       window.history.replaceState({}, '', nextUrl);
+      setMode('register');
+      return;
+    }
+
+    const invitePartnerId = getPartnerIdFromInviteStart(getInviteStart());
+    if (invitePartnerId) {
       setMode('register');
       return;
     }
@@ -315,8 +336,12 @@ export default function Login() {
 
     setLoading(true);
     try {
-      const partnerId = getPartnerIdFromSearch(location.search);
+      const partnerId = getPartnerIdFromSearch(location.search) || getPartnerIdFromInviteStart(getInviteStart());
+      const inviteStart = getInviteStart();
       await auth.register(login, password, captcha?.token, captchaAnswer || undefined, partnerId || undefined);
+      if (inviteStart) {
+        removeInviteStart();
+      }
       notifications.show({ title: t('common.success'), message: t('auth.registerSuccess'), color: 'green' });
       setMode('login');
       form.setValues({ confirmPassword: '' });

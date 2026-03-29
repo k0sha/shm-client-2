@@ -1,7 +1,7 @@
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
 import { useEffect, useState } from 'react';
-import { MantineProvider, createTheme, AppShell, Group, Text, ActionIcon, useMantineColorScheme, useComputedColorScheme, Center, Loader, Box, Button, Modal, TextInput, Stack } from '@mantine/core';
+import { MantineProvider, createTheme, AppShell, Group, Text, ActionIcon, useMantineColorScheme, useComputedColorScheme, Center, Loader, Box, Button, Modal, TextInput, Stack, Card } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { useMediaQuery, useHotkeys, useLongPress } from '@mantine/hooks';
 import { BrowserRouter, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { useStore } from './store/useStore';
 import { NAV_ITEMS } from './constants/navigation';
 import { auth } from './api/client';
-import { getCookie, removeCookie, parseAndSavePartnerId, parseAndSaveSessionId } from './api/cookie';
+import { getCookie, getInviteStart, parseAndSaveInviteStart, removeCookie, removeInviteStart, parseAndSavePartnerId, parseAndSaveSessionId } from './api/cookie';
 import { config } from './config';
 import LanguageSwitcher from './components/LanguageSwitcher';
 import { hasTelegramWebAppAutoAuth, isTelegramWebApp } from './constants/webapp';
@@ -19,7 +19,25 @@ import PayHistoryModal from './components/PayHistoryModal';
 import WithdrawHistoryModal from './components/WithdrawHistoryModal';
 
 parseAndSaveSessionId();
+parseAndSaveInviteStart();
 parseAndSavePartnerId();
+function supportsTelegramChoice(): boolean {
+  if (typeof navigator === 'undefined') {
+    return false;
+  }
+
+  const ua = navigator.userAgent || '';
+  return /Android|iPhone|iPad|iPod|Windows|Macintosh|Linux/i.test(ua);
+}
+
+function buildTelegramStartLink(start: string): string | null {
+  const botName = config.TELEGRAM_BOT_NAME?.trim();
+  if (!botName) {
+    return null;
+  }
+
+  return `https://t.me/${botName}?start=${encodeURIComponent(start)}`;
+}
 
 import Services from './pages/Services';
 import Profile from './pages/Profile';
@@ -233,6 +251,19 @@ function AppContent() {
   const [payHistoryOpen, setPayHistoryOpen] = useState(false);
   const [withdrawHistoryOpen, setWithdrawHistoryOpen] = useState(false);
   const [versionOpen, setVersionOpen] = useState(false);
+  const [preferWebsiteFlow, setPreferWebsiteFlow] = useState(false);
+  useEffect(() => {
+    if (isAuthenticated) {
+      removeInviteStart();
+      setPreferWebsiteFlow(false);
+    }
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    if (!getInviteStart()) {
+      setPreferWebsiteFlow(false);
+    }
+  }, [location.pathname, location.search]);
   const showVersion = () => setVersionOpen(true);
   const longPressProps = useLongPress(showVersion);
 
@@ -314,6 +345,10 @@ function AppContent() {
     ['shift + V', () => setVersionOpen(true)],
   ]);
 
+  const inviteStart = getInviteStart();
+  const telegramStartLink = inviteStart ? buildTelegramStartLink(inviteStart) : null;
+  const shouldShowTelegramChoice = !isAuthenticated && !preferWebsiteFlow && !isTelegramWebApp && !!inviteStart && !!telegramStartLink && supportsTelegramChoice();
+
   if (isLoading) {
     return (
       <Center h="100vh">
@@ -323,6 +358,48 @@ function AppContent() {
   }
 
   if (!isAuthenticated) {
+    if (shouldShowTelegramChoice) {
+      return (
+        <Center h="100vh" px="md">
+          <Card withBorder radius="md" p="xl" w={420}>
+            <Stack gap="lg">
+              <Stack gap="xs" align="center">
+                {config.LOGO_URL && (
+                  <img
+                    src={config.LOGO_URL}
+                    alt=""
+                    style={{ height: 40, width: 40, objectFit: 'contain', flexShrink: 0 }}
+                  />
+                )}
+                <Text fw={700} size="xl" ta="center">{config.APP_NAME}</Text>
+                <Text size="sm" c="dimmed" ta="center">
+                  Продолжить регистрацию через Telegram или открыть сайт?
+                </Text>
+              </Stack>
+
+              <Button
+                component="a"
+                href={telegramStartLink ?? undefined}
+                size="md"
+                fullWidth
+              >
+                Продолжить в Telegram
+              </Button>
+
+              <Button
+                variant="light"
+                size="md"
+                fullWidth
+                onClick={() => setPreferWebsiteFlow(true)}
+              >
+                Продолжить на сайте
+              </Button>
+            </Stack>
+          </Card>
+        </Center>
+      );
+    }
+
     return <Login />;
   }
 
