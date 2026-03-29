@@ -514,24 +514,26 @@ function AppContent() {
                   )}
                   <Text fw={700} size="xl" ta="center">{config.APP_NAME}</Text>
                 </Group>
-                <Group gap="xs" align="center" style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
-                  {config.SUPPORT_LINK && (
-                    <ActionIcon
-                      onClick={handleSupportLink}
-                      variant="default"
-                      size="lg"
-                      aria-label="Support"
-                    >
-                      <IconHeadset size={18} />
-                    </ActionIcon>
-                  )}
+                <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
                   <LanguageSwitcher />
-                </Group>
+                </div>
               </Group>
 
               <Text size="sm" c="dimmed" ta="center">
                 {t('auth.inviteChoiceDescription')}
               </Text>
+              {config.SUPPORT_LINK && (
+                <Center>
+                  <ActionIcon
+                    onClick={handleSupportLink}
+                    variant="default"
+                    size="lg"
+                    aria-label="Support"
+                  >
+                    <IconHeadset size={18} />
+                  </ActionIcon>
+                </Center>
+              )}
 
               <Button
                 size="md"
