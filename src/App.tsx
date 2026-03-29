@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { useStore } from './store/useStore';
 import { NAV_ITEMS } from './constants/navigation';
 import { auth } from './api/client';
-import { clearInviteWebsiteFlow, clearPendingInviteChoice, getCookie, getInviteStart, hasPendingInviteChoice, markInviteWebsiteFlow, parseAndSaveInviteStart, removeCookie, removeInviteStart, parseAndSavePartnerId, parseAndSaveSessionId } from './api/cookie';
+import { clearInviteTelegramFlow, clearInviteWebsiteFlow, clearPendingInviteChoice, getCookie, getInviteStart, hasInviteTelegramFlow, hasPendingInviteChoice, markInviteTelegramFlow, markInviteWebsiteFlow, parseAndSaveInviteStart, removeCookie, removeInviteStart, parseAndSavePartnerId, parseAndSaveSessionId } from './api/cookie';
 import { config } from './config';
 import LanguageSwitcher from './components/LanguageSwitcher';
 import { hasTelegramWebAppAutoAuth, isTelegramWebApp } from './constants/webapp';
@@ -353,13 +353,14 @@ function AppContent() {
   const [withdrawHistoryOpen, setWithdrawHistoryOpen] = useState(false);
   const [versionOpen, setVersionOpen] = useState(false);
   const [preferWebsiteFlow, setPreferWebsiteFlow] = useState(false);
-  const [showInviteChoiceCard, setShowInviteChoiceCard] = useState(false);
+  const [showInviteChoiceCard, setShowInviteChoiceCard] = useState(() => hasInviteTelegramFlow());
   const { telegramOpening, beginTelegramOpening } = useTelegramOpenState();
   useEffect(() => {
     if (isAuthenticated) {
       removeInviteStart();
       clearPendingInviteChoice();
       clearInviteWebsiteFlow();
+      clearInviteTelegramFlow();
       setPreferWebsiteFlow(false);
       setShowInviteChoiceCard(false);
     }
@@ -367,6 +368,7 @@ function AppContent() {
 
   useEffect(() => {
     if (!getInviteStart()) {
+      clearInviteTelegramFlow();
       setPreferWebsiteFlow(false);
       setShowInviteChoiceCard(false);
     }
@@ -461,6 +463,7 @@ function AppContent() {
   const shouldRenderTelegramChoice = showInviteChoiceCard || telegramOpening;
   useEffect(() => {
     if (shouldShowTelegramChoice) {
+      markInviteTelegramFlow();
       setShowInviteChoiceCard(true);
       clearPendingInviteChoice();
     }
@@ -470,6 +473,8 @@ function AppContent() {
     if (!inviteStart || telegramOpening) {
       return;
     }
+    markInviteTelegramFlow();
+    setShowInviteChoiceCard(true);
     clearInviteWebsiteFlow();
     clearPendingInviteChoice();
     beginTelegramOpening();
@@ -519,6 +524,7 @@ function AppContent() {
                 size="md"
                 fullWidth
                 onClick={() => {
+                  clearInviteTelegramFlow();
                   markInviteWebsiteFlow();
                   clearPendingInviteChoice();
                   setShowInviteChoiceCard(false);

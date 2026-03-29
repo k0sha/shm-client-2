@@ -70,6 +70,7 @@ export function removePartnerCookie(): void {
 const INVITE_START_STORAGE_KEY = 'invite_start';
 const INVITE_CHOICE_PENDING_SESSION_KEY = 'invite_choice_pending';
 const INVITE_WEBSITE_FLOW_SESSION_KEY = 'invite_website_flow';
+const INVITE_TELEGRAM_FLOW_SESSION_KEY = 'invite_telegram_flow';
 
 export function setInviteStart(value: string): void {
   try {
@@ -138,6 +139,30 @@ export function hasInviteWebsiteFlow(): boolean {
 export function clearInviteWebsiteFlow(): void {
   try {
     window.sessionStorage.removeItem(INVITE_WEBSITE_FLOW_SESSION_KEY);
+  } catch {
+    // ignore storage errors
+  }
+}
+
+export function markInviteTelegramFlow(): void {
+  try {
+    window.sessionStorage.setItem(INVITE_TELEGRAM_FLOW_SESSION_KEY, '1');
+  } catch {
+    // ignore storage errors
+  }
+}
+
+export function hasInviteTelegramFlow(): boolean {
+  try {
+    return window.sessionStorage.getItem(INVITE_TELEGRAM_FLOW_SESSION_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+export function clearInviteTelegramFlow(): void {
+  try {
+    window.sessionStorage.removeItem(INVITE_TELEGRAM_FLOW_SESSION_KEY);
   } catch {
     // ignore storage errors
   }
