@@ -353,6 +353,7 @@ function AppContent() {
   const [withdrawHistoryOpen, setWithdrawHistoryOpen] = useState(false);
   const [versionOpen, setVersionOpen] = useState(false);
   const [preferWebsiteFlow, setPreferWebsiteFlow] = useState(false);
+  const [showInviteChoiceCard, setShowInviteChoiceCard] = useState(false);
   const { telegramOpening, beginTelegramOpening } = useTelegramOpenState();
   useEffect(() => {
     if (isAuthenticated) {
@@ -360,12 +361,14 @@ function AppContent() {
       clearPendingInviteChoice();
       clearInviteWebsiteFlow();
       setPreferWebsiteFlow(false);
+      setShowInviteChoiceCard(false);
     }
   }, [isAuthenticated]);
 
   useEffect(() => {
     if (!getInviteStart()) {
       setPreferWebsiteFlow(false);
+      setShowInviteChoiceCard(false);
     }
   }, [location.pathname, location.search]);
 
@@ -455,9 +458,10 @@ function AppContent() {
   const inviteStart = getInviteStart()?.trim() || null;
   const telegramStartLink = inviteStart ? buildTelegramStartLink(inviteStart) : null;
   const shouldShowTelegramChoice = !isLoading && !isAuthenticated && !preferWebsiteFlow && !isTelegramWebApp && !!inviteStart && !!telegramStartLink && hasPendingInviteChoice() && supportsTelegramChoice();
-  const shouldRenderTelegramChoice = shouldShowTelegramChoice || telegramOpening;
+  const shouldRenderTelegramChoice = showInviteChoiceCard || telegramOpening;
   useEffect(() => {
     if (shouldShowTelegramChoice) {
+      setShowInviteChoiceCard(true);
       clearPendingInviteChoice();
     }
   }, [shouldShowTelegramChoice]);
@@ -517,6 +521,7 @@ function AppContent() {
                 onClick={() => {
                   markInviteWebsiteFlow();
                   clearPendingInviteChoice();
+                  setShowInviteChoiceCard(false);
                   setPreferWebsiteFlow(true);
                 }}
                 disabled={telegramOpening}
