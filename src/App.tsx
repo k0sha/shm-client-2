@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { useStore } from './store/useStore';
 import { NAV_ITEMS } from './constants/navigation';
 import { auth } from './api/client';
-import { getCookie, getInviteStart, parseAndSaveInviteStart, removeCookie, removeInviteStart, parseAndSavePartnerId, parseAndSaveSessionId } from './api/cookie';
+import { clearPendingInviteChoice, getCookie, getInviteStart, hasPendingInviteChoice, parseAndSaveInviteStart, removeCookie, removeInviteStart, parseAndSavePartnerId, parseAndSaveSessionId } from './api/cookie';
 import { config } from './config';
 import LanguageSwitcher from './components/LanguageSwitcher';
 import { hasTelegramWebAppAutoAuth, isTelegramWebApp } from './constants/webapp';
@@ -357,6 +357,7 @@ function AppContent() {
   useEffect(() => {
     if (isAuthenticated) {
       removeInviteStart();
+      clearPendingInviteChoice();
       setPreferWebsiteFlow(false);
     }
   }, [isAuthenticated]);
@@ -366,6 +367,12 @@ function AppContent() {
       setPreferWebsiteFlow(false);
     }
   }, [location.pathname, location.search]);
+
+  useEffect(() => {
+    if (!isAuthenticated && getInviteStart() && hasPendingInviteChoice()) {
+      clearPendingInviteChoice();
+    }
+  }, [isAuthenticated]);
 
   const showVersion = () => setVersionOpen(true);
   const longPressProps = useLongPress(showVersion);
@@ -450,13 +457,13 @@ function AppContent() {
 
   const inviteStart = getInviteStart()?.trim() || null;
   const telegramStartLink = inviteStart ? buildTelegramStartLink(inviteStart) : null;
-  const shouldShowTelegramChoice = !isAuthenticated && !preferWebsiteFlow && !isTelegramWebApp && !!inviteStart && !!telegramStartLink && supportsTelegramChoice();
+  const shouldShowTelegramChoice = !isAuthenticated && !preferWebsiteFlow && !isTelegramWebApp && !!inviteStart && !!telegramStartLink && hasPendingInviteChoice() && supportsTelegramChoice();
 
   const handleTelegramContinue = () => {
     if (!inviteStart || telegramOpening) {
       return;
     }
-
+    clearPendingInviteChoice();
     beginTelegramOpening();
     openTelegramLinkSmart(inviteStart);
   };
@@ -503,7 +510,10 @@ function AppContent() {
                 variant="light"
                 size="md"
                 fullWidth
-                onClick={() => setPreferWebsiteFlow(true)}
+                onClick={() => {
+                  clearPendingInviteChoice();
+                  setPreferWebsiteFlow(true);
+                }}
                 disabled={telegramOpening}
               >
                 Продолжить на сайте

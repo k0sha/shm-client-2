@@ -68,6 +68,7 @@ export function removePartnerCookie(): void {
 }
 
 const INVITE_START_STORAGE_KEY = 'invite_start';
+const INVITE_CHOICE_PENDING_SESSION_KEY = 'invite_choice_pending';
 
 export function setInviteStart(value: string): void {
   try {
@@ -93,11 +94,36 @@ export function removeInviteStart(): void {
   }
 }
 
+export function markInviteChoicePending(): void {
+  try {
+    window.sessionStorage.setItem(INVITE_CHOICE_PENDING_SESSION_KEY, '1');
+  } catch {
+    // ignore storage errors
+  }
+}
+
+export function hasPendingInviteChoice(): boolean {
+  try {
+    return window.sessionStorage.getItem(INVITE_CHOICE_PENDING_SESSION_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+export function clearPendingInviteChoice(): void {
+  try {
+    window.sessionStorage.removeItem(INVITE_CHOICE_PENDING_SESSION_KEY);
+  } catch {
+    // ignore storage errors
+  }
+}
+
 export function parseAndSaveInviteStart(): string | null {
   const urlParams = new URLSearchParams(window.location.search);
   const start = urlParams.get('start');
   if (start) {
     setInviteStart(start);
+    markInviteChoicePending();
     replaceUrlWithoutSearchParam('start');
     return start;
   }
