@@ -129,6 +129,7 @@ export default function Login() {
 
     const invitePartnerId = getPartnerIdFromInviteStart(getInviteStart());
     if (invitePartnerId && hasInviteWebsiteFlow()) {
+      clearInviteWebsiteFlow();
       setMode('register');
       return;
     }
