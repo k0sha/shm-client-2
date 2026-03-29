@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { useStore } from './store/useStore';
 import { NAV_ITEMS } from './constants/navigation';
 import { auth } from './api/client';
-import { clearPendingInviteChoice, getCookie, getInviteStart, hasPendingInviteChoice, parseAndSaveInviteStart, removeCookie, removeInviteStart, parseAndSavePartnerId, parseAndSaveSessionId } from './api/cookie';
+import { clearInviteWebsiteFlow, clearPendingInviteChoice, getCookie, getInviteStart, hasPendingInviteChoice, markInviteWebsiteFlow, parseAndSaveInviteStart, removeCookie, removeInviteStart, parseAndSavePartnerId, parseAndSaveSessionId } from './api/cookie';
 import { config } from './config';
 import LanguageSwitcher from './components/LanguageSwitcher';
 import { hasTelegramWebAppAutoAuth, isTelegramWebApp } from './constants/webapp';
@@ -358,6 +358,7 @@ function AppContent() {
     if (isAuthenticated) {
       removeInviteStart();
       clearPendingInviteChoice();
+      clearInviteWebsiteFlow();
       setPreferWebsiteFlow(false);
     }
   }, [isAuthenticated]);
@@ -464,6 +465,7 @@ function AppContent() {
     if (!inviteStart || telegramOpening) {
       return;
     }
+    clearInviteWebsiteFlow();
     clearPendingInviteChoice();
     beginTelegramOpening();
     openTelegramLinkSmart(inviteStart);
@@ -512,6 +514,7 @@ function AppContent() {
                 size="md"
                 fullWidth
                 onClick={() => {
+                  markInviteWebsiteFlow();
                   clearPendingInviteChoice();
                   setPreferWebsiteFlow(true);
                 }}
