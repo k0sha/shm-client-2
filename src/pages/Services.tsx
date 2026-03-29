@@ -120,7 +120,7 @@ function ServiceDetail({ service, onDelete, onChangeTariff }: ServiceDetailProps
     setDownloading(true);
     try {
       const blob = new Blob([storageData], { type: 'application/octet-stream' });
-      const rawPrefix = config.VPN_STORAGE_PREFIX ? config.VPN_STORAGE_PREFIX : 'vpn';
+      const rawPrefix = config.VPN_STORAGE_PREFIX || 'vpn';
       const prefix = rawPrefix.endsWith('_') ? rawPrefix : `${rawPrefix}_`;
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -308,7 +308,7 @@ function ServiceDetail({ service, onDelete, onChangeTariff }: ServiceDetailProps
     const fetchData = async () => {
       if (category === 'proxy') {
         const hasCustomPrefix = !!config.PROXY_STORAGE_PREFIX;
-        const rawPrefix = hasCustomPrefix ? config.PROXY_STORAGE_PREFIX : 'vpn_mrzb_';
+        const rawPrefix = config.PROXY_STORAGE_PREFIX || 'vpn_mrzb_';
         const prefix = rawPrefix.endsWith('_') ? rawPrefix : `${rawPrefix}_`;
         try {
           const mzResponse = await api.get(`/storage/manage/${prefix}${service.user_service_id}?format=json`);
@@ -330,7 +330,7 @@ function ServiceDetail({ service, onDelete, onChangeTariff }: ServiceDetailProps
           }
         }
       } else if (category === 'vpn') {
-        const rawPrefix = config.VPN_STORAGE_PREFIX ? config.VPN_STORAGE_PREFIX : 'vpn';
+        const rawPrefix = config.VPN_STORAGE_PREFIX || 'vpn';
         const prefix = rawPrefix.endsWith('_') ? rawPrefix : `${rawPrefix}_`;
         try {
           const vpnResponse = await api.get(`/storage/manage/${prefix}${service.user_service_id}`);
