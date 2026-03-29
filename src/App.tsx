@@ -374,6 +374,12 @@ function AppContent() {
     }
   }, [location.pathname, location.search]);
 
+  useEffect(() => {
+    if (hasInviteTelegramFlow()) {
+      setShowInviteChoiceCard(true);
+    }
+  }, []);
+
 
   const showVersion = () => setVersionOpen(true);
   const longPressProps = useLongPress(showVersion);
@@ -797,9 +803,3 @@ function App() {
 }
 
 export default App;
-
-  useEffect(() => {
-    if (hasInviteTelegramFlow()) {
-      setShowInviteChoiceCard(true);
-    }
-  }, []);
