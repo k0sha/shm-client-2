@@ -353,7 +353,7 @@ function AppContent() {
   const [withdrawHistoryOpen, setWithdrawHistoryOpen] = useState(false);
   const [versionOpen, setVersionOpen] = useState(false);
   const [preferWebsiteFlow, setPreferWebsiteFlow] = useState(false);
-  const [showInviteChoiceCard, setShowInviteChoiceCard] = useState(() => hasInviteTelegramFlow());
+  const [showInviteChoiceCard, setShowInviteChoiceCard] = useState(false);
   const { telegramOpening, beginTelegramOpening } = useTelegramOpenState();
   useEffect(() => {
     if (isAuthenticated) {
@@ -797,3 +797,9 @@ function App() {
 }
 
 export default App;
+
+  useEffect(() => {
+    if (hasInviteTelegramFlow()) {
+      setShowInviteChoiceCard(true);
+    }
+  }, []);

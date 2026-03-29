@@ -71,6 +71,7 @@ const INVITE_START_STORAGE_KEY = 'invite_start';
 const INVITE_CHOICE_PENDING_SESSION_KEY = 'invite_choice_pending';
 const INVITE_WEBSITE_FLOW_SESSION_KEY = 'invite_website_flow';
 const INVITE_TELEGRAM_FLOW_SESSION_KEY = 'invite_telegram_flow';
+const INVITE_TELEGRAM_FLOW_TTL_MS = 3000;
 
 export function setInviteStart(value: string): void {
   try {
@@ -146,7 +147,7 @@ export function clearInviteWebsiteFlow(): void {
 
 export function markInviteTelegramFlow(): void {
   try {
-    window.sessionStorage.setItem(INVITE_TELEGRAM_FLOW_SESSION_KEY, '1');
+    window.sessionStorage.setItem(INVITE_TELEGRAM_FLOW_SESSION_KEY, String(Date.now()));
   } catch {
     // ignore storage errors
   }
@@ -154,7 +155,23 @@ export function markInviteTelegramFlow(): void {
 
 export function hasInviteTelegramFlow(): boolean {
   try {
-    return window.sessionStorage.getItem(INVITE_TELEGRAM_FLOW_SESSION_KEY) === '1';
+    const raw = window.sessionStorage.getItem(INVITE_TELEGRAM_FLOW_SESSION_KEY);
+    if (!raw) {
+      return false;
+    }
+
+    const savedAt = Number(raw);
+    if (!Number.isFinite(savedAt)) {
+      window.sessionStorage.removeItem(INVITE_TELEGRAM_FLOW_SESSION_KEY);
+      return false;
+    }
+
+    const isActive = Date.now() - savedAt < INVITE_TELEGRAM_FLOW_TTL_MS;
+    if (!isActive) {
+      window.sessionStorage.removeItem(INVITE_TELEGRAM_FLOW_SESSION_KEY);
+    }
+
+    return isActive;
   } catch {
     return false;
   }
