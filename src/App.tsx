@@ -497,73 +497,80 @@ function AppContent() {
   if (!isAuthenticated) {
     if (shouldRenderTelegramChoice) {
       return (
-        <Center h="100vh" px="md">
-          <Card withBorder radius="md" p="xl" w={420}>
-            <Stack gap="lg">
-              <Group justify="space-between" align="center">
-                <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start' }}>
-                  <ThemeToggle />
-                </div>
-                <Group gap="xs" align="center" style={{ flex: 'auto', justifyContent: 'center' }}>
-                  {config.LOGO_URL && (
-                    <img
-                      src={config.LOGO_URL}
-                      alt=""
-                      style={{ height: 28, width: 28, objectFit: 'contain', flexShrink: 0 }}
-                    />
-                  )}
-                  <Text fw={700} size="xl" ta="center">{config.APP_NAME}</Text>
+        <>
+          <Center h="100vh" px="md">
+            <Card withBorder radius="md" p="xl" w={420}>
+              <Stack gap="lg">
+                <Group justify="space-between" align="center">
+                  <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start' }}>
+                    <ThemeToggle />
+                  </div>
+                  <Group gap="xs" align="center" style={{ flex: 'auto', justifyContent: 'center' }}>
+                    {config.LOGO_URL && (
+                      <img
+                        src={config.LOGO_URL}
+                        alt=""
+                        style={{ height: 28, width: 28, objectFit: 'contain', flexShrink: 0 }}
+                      />
+                    )}
+                    <Text fw={700} size="xl" ta="center">{config.APP_NAME}</Text>
+                  </Group>
+                  <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
+                    <LanguageSwitcher />
+                  </div>
                 </Group>
-                <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
-                  <LanguageSwitcher />
-                </div>
-              </Group>
 
-              <Text size="sm" c="dimmed" ta="center">
-                {t('auth.inviteChoiceDescription')}
-              </Text>
-              {config.SUPPORT_LINK && (
-                <Center>
-                  <ActionIcon
-                    onClick={handleSupportLink}
-                    variant="default"
-                    size="lg"
-                    aria-label="Support"
-                  >
-                    <IconHeadset size={18} />
-                  </ActionIcon>
-                </Center>
-              )}
+                <Text size="sm" c="dimmed" ta="center">
+                  {t('auth.inviteChoiceDescription')}
+                </Text>
 
-              <Button
-                size="md"
-                fullWidth
-                onClick={handleTelegramContinue}
-                loading={telegramOpening}
-                disabled={telegramOpening}
-                leftSection={<IconBrandTelegram size={18} />}
-              >
-                {t('auth.continueInTelegram')}
-              </Button>
+                <Button
+                  size="md"
+                  fullWidth
+                  onClick={handleTelegramContinue}
+                  loading={telegramOpening}
+                  disabled={telegramOpening}
+                  leftSection={<IconBrandTelegram size={18} />}
+                >
+                  {t('auth.continueInTelegram')}
+                </Button>
 
-              <Button
-                variant="light"
-                size="md"
-                fullWidth
-                onClick={() => {
-                  clearInviteTelegramFlow();
-                  markInviteWebsiteFlow();
-                  clearPendingInviteChoice();
-                  setShowInviteChoiceCard(false);
-                  setPreferWebsiteFlow(true);
-                }}
-                disabled={telegramOpening}
-              >
-                {t('auth.continueOnWebsite')}
-              </Button>
-            </Stack>
-          </Card>
-        </Center>
+                <Button
+                  variant="light"
+                  size="md"
+                  fullWidth
+                  onClick={() => {
+                    clearInviteTelegramFlow();
+                    markInviteWebsiteFlow();
+                    clearPendingInviteChoice();
+                    setShowInviteChoiceCard(false);
+                    setPreferWebsiteFlow(true);
+                  }}
+                  disabled={telegramOpening}
+                >
+                  {t('auth.continueOnWebsite')}
+                </Button>
+              </Stack>
+            </Card>
+          </Center>
+
+          {config.SUPPORT_LINK && (
+            <Button
+              onClick={handleSupportLink}
+              style={{
+                position: 'fixed',
+                bottom: 24,
+                right: 24,
+                zIndex: 200,
+              }}
+              leftSection={<IconHeadset size={20} />}
+              radius="xl"
+              size="md"
+            >
+              {t('common.support')}
+            </Button>
+          )}
+        </>
       );
     }
 
