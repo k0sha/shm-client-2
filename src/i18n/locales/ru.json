@@ -79,7 +79,10 @@
     "resetPasswordButton": "Сбросить пароль",
     "passwordResetSuccess": "Пароль успешно сброшен. Пожалуйста, войдите.",
     "invalidResetToken": "Недействительный или просроченный токен сброса пароля.",
-    "verifyingToken": "Проверка токена..."
+    "verifyingToken": "Проверка токена...",
+    "inviteChoiceDescription": "Выберите, где продолжить регистрацию: в Telegram или на сайте.",
+    "continueInTelegram": "Продолжить в Telegram",
+    "continueOnWebsite": "Продолжить на сайте"
   },
   "nav": {
     "home": "Главная",

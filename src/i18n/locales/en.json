@@ -79,7 +79,10 @@
     "resetPasswordButton": "Reset password",
     "passwordResetSuccess": "Password reset successfully. Please log in.",
     "invalidResetToken": "Invalid or expired reset token.",
-    "verifyingToken": "Verifying token..."
+    "verifyingToken": "Verifying token...",
+    "inviteChoiceDescription": "Choose where to continue registration: in Telegram or on the website.",
+    "continueInTelegram": "Continue in Telegram",
+    "continueOnWebsite": "Continue on website"
   },
   "nav": {
     "home": "Home",

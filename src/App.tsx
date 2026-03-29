@@ -5,7 +5,7 @@ import { MantineProvider, createTheme, AppShell, Group, Text, ActionIcon, useMan
 import { Notifications } from '@mantine/notifications';
 import { useMediaQuery, useHotkeys, useLongPress } from '@mantine/hooks';
 import { BrowserRouter, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
-import { IconSun, IconMoon, IconLogout, IconHeadset } from '@tabler/icons-react';
+import { IconSun, IconMoon, IconLogout, IconHeadset, IconBrandTelegram } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useStore } from './store/useStore';
 import { NAV_ITEMS } from './constants/navigation';
@@ -500,19 +500,38 @@ function AppContent() {
         <Center h="100vh" px="md">
           <Card withBorder radius="md" p="xl" w={420}>
             <Stack gap="lg">
-              <Stack gap="xs" align="center">
-                {config.LOGO_URL && (
-                  <img
-                    src={config.LOGO_URL}
-                    alt=""
-                    style={{ height: 40, width: 40, objectFit: 'contain', flexShrink: 0 }}
-                  />
-                )}
-                <Text fw={700} size="xl" ta="center">{config.APP_NAME}</Text>
-                <Text size="sm" c="dimmed" ta="center">
-                  Выберите, где продолжить регистрацию: в Telegram или на сайте.
-                </Text>
-              </Stack>
+              <Group justify="space-between" align="center">
+                <div style={{ flex: 1, display: 'flex', justifyContent: 'flex-start' }}>
+                  <ThemeToggle />
+                </div>
+                <Group gap="xs" align="center" style={{ flex: 'auto', justifyContent: 'center' }}>
+                  {config.LOGO_URL && (
+                    <img
+                      src={config.LOGO_URL}
+                      alt=""
+                      style={{ height: 28, width: 28, objectFit: 'contain', flexShrink: 0 }}
+                    />
+                  )}
+                  <Text fw={700} size="xl" ta="center">{config.APP_NAME}</Text>
+                </Group>
+                <Group gap="xs" align="center" style={{ flex: 1, display: 'flex', justifyContent: 'flex-end' }}>
+                  {config.SUPPORT_LINK && (
+                    <ActionIcon
+                      onClick={handleSupportLink}
+                      variant="default"
+                      size="lg"
+                      aria-label="Support"
+                    >
+                      <IconHeadset size={18} />
+                    </ActionIcon>
+                  )}
+                  <LanguageSwitcher />
+                </Group>
+              </Group>
+
+              <Text size="sm" c="dimmed" ta="center">
+                {t('auth.inviteChoiceDescription')}
+              </Text>
 
               <Button
                 size="md"
@@ -520,8 +539,9 @@ function AppContent() {
                 onClick={handleTelegramContinue}
                 loading={telegramOpening}
                 disabled={telegramOpening}
+                leftSection={<IconBrandTelegram size={18} />}
               >
-                Продолжить в Telegram
+                {t('auth.continueInTelegram')}
               </Button>
 
               <Button
@@ -537,7 +557,7 @@ function AppContent() {
                 }}
                 disabled={telegramOpening}
               >
-                Продолжить на сайте
+                {t('auth.continueOnWebsite')}
               </Button>
             </Stack>
           </Card>
