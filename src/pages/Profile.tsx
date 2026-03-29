@@ -72,7 +72,7 @@ function buildEncodedPartnerLink(baseUrl: string, userId: number | string): stri
     partner_id: String(userId),
   }).toString();
 
-  return `${baseUrl}?${toBase64Url(payload)}`;
+  return `${baseUrl}?start=${toBase64Url(payload)}`;
 }
 
 export default function Profile() {

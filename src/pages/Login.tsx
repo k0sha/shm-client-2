@@ -43,21 +43,23 @@ function fromBase64Url(value: string): string {
 }
 
 function tryDecodeInviteSearch(search: string): string | null {
-  const raw = search.replace(/^\?/, '').trim();
+  const params = new URLSearchParams(search);
+  const start = params.get('start');
 
-  if (!raw || raw.includes('=')) {
+  if (!start) {
     return null;
   }
 
   try {
-    const decoded = fromBase64Url(raw);
-    const params = new URLSearchParams(decoded);
+    const decoded = fromBase64Url(start.trim());
+    const decodedParams = new URLSearchParams(decoded);
 
-    if (!params.has('partner_id')) {
+    if (!decodedParams.has('partner_id')) {
       return null;
     }
 
-    return params.toString();
+    decodedParams.set('register', '1');
+    return decodedParams.toString();
   } catch {
     return null;
   }
@@ -93,11 +95,12 @@ export default function Login() {
     if (decodedSearch) {
       const nextUrl = `${window.location.pathname}?${decodedSearch}${window.location.hash}`;
       window.history.replaceState({}, '', nextUrl);
+      setMode('register');
       return;
     }
 
     const params = new URLSearchParams(location.search);
-    if (params.has('register')) {
+    if (params.has('register') || params.has('partner_id')) {
       setMode('register');
     }
   }, [location.search]);
