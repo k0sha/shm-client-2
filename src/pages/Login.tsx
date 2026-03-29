@@ -63,6 +63,12 @@ function tryDecodeInviteSearch(search: string): string | null {
   }
 }
 
+function getPartnerIdFromSearch(search: string): string | null {
+  const params = new URLSearchParams(search);
+  const partnerId = params.get('partner_id');
+  return partnerId && partnerId.trim() ? partnerId.trim() : null;
+}
+
 function ThemeToggle() {
   const { setColorScheme } = useMantineColorScheme();
   const computedColorScheme = useComputedColorScheme('light');
@@ -306,7 +312,8 @@ export default function Login() {
 
     setLoading(true);
     try {
-      await auth.register(login, password, captcha?.token, captchaAnswer || undefined);
+      const partnerId = getPartnerIdFromSearch(location.search);
+      await auth.register(login, password, captcha?.token, captchaAnswer || undefined, partnerId || undefined);
       notifications.show({ title: t('common.success'), message: t('auth.registerSuccess'), color: 'green' });
       setMode('login');
       form.setValues({ confirmPassword: '' });

@@ -88,8 +88,8 @@ export const auth = {
     return response;
   },
 
-  register: async (username: string, password: string, captchaToken?: string, captchaAnswer?: string) => {
-    const partnerId = getPartnerCookie();
+  register: async (username: string, password: string, captchaToken?: string, captchaAnswer?: string, partnerIdOverride?: string) => {
+    const partnerId = partnerIdOverride || getPartnerCookie();
     const data: Record<string, string> = { login: username, password };
     if (partnerId) {
       data.partner_id = partnerId;
@@ -99,7 +99,7 @@ export const auth = {
       data.captcha_answer = captchaAnswer;
     }
     const response = await api.put('/user', data);
-    if (partnerId) {
+    if (partnerId && !partnerIdOverride) {
       removePartnerCookie();
     }
     return response;
