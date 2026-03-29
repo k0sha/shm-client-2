@@ -551,7 +551,7 @@ export default function Login() {
             </>
           )}
 
-          {hasTelegramWidget && (
+          {hasTelegramWidget && mode === 'login' && (
             <>
               <Center>
                 <TelegramLoginButton
