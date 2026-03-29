@@ -453,7 +453,7 @@ function AppContent() {
 
   const inviteStart = getInviteStart()?.trim() || null;
   const telegramStartLink = inviteStart ? buildTelegramStartLink(inviteStart) : null;
-  const shouldShowTelegramChoice = !isAuthenticated && !preferWebsiteFlow && !isTelegramWebApp && !!inviteStart && !!telegramStartLink && hasPendingInviteChoice() && supportsTelegramChoice();
+  const shouldShowTelegramChoice = !isLoading && !isAuthenticated && !preferWebsiteFlow && !isTelegramWebApp && !!inviteStart && !!telegramStartLink && hasPendingInviteChoice() && supportsTelegramChoice();
   useEffect(() => {
     if (shouldShowTelegramChoice) {
       clearPendingInviteChoice();
