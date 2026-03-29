@@ -368,14 +368,15 @@ function AppContent() {
     }
   }, [location.pathname, location.search]);
 
-  useEffect(() => {
-    if (!isAuthenticated && getInviteStart() && hasPendingInviteChoice()) {
-      clearPendingInviteChoice();
-    }
-  }, [isAuthenticated]);
 
   const showVersion = () => setVersionOpen(true);
   const longPressProps = useLongPress(showVersion);
+
+  useEffect(() => {
+    if (shouldShowTelegramChoice) {
+      clearPendingInviteChoice();
+    }
+  }, [shouldShowTelegramChoice]);
 
   const handleSupportLink = () => {
     if (config.SUPPORT_LINK) {
