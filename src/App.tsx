@@ -1,6 +1,6 @@
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { MantineProvider, createTheme, AppShell, Group, Text, ActionIcon, useMantineColorScheme, useComputedColorScheme, Center, Loader, Box, Button, Modal, TextInput, Stack, Card } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { useMediaQuery, useHotkeys, useLongPress } from '@mantine/hooks';
@@ -42,6 +42,63 @@ function buildTelegramStartLink(start: string): string | null {
   }
 
   return `https://t.me/${botName}?start=${encodeURIComponent(start)}`;
+}
+
+function buildTelegramDeepLink(start: string): string | null {
+  const botName = config.TELEGRAM_BOT_NAME?.trim();
+  if (!botName) {
+    return null;
+  }
+
+  return `tg://resolve?domain=${encodeURIComponent(botName)}&start=${encodeURIComponent(start)}`;
+}
+
+function openTelegramLinkSmart(start: string): void {
+  const telegramStartLink = buildTelegramStartLink(start);
+  const telegramDeepLink = buildTelegramDeepLink(start);
+
+  if (!telegramStartLink) {
+    return;
+  }
+
+  if (!telegramDeepLink) {
+    window.location.href = telegramStartLink;
+    return;
+  }
+
+  let finished = false;
+
+  const cleanup = () => {
+    window.removeEventListener('pagehide', handleSuccess);
+    window.removeEventListener('blur', handleSuccess);
+    document.removeEventListener('visibilitychange', handleVisibilityChange);
+  };
+
+  const handleSuccess = () => {
+    finished = true;
+    cleanup();
+  };
+
+  const handleVisibilityChange = () => {
+    if (document.hidden) {
+      handleSuccess();
+    }
+  };
+
+  window.addEventListener('pagehide', handleSuccess, { once: true });
+  window.addEventListener('blur', handleSuccess, { once: true });
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+
+  window.location.href = telegramDeepLink;
+
+  window.setTimeout(() => {
+    if (finished) {
+      return;
+    }
+
+    cleanup();
+    window.location.href = telegramStartLink;
+  }, 1200);
 }
 
 import Services from './pages/Services';
@@ -257,6 +314,8 @@ function AppContent() {
   const [withdrawHistoryOpen, setWithdrawHistoryOpen] = useState(false);
   const [versionOpen, setVersionOpen] = useState(false);
   const [preferWebsiteFlow, setPreferWebsiteFlow] = useState(false);
+  const [telegramOpening, setTelegramOpening] = useState(false);
+  const telegramFallbackTimerRef = useRef<number | null>(null);
   useEffect(() => {
     if (isAuthenticated) {
       removeInviteStart();
@@ -269,6 +328,14 @@ function AppContent() {
       setPreferWebsiteFlow(false);
     }
   }, [location.pathname, location.search]);
+
+  useEffect(() => {
+    return () => {
+      if (telegramFallbackTimerRef.current) {
+        window.clearTimeout(telegramFallbackTimerRef.current);
+      }
+    };
+  }, []);
   const showVersion = () => setVersionOpen(true);
   const longPressProps = useLongPress(showVersion);
 
@@ -354,6 +421,36 @@ function AppContent() {
   const telegramStartLink = inviteStart ? buildTelegramStartLink(inviteStart) : null;
   const shouldShowTelegramChoice = !isAuthenticated && !preferWebsiteFlow && !isTelegramWebApp && !!inviteStart && !!telegramStartLink && supportsTelegramChoice();
 
+  const handleTelegramContinue = () => {
+    if (!inviteStart || telegramOpening) {
+      return;
+    }
+
+    setTelegramOpening(true);
+
+    const resetOpeningState = () => {
+      setTelegramOpening(false);
+      telegramFallbackTimerRef.current = null;
+    };
+
+    telegramFallbackTimerRef.current = window.setTimeout(() => {
+      resetOpeningState();
+    }, 2500);
+
+    openTelegramLinkSmart(inviteStart);
+
+    document.addEventListener(
+      'visibilitychange',
+      () => {
+        if (document.hidden && telegramFallbackTimerRef.current) {
+          window.clearTimeout(telegramFallbackTimerRef.current);
+          resetOpeningState();
+        }
+      },
+      { once: true }
+    );
+  };
+
   if (isLoading) {
     return (
       <Center h="100vh">
@@ -383,10 +480,11 @@ function AppContent() {
               </Stack>
 
               <Button
-                component="a"
-                href={telegramStartLink ?? undefined}
                 size="md"
                 fullWidth
+                onClick={handleTelegramContinue}
+                loading={telegramOpening}
+                disabled={telegramOpening}
               >
                 Продолжить в Telegram
               </Button>
@@ -396,6 +494,7 @@ function AppContent() {
                 size="md"
                 fullWidth
                 onClick={() => setPreferWebsiteFlow(true)}
+                disabled={telegramOpening}
               >
                 Продолжить на сайте
               </Button>
