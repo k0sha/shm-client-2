@@ -6,7 +6,7 @@ import { IconLogin, IconUserPlus, IconHeadset, IconFingerprint, IconShieldLock, 
 import { notifications } from '@mantine/notifications';
 import { useTranslation } from 'react-i18next';
 import { auth, passkeyApi, userApi } from '../api/client';
-import { setCookie, getInviteStart, getResetTokenCookie, removeInviteStart, removeResetTokenCookie, parseAndSaveResetToken } from '../api/cookie';
+import { setCookie, getInviteStart, getResetTokenCookie, removeInviteStart, removeResetTokenCookie, parseAndSaveResetToken, parseAndSavePartnerId } from '../api/cookie';
 import { useStore } from '../store/useStore';
 import TelegramLoginButton, { TelegramUser } from '../components/TelegramLoginButton';
 import { config } from '../config';
@@ -355,6 +355,7 @@ export default function Login() {
       if (inviteStart) {
         removeInviteStart();
       }
+      parseAndSavePartnerId();
       notifications.show({ title: t('common.success'), message: t('auth.registerSuccess'), color: 'green' });
       setMode('login');
       form.setValues({ confirmPassword: '' });

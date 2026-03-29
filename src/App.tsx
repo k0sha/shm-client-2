@@ -101,6 +101,45 @@ function openTelegramLinkSmart(start: string): void {
   }, 1200);
 }
 
+function useTelegramOpenState() {
+  const [telegramOpening, setTelegramOpening] = useState(false);
+  const telegramFallbackTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (telegramFallbackTimerRef.current) {
+        window.clearTimeout(telegramFallbackTimerRef.current);
+      }
+    };
+  }, []);
+
+  const beginTelegramOpening = () => {
+    setTelegramOpening(true);
+
+    const resetOpeningState = () => {
+      setTelegramOpening(false);
+      telegramFallbackTimerRef.current = null;
+    };
+
+    telegramFallbackTimerRef.current = window.setTimeout(() => {
+      resetOpeningState();
+    }, 2500);
+
+    document.addEventListener(
+      'visibilitychange',
+      () => {
+        if (document.hidden && telegramFallbackTimerRef.current) {
+          window.clearTimeout(telegramFallbackTimerRef.current);
+          resetOpeningState();
+        }
+      },
+      { once: true }
+    );
+  };
+
+  return { telegramOpening, beginTelegramOpening };
+}
+
 import Services from './pages/Services';
 import Profile from './pages/Profile';
 import Login from './pages/Login';
@@ -314,8 +353,7 @@ function AppContent() {
   const [withdrawHistoryOpen, setWithdrawHistoryOpen] = useState(false);
   const [versionOpen, setVersionOpen] = useState(false);
   const [preferWebsiteFlow, setPreferWebsiteFlow] = useState(false);
-  const [telegramOpening, setTelegramOpening] = useState(false);
-  const telegramFallbackTimerRef = useRef<number | null>(null);
+  const { telegramOpening, beginTelegramOpening } = useTelegramOpenState();
   useEffect(() => {
     if (isAuthenticated) {
       removeInviteStart();
@@ -329,13 +367,6 @@ function AppContent() {
     }
   }, [location.pathname, location.search]);
 
-  useEffect(() => {
-    return () => {
-      if (telegramFallbackTimerRef.current) {
-        window.clearTimeout(telegramFallbackTimerRef.current);
-      }
-    };
-  }, []);
   const showVersion = () => setVersionOpen(true);
   const longPressProps = useLongPress(showVersion);
 
@@ -426,29 +457,8 @@ function AppContent() {
       return;
     }
 
-    setTelegramOpening(true);
-
-    const resetOpeningState = () => {
-      setTelegramOpening(false);
-      telegramFallbackTimerRef.current = null;
-    };
-
-    telegramFallbackTimerRef.current = window.setTimeout(() => {
-      resetOpeningState();
-    }, 2500);
-
+    beginTelegramOpening();
     openTelegramLinkSmart(inviteStart);
-
-    document.addEventListener(
-      'visibilitychange',
-      () => {
-        if (document.hidden && telegramFallbackTimerRef.current) {
-          window.clearTimeout(telegramFallbackTimerRef.current);
-          resetOpeningState();
-        }
-      },
-      { once: true }
-    );
   };
 
   if (isLoading) {

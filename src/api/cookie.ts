@@ -1,3 +1,13 @@
+function buildUrlWithoutSearchParam(paramName: string): string {
+  const urlParams = new URLSearchParams(window.location.search);
+  urlParams.delete(paramName);
+  const newSearch = urlParams.toString();
+  return window.location.pathname + (newSearch ? '?' + newSearch : '') + window.location.hash;
+}
+
+function replaceUrlWithoutSearchParam(paramName: string): void {
+  window.history.replaceState({}, '', buildUrlWithoutSearchParam(paramName));
+}
 const COOKIE_NAME = 'session_id';
 const COOKIE_DAYS = 3;
 
@@ -88,10 +98,7 @@ export function parseAndSaveInviteStart(): string | null {
   const start = urlParams.get('start');
   if (start) {
     setInviteStart(start);
-    urlParams.delete('start');
-    const newSearch = urlParams.toString();
-    const newUrl = window.location.pathname + (newSearch ? '?' + newSearch : '') + window.location.hash;
-    window.history.replaceState({}, '', newUrl);
+    replaceUrlWithoutSearchParam('start');
     return start;
   }
   return null;
@@ -102,10 +109,7 @@ export function parseAndSavePartnerId(): void {
   const partnerId = urlParams.get('partner_id');
   if (partnerId) {
     setPartnerCookie(partnerId);
-    urlParams.delete('partner_id');
-    const newSearch = urlParams.toString();
-    const newUrl = window.location.pathname + (newSearch ? '?' + newSearch : '') + window.location.hash;
-    window.history.replaceState({}, '', newUrl);
+    replaceUrlWithoutSearchParam('partner_id');
   }
 }
 
@@ -114,10 +118,7 @@ export function parseAndSaveSessionId(): void {
   const sessionId = urlParams.get('session_id');
   if (sessionId) {
     setCookie(sessionId);
-    urlParams.delete('session_id');
-    const newSearch = urlParams.toString();
-    const newUrl = window.location.pathname + (newSearch ? '?' + newSearch : '') + window.location.hash;
-    window.history.replaceState({}, '', newUrl);
+    replaceUrlWithoutSearchParam('session_id');
   }
 }
 
@@ -152,10 +153,7 @@ export function parseAndSaveResetToken(): string | null {
   const token = urlParams.get('token');
   if (token) {
     setResetTokenCookie(token);
-    urlParams.delete('token');
-    const newSearch = urlParams.toString();
-    const newUrl = window.location.pathname + (newSearch ? '?' + newSearch : '') + window.location.hash;
-    window.history.replaceState({}, '', newUrl);
+    replaceUrlWithoutSearchParam('token');
     return token;
   }
   return null;
