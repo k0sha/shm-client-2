@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Card, Text, Stack, Button, ActionIcon, TextInput, PasswordInput, Divider, Title, Center, Modal, Group, Loader, useMantineColorScheme, useComputedColorScheme } from '@mantine/core';
 import { useForm, isEmail, hasLength } from '@mantine/form';
 import { IconLogin, IconUserPlus, IconHeadset, IconFingerprint, IconShieldLock, IconBrandTelegram, IconMailForward, IconLock, IconMoon, IconSun} from '@tabler/icons-react';
@@ -65,10 +66,22 @@ function tryDecodeInviteSearch(search: string): string | null {
   }
 }
 
+function normalizePartnerId(value: string | null): string | null {
+  if (!value) {
+    return null;
+  }
+
+  const normalized = value.trim();
+  if (!/^\d+$/.test(normalized)) {
+    return null;
+  }
+
+  return normalized === '0' ? null : normalized;
+}
+
 function getPartnerIdFromSearch(search: string): string | null {
   const params = new URLSearchParams(search);
-  const partnerId = params.get('partner_id');
-  return partnerId && partnerId.trim() ? partnerId.trim() : null;
+  return normalizePartnerId(params.get('partner_id'));
 }
 
 function getPartnerIdFromInviteStart(start: string | null): string | null {
@@ -79,8 +92,7 @@ function getPartnerIdFromInviteStart(start: string | null): string | null {
   try {
     const decoded = fromBase64Url(start.trim());
     const decodedParams = new URLSearchParams(decoded);
-    const partnerId = decodedParams.get('partner_id');
-    return partnerId && partnerId.trim() ? partnerId.trim() : null;
+    return normalizePartnerId(decodedParams.get('partner_id'));
   } catch {
     return null;
   }
@@ -103,12 +115,13 @@ function ThemeToggle() {
 }
 
 export default function Login() {
+  const location = useLocation();
   const [mode, setMode] = useState<'login' | 'register'>('login');
   useEffect(() => {
     const decodedSearch = tryDecodeInviteSearch(location.search);
 
     if (decodedSearch) {
-      const nextUrl = `${window.location.pathname}?${decodedSearch}${window.location.hash}`;
+      const nextUrl = `${location.pathname}?${decodedSearch}${window.location.hash}`;
       window.history.replaceState({}, '', nextUrl);
       setMode('register');
       return;

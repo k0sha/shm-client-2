@@ -27,6 +27,11 @@ function supportsTelegramChoice(): boolean {
   }
 
   const ua = navigator.userAgent || '';
+  const isTelegramBlockedEnv = /Instagram|FBAN|FBAV|Line\//i.test(ua);
+  if (isTelegramBlockedEnv) {
+    return false;
+  }
+
   return /Android|iPhone|iPad|iPod|Windows|Macintosh|Linux/i.test(ua);
 }
 
@@ -345,7 +350,7 @@ function AppContent() {
     ['shift + V', () => setVersionOpen(true)],
   ]);
 
-  const inviteStart = getInviteStart();
+  const inviteStart = getInviteStart()?.trim() || null;
   const telegramStartLink = inviteStart ? buildTelegramStartLink(inviteStart) : null;
   const shouldShowTelegramChoice = !isAuthenticated && !preferWebsiteFlow && !isTelegramWebApp && !!inviteStart && !!telegramStartLink && supportsTelegramChoice();
 
@@ -373,7 +378,7 @@ function AppContent() {
                 )}
                 <Text fw={700} size="xl" ta="center">{config.APP_NAME}</Text>
                 <Text size="sm" c="dimmed" ta="center">
-                  Продолжить регистрацию через Telegram или открыть сайт?
+                  Выберите, где продолжить регистрацию: в Telegram или на сайте.
                 </Text>
               </Stack>
 
