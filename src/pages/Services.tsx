@@ -63,25 +63,42 @@ const statusColors: Record<string, string> = {
 };
 
 function normalizeCategory(category: string): string {
-  const proxyCategories = new Set(config.PROXY_CATEGORY.split(','));
-  const vpnCategories = new Set(config.VPN_CATEGORY.split(','));
+  const normalizedCategory = (category || '').trim().toLowerCase();
 
-  if (proxyCategories.has(category)) {
+  if (normalizedCategory === 'k0sha_vpn') {
     return 'proxy';
   }
-  if ( vpnCategories.has(category) ) {
+
+  const proxyCategories = (config.PROXY_CATEGORY || '')
+    .split(',')
+    .map(item => item.trim().toLowerCase())
+    .filter(Boolean);
+
+  if (proxyCategories.includes(normalizedCategory)) {
+    return 'proxy';
+  }
+
+  const vpnCategories = (config.VPN_CATEGORY || '')
+    .split(',')
+    .map(item => item.trim().toLowerCase())
+    .filter(Boolean);
+
+  if (vpnCategories.length > 0 && vpnCategories.includes(normalizedCategory)) {
     return 'vpn';
   }
 
-  if (category === 'k0sha_vpn' || category.match(/remna|remnawave|marzban|marz|mz/i)) {
+  if (/remna|remnawave|marzban|marz|mz/i.test(normalizedCategory)) {
     return 'proxy';
   }
-  if (category.match(/^(vpn|wg|awg)/i)) {
+
+  if (/^(vpn|wg|awg)/i.test(normalizedCategory)) {
     return 'vpn';
   }
-  if (['web_tariff', 'web', 'mysql', 'mail', 'hosting'].includes(category)) {
-    return category;
+
+  if (['web_tariff', 'web', 'mysql', 'mail', 'hosting'].includes(normalizedCategory)) {
+    return normalizedCategory;
   }
+
   return 'other';
 }
 
