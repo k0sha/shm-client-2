@@ -463,7 +463,6 @@ function AppContent() {
   const shouldRenderTelegramChoice = showInviteChoiceCard || telegramOpening;
   useEffect(() => {
     if (shouldShowTelegramChoice) {
-      markInviteTelegramFlow();
       setShowInviteChoiceCard(true);
       clearPendingInviteChoice();
     }
