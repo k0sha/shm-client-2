@@ -33,6 +33,36 @@ function arrayBufferToBase64Url(buffer: ArrayBuffer): string {
   return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
+function fromBase64Url(value: string): string {
+  const base64 = value
+    .replace(/-/g, '+')
+    .replace(/_/g, '/')
+    .padEnd(Math.ceil(value.length / 4) * 4, '=');
+
+  return decodeURIComponent(escape(atob(base64)));
+}
+
+function tryDecodeInviteSearch(search: string): string | null {
+  const raw = search.replace(/^\?/, '').trim();
+
+  if (!raw || raw.includes('=')) {
+    return null;
+  }
+
+  try {
+    const decoded = fromBase64Url(raw);
+    const params = new URLSearchParams(decoded);
+
+    if (!params.has('partner_id')) {
+      return null;
+    }
+
+    return params.toString();
+  } catch {
+    return null;
+  }
+}
+
 function ThemeToggle() {
   const { setColorScheme } = useMantineColorScheme();
   const computedColorScheme = useComputedColorScheme('light');
@@ -52,6 +82,14 @@ function ThemeToggle() {
 export default function Login() {
   const [mode, setMode] = useState<'login' | 'register'>('login');
   useEffect(() => {
+    const decodedSearch = tryDecodeInviteSearch(location.search);
+
+    if (decodedSearch) {
+      const nextUrl = `${window.location.pathname}?${decodedSearch}${window.location.hash}`;
+      window.history.replaceState({}, '', nextUrl);
+      return;
+    }
+
     const params = new URLSearchParams(location.search);
     if (params.has('register')) {
       setMode('register');

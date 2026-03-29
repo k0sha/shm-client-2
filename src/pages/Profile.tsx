@@ -60,6 +60,21 @@ interface ForecastData {
   items: ForecastItem[];
 }
 
+function toBase64Url(value: string): string {
+  return btoa(unescape(encodeURIComponent(value)))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/g, '');
+}
+
+function buildEncodedPartnerLink(baseUrl: string, userId: number | string): string {
+  const payload = new URLSearchParams({
+    partner_id: String(userId),
+  }).toString();
+
+  return `${baseUrl}?${toBase64Url(payload)}`;
+}
+
 export default function Profile() {
   const { telegramPhoto, userEmail: storeEmail, userEmailVerified: storeEmailVerified, setUserEmail, setUserEmailVerified } = useStore();
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -98,7 +113,7 @@ export default function Profile() {
   const clipboard = useClipboard({ timeout: 1000 });
   const { t } = useTranslation();
   const basePath = config.SHM_BASE_PATH && config.SHM_BASE_PATH !== '/' ? config.SHM_BASE_PATH : '';
-  const partnerLink = `${window.location.origin}${basePath}?partner_id=${profile?.user_id || 0}`;
+  const partnerLink = buildEncodedPartnerLink(`${window.location.origin}${basePath}`, profile?.user_id || 0);
 
   const updateCooldown = useCallback(() => {
     const lastSent = localStorage.getItem(RESEND_STORAGE_KEY);
