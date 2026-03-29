@@ -63,42 +63,25 @@ const statusColors: Record<string, string> = {
 };
 
 function normalizeCategory(category: string): string {
-  const normalizedCategory = (category || '').trim().toLowerCase();
+  const proxyCategories = new Set(config.PROXY_CATEGORY.split(','));
+  const vpnCategories = new Set(config.VPN_CATEGORY.split(','));
 
-  if (normalizedCategory === 'k0sha_vpn') {
+  if (proxyCategories.has(category)) {
     return 'proxy';
   }
-
-  const proxyCategories = (config.PROXY_CATEGORY || '')
-    .split(',')
-    .map(item => item.trim().toLowerCase())
-    .filter(Boolean);
-
-  if (proxyCategories.includes(normalizedCategory)) {
-    return 'proxy';
-  }
-
-  const vpnCategories = (config.VPN_CATEGORY || '')
-    .split(',')
-    .map(item => item.trim().toLowerCase())
-    .filter(Boolean);
-
-  if (vpnCategories.length > 0 && vpnCategories.includes(normalizedCategory)) {
+  if ( vpnCategories.has(category) ) {
     return 'vpn';
   }
 
-  if (/remna|remnawave|marzban|marz|mz/i.test(normalizedCategory)) {
+  if (category.match(/remna|remnawave|marzban|marz|mz/i)) {
     return 'proxy';
   }
-
-  if (/^(vpn|wg|awg)/i.test(normalizedCategory)) {
+  if (category.match(/^(vpn|wg|awg)/i)) {
     return 'vpn';
   }
-
-  if (['web_tariff', 'web', 'mysql', 'mail', 'hosting'].includes(normalizedCategory)) {
-    return normalizedCategory;
+  if (['web_tariff', 'web', 'mysql', 'mail', 'hosting'].includes(category)) {
+    return category;
   }
-
   return 'other';
 }
 
@@ -137,7 +120,8 @@ function ServiceDetail({ service, onDelete, onChangeTariff }: ServiceDetailProps
     setDownloading(true);
     try {
       const blob = new Blob([storageData], { type: 'application/octet-stream' });
-      const prefix = config.VPN_STORAGE_PREFIX ? config.VPN_STORAGE_PREFIX : 'vpn';
+      const rawPrefix = config.VPN_STORAGE_PREFIX ? config.VPN_STORAGE_PREFIX : 'vpn';
+      const prefix = rawPrefix.endsWith('_') ? rawPrefix : `${rawPrefix}_`;
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -167,7 +151,7 @@ function ServiceDetail({ service, onDelete, onChangeTariff }: ServiceDetailProps
           const forecast = forecastData[0];
           const balance = forecast.balance || 0;
           const item = forecast.items?.find(
-            (it: ForecastItem) => String(it.user_service_id) === String(service.user_service_id)
+              (it: ForecastItem) => String(it.user_service_id) === String(service.user_service_id)
           );
           if (item) {
             const needToPay = Math.max(0, Math.ceil((item.total - balance) * 100) / 100);
@@ -323,7 +307,8 @@ function ServiceDetail({ service, onDelete, onChangeTariff }: ServiceDetailProps
   useEffect(() => {
     const fetchData = async () => {
       if (category === 'proxy') {
-        const prefix = config.PROXY_STORAGE_PREFIX ? config.PROXY_STORAGE_PREFIX : 'vpn_mrzb_';
+        const rawPrefix = config.PROXY_STORAGE_PREFIX ? config.PROXY_STORAGE_PREFIX : 'vpn_mrzb_';
+        const prefix = rawPrefix.endsWith('_') ? rawPrefix : `${rawPrefix}_`;
         try {
           const mzResponse = await api.get(`/storage/manage/${prefix}${service.user_service_id}?format=json`);
           const url = mzResponse.data.subscription_url || mzResponse.data.response?.subscriptionUrl;
@@ -344,7 +329,8 @@ function ServiceDetail({ service, onDelete, onChangeTariff }: ServiceDetailProps
           }
         }
       } else if (category === 'vpn') {
-        const prefix = config.VPN_STORAGE_PREFIX ? config.VPN_STORAGE_PREFIX : 'vpn';
+        const rawPrefix = config.VPN_STORAGE_PREFIX ? config.VPN_STORAGE_PREFIX : 'vpn';
+        const prefix = rawPrefix.endsWith('_') ? rawPrefix : `${rawPrefix}_`;
         try {
           const vpnResponse = await api.get(`/storage/manage/${prefix}${service.user_service_id}`);
           const configData = vpnResponse.data;
@@ -400,322 +386,322 @@ function ServiceDetail({ service, onDelete, onChangeTariff }: ServiceDetailProps
   ].some(Boolean);
 
   return (
-    <Stack gap="md">
-      <Group justify="space-between">
-        <div>
-          <Text fw={700} size="lg">#{service.user_service_id} - {prettifyServiceName(service.service.name)}</Text>
-          <Badge color={statusColor} variant="light">
-            {statusLabel}
-          </Badge>
-        </div>
-      </Group>
+      <Stack gap="md">
+        <Group justify="space-between">
+          <div>
+            <Text fw={700} size="lg">#{service.user_service_id} - {prettifyServiceName(service.service.name)}</Text>
+            <Badge color={statusColor} variant="light">
+              {statusLabel}
+            </Badge>
+          </div>
+        </Group>
 
-      <Tabs value={activeTab} onChange={setActiveTab}>
-        <Tabs.List>
-          <Tabs.Tab value="info">{t('services.info')}</Tabs.Tab>
-          {isVpnOrProxy && service.status === 'ACTIVE' && <Tabs.Tab value="config">{t('services.connection')}</Tabs.Tab>}
-        </Tabs.List>
+        <Tabs value={activeTab} onChange={setActiveTab}>
+          <Tabs.List>
+            <Tabs.Tab value="info">{t('services.info')}</Tabs.Tab>
+            {isVpnOrProxy && service.status === 'ACTIVE' && <Tabs.Tab value="config">{t('services.connection')}</Tabs.Tab>}
+          </Tabs.List>
 
-        <Tabs.Panel value="info" pt="md">
-          <Stack gap="xs">
-            <Group justify="space-between">
-              <Text size="sm" c="dimmed">{t('services.status')}:</Text>
-              <Badge color={statusColor} variant="light">{statusLabel}</Badge>
-            </Group>
-            <Group justify="space-between">
-              <Text size="sm" c="dimmed">{t('services.cost')}:</Text>
-              <Text size="sm">{service.service.cost} {t('common.currency')}</Text>
-            </Group>
-            {service.expire && (
+          <Tabs.Panel value="info" pt="md">
+            <Stack gap="xs">
               <Group justify="space-between">
-                <Text size="sm" c="dimmed">{t('services.validUntil')}:</Text>
-                <Text size="sm">{new Date(service.expire as string).toLocaleDateString(i18n.language === 'ru' ? 'ru-RU' : 'en-US')}</Text>
+                <Text size="sm" c="dimmed">{t('services.status')}:</Text>
+                <Badge color={statusColor} variant="light">{statusLabel}</Badge>
               </Group>
-            )}
-            {service.next && (
               <Group justify="space-between">
-                <Text size="sm" c="dimmed">{t('services.validUntilNext')}:</Text>
-                {nextServiceLoading ? (
-                  <Text size="sm">{t('common.loading')}</Text>
-                ) : nextServiceInfo ? (
-                  <Text size="sm">{prettifyServiceName(nextServiceInfo.name)} - {nextServiceInfo.cost} {t('common.currency')}</Text>
-                ) : (
-                  <Text size="sm">{service.next}</Text>
-                )}
+                <Text size="sm" c="dimmed">{t('services.cost')}:</Text>
+                <Text size="sm">{service.service.cost} {t('common.currency')}</Text>
               </Group>
-            )}
-            {service.children && service.children.length > 0 && (
-              <>
-                <Text size="sm" c="dimmed" mt="md">{t('services.includedServices')}:</Text>
-                {service.children.map((child) => {
-                  const childStatusColor = statusColors[child.status] || 'gray';
-                  const childStatusLabel = t(`status.${child.status}`, child.status);
-                  return (
-                    <Group key={child.user_service_id} justify="space-between" ml="md">
-                      <Text size="sm">{prettifyServiceName(child.service.name)}</Text>
-                      <Badge size="sm" color={childStatusColor} variant="light">{childStatusLabel}</Badge>
-                    </Group>
-                  );
-                })}
-              </>
-            )}
-          </Stack>
-        </Tabs.Panel>
-
-        { service.status === 'ACTIVE' && (
-          <Tabs.Panel value="config" pt="md">
-            <Stack gap="md">
-              {isProxy && subscriptionUrl && (
-                <Paper withBorder p="md" radius="md">
-                  { config.SHOW_PROXY_SUB_LINK === 'true' && (
-                    <>
-                    <Text size="sm" fw={500} mb="xs">{t('services.subscriptionLink')}</Text>
-                    <Group gap="xs">
-                      <Code style={{ flex: 1, wordBreak: 'break-all' }}>{subscriptionUrl}</Code>
-                      <Tooltip label={clipboard.copied ? t('common.copied') : t('common.copy')}>
-                        <ActionIcon color={clipboard.copied ? 'teal' : 'gray'} variant="subtle" onClick={() => clipboard.copy(subscriptionUrl)}>
-                          {clipboard.copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
-                        </ActionIcon>
-                      </Tooltip>
-                    </Group>
-                    <Divider my="xs" />
-                    </>
-                  ) }
-
-
-                  <Group gap="xs">
-                    {hasProxyAppUrls ? (
-                      <Timeline active={1} bulletSize={24} lineWidth={2}>
-                        <Timeline.Item bullet={<IconDownload size={12} />} title={t('services.stepDownloadApp')}>
-                          <AppDownloadBlock type="proxy" />
-                        </Timeline.Item>
-                        <Timeline.Item bullet={<IconDeviceMobileCog size={12} />} title={t('services.stepConfigureApp') + ' ' + (urlSchema ? t('services.deviceConfig') : t('services.openSubLink'))}>
-                          <Group gap="xs" mt="xs">
-                            { config.SHOW_PROXY_QR === 'true' && (
-                              <Button
-                                leftSection={<IconQrcode size={16} />}
-                                variant="light"
-                                onClick={() => setQrModalOpen(true)}
-                              >
-                                {t('services.qrCode')}
-                            </Button>
-                            )}
-                            <Button
-                              component="a"
-                              color="green"
-                              onClick={() => urlSchema ? handleOpenUrlSchema() : handleConfigure()}
-                              leftSection={<IconDeviceMobileCog size={16} />}
-                              variant="light"
-                            >
-                              {urlSchema ? t('services.deviceConfig') : t('services.openSubLink')}
-                            </Button>
-                          </Group>
-                        </Timeline.Item>
-                      </Timeline>
+              {service.expire && (
+                  <Group justify="space-between">
+                    <Text size="sm" c="dimmed">{t('services.validUntil')}:</Text>
+                    <Text size="sm">{new Date(service.expire as string).toLocaleDateString(i18n.language === 'ru' ? 'ru-RU' : 'en-US')}</Text>
+                  </Group>
+              )}
+              {service.next && (
+                  <Group justify="space-between">
+                    <Text size="sm" c="dimmed">{t('services.validUntilNext')}:</Text>
+                    {nextServiceLoading ? (
+                        <Text size="sm">{t('common.loading')}</Text>
+                    ) : nextServiceInfo ? (
+                        <Text size="sm">{prettifyServiceName(nextServiceInfo.name)} - {nextServiceInfo.cost} {t('common.currency')}</Text>
                     ) : (
-                    <Group gap="xs" mt="xs">
-                      {config.SHOW_PROXY_QR && (
-                        <Button
-                          leftSection={<IconQrcode size={16} />}
-                          variant="light"
-                          onClick={() => setQrModalOpen(true)}
-                        >
-                          {t('services.qrCode')}
-                        </Button>
-                      )}
-                      <Button
-                        component="a"
-                        color="green"
-                        onClick={() => handleConfigure()}
-                        leftSection={<IconDeviceMobileCog size={16} />}
-                        variant="light"
-                      >
-                        {t('services.openSubLink')}
-                      </Button>
-                    </Group>
+                        <Text size="sm">{service.next}</Text>
                     )}
                   </Group>
-                </Paper>
               )}
-              { isVpn && storageData && (
-                <Paper withBorder p="md" radius="md">
-                  {hasVpnAppUrls ? (
-                    <Timeline active={1} bulletSize={24} lineWidth={2}>
-                      <Timeline.Item bullet={<IconDownload size={12} />} title={t('services.stepDownloadApp')}>
-                        <AppDownloadBlock type="vpn" />
-                      </Timeline.Item>
-                      <Timeline.Item bullet={<IconDeviceMobileCog size={12} />} title={t('services.stepConfigureApp') + ' ' +  (t('services.downloadConfig'))}>
-                        <Group gap="xs" mt="xs">
-                          <Button
-                            leftSection={<IconQrcode size={16} />}
-                            variant="light"
-                            onClick={() => setQrModalOpen(true)}
-                            >
-                              {t('services.qrCode')}
-                            </Button>
-                          <Button
-                            leftSection={<IconDownload size={16} />}
-                            variant="light"
-                            onClick={downloadConfig}
-                            loading={downloading}
-                          >
-                            {t('services.downloadConfig')}
-                          </Button>
-                        </Group>
-                      </Timeline.Item>
-                    </Timeline>
-                    ) : (
-                    <Group gap="xs" mt="xs">
-                      <Button
-                        leftSection={<IconQrcode size={16} />}
-                        variant="light"
-                        onClick={() => setQrModalOpen(true)}
-                      >
-                        {t('services.qrCode')}
-                      </Button>
-                      <Button
-                        leftSection={<IconDownload size={16} />}
-                        variant="light"
-                        onClick={downloadConfig}
-                        loading={downloading}
-                      >
-                        {t('services.downloadConfig')}
-                      </Button>
-                    </Group>
-                  )}
-                </Paper>
+              {service.children && service.children.length > 0 && (
+                  <>
+                    <Text size="sm" c="dimmed" mt="md">{t('services.includedServices')}:</Text>
+                    {service.children.map((child) => {
+                      const childStatusColor = statusColors[child.status] || 'gray';
+                      const childStatusLabel = t(`status.${child.status}`, child.status);
+                      return (
+                          <Group key={child.user_service_id} justify="space-between" ml="md">
+                            <Text size="sm">{prettifyServiceName(child.service.name)}</Text>
+                            <Badge size="sm" color={childStatusColor} variant="light">{childStatusLabel}</Badge>
+                          </Group>
+                      );
+                    })}
+                  </>
               )}
-
-              <QrModal
-                opened={qrModalOpen}
-                onClose={() => setQrModalOpen(false)}
-                data={isVpn ? (storageData || '') : (subscriptionUrl || '')}
-                title={isVpn ? t('services.vpnQrTitle') : t('services.subscriptionQrTitle')}
-                onDownload={isVpn ? downloadConfig : undefined}
-              />
             </Stack>
           </Tabs.Panel>
-        )}
-      </Tabs>
 
-      {isNotPaid && (
-        <Paper withBorder p="md" radius="md" mt="md">
-          <Stack gap="sm">
-            {forecastLoading ? (
-              <Group justify="center" py="xs">
-                <Loader size="sm" />
-                <Text size="sm">{t('common.loading')}</Text>
-              </Group>
-            ) : forecastTotal !== null && forecastTotal > 0 ? (
-              <>
-                <Group justify="space-between">
-                  <Group gap="xs">
-                    <IconWallet size={18} />
-                    <Text fw={500}>{t('services.amountToPay')}</Text>
-                  </Group>
-                  <Text fw={700} size="lg" c="red">{forecastTotal.toFixed(2)} {t('common.currency')}</Text>
-                </Group>
-                {paySystemsLoading ? (
-                  <Group justify="center" py="xs">
-                    <Loader size="sm" />
-                  </Group>
-                ) : paySystems.length > 0 ? (
-                  <>
-                    <Select
-                      label={t('payments.paymentSystem')}
-                      data={paySystems.map(ps => ({ value: ps.shm_url, label: ps.name }))}
-                      value={selectedPaySystem}
-                      onChange={setSelectedPaySystem}
-                      size="sm"
-                    />
-                    <NumberInput
-                      label={t('payments.amount')}
-                      value={payAmount}
-                      onChange={setPayAmount}
-                      min={1}
-                      step={10}
-                      decimalScale={2}
-                      suffix=" ₽"
-                      size="sm"
-                    />
-                    <Button
-                      fullWidth
-                      leftSection={<IconCreditCard size={18} />}
-                      onClick={handlePay}
-                      loading={paying}
-                      disabled={!selectedPaySystem}
-                    >
-                      {t('services.payService', { amount: payAmount })}
-                    </Button>
-                  </>
+          { service.status === 'ACTIVE' && (
+              <Tabs.Panel value="config" pt="md">
+                <Stack gap="md">
+                  {isProxy && subscriptionUrl && (
+                      <Paper withBorder p="md" radius="md">
+                        { config.SHOW_PROXY_SUB_LINK === 'true' && (
+                            <>
+                              <Text size="sm" fw={500} mb="xs">{t('services.subscriptionLink')}</Text>
+                              <Group gap="xs">
+                                <Code style={{ flex: 1, wordBreak: 'break-all' }}>{subscriptionUrl}</Code>
+                                <Tooltip label={clipboard.copied ? t('common.copied') : t('common.copy')}>
+                                  <ActionIcon color={clipboard.copied ? 'teal' : 'gray'} variant="subtle" onClick={() => clipboard.copy(subscriptionUrl)}>
+                                    {clipboard.copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
+                                  </ActionIcon>
+                                </Tooltip>
+                              </Group>
+                              <Divider my="xs" />
+                            </>
+                        ) }
+
+
+                        <Group gap="xs">
+                          {hasProxyAppUrls ? (
+                              <Timeline active={1} bulletSize={24} lineWidth={2}>
+                                <Timeline.Item bullet={<IconDownload size={12} />} title={t('services.stepDownloadApp')}>
+                                  <AppDownloadBlock type="proxy" />
+                                </Timeline.Item>
+                                <Timeline.Item bullet={<IconDeviceMobileCog size={12} />} title={t('services.stepConfigureApp') + ' ' + (urlSchema ? t('services.deviceConfig') : t('services.openSubLink'))}>
+                                  <Group gap="xs" mt="xs">
+                                    { config.SHOW_PROXY_QR === 'true' && (
+                                        <Button
+                                            leftSection={<IconQrcode size={16} />}
+                                            variant="light"
+                                            onClick={() => setQrModalOpen(true)}
+                                        >
+                                          {t('services.qrCode')}
+                                        </Button>
+                                    )}
+                                    <Button
+                                        component="a"
+                                        color="green"
+                                        onClick={() => urlSchema ? handleOpenUrlSchema() : handleConfigure()}
+                                        leftSection={<IconDeviceMobileCog size={16} />}
+                                        variant="light"
+                                    >
+                                      {urlSchema ? t('services.deviceConfig') : t('services.openSubLink')}
+                                    </Button>
+                                  </Group>
+                                </Timeline.Item>
+                              </Timeline>
+                          ) : (
+                              <Group gap="xs" mt="xs">
+                                {config.SHOW_PROXY_QR && (
+                                    <Button
+                                        leftSection={<IconQrcode size={16} />}
+                                        variant="light"
+                                        onClick={() => setQrModalOpen(true)}
+                                    >
+                                      {t('services.qrCode')}
+                                    </Button>
+                                )}
+                                <Button
+                                    component="a"
+                                    color="green"
+                                    onClick={() => handleConfigure()}
+                                    leftSection={<IconDeviceMobileCog size={16} />}
+                                    variant="light"
+                                >
+                                  {t('services.openSubLink')}
+                                </Button>
+                              </Group>
+                          )}
+                        </Group>
+                      </Paper>
+                  )}
+                  { isVpn && storageData && (
+                      <Paper withBorder p="md" radius="md">
+                        {hasVpnAppUrls ? (
+                            <Timeline active={1} bulletSize={24} lineWidth={2}>
+                              <Timeline.Item bullet={<IconDownload size={12} />} title={t('services.stepDownloadApp')}>
+                                <AppDownloadBlock type="vpn" />
+                              </Timeline.Item>
+                              <Timeline.Item bullet={<IconDeviceMobileCog size={12} />} title={t('services.stepConfigureApp') + ' ' +  (t('services.downloadConfig'))}>
+                                <Group gap="xs" mt="xs">
+                                  <Button
+                                      leftSection={<IconQrcode size={16} />}
+                                      variant="light"
+                                      onClick={() => setQrModalOpen(true)}
+                                  >
+                                    {t('services.qrCode')}
+                                  </Button>
+                                  <Button
+                                      leftSection={<IconDownload size={16} />}
+                                      variant="light"
+                                      onClick={downloadConfig}
+                                      loading={downloading}
+                                  >
+                                    {t('services.downloadConfig')}
+                                  </Button>
+                                </Group>
+                              </Timeline.Item>
+                            </Timeline>
+                        ) : (
+                            <Group gap="xs" mt="xs">
+                              <Button
+                                  leftSection={<IconQrcode size={16} />}
+                                  variant="light"
+                                  onClick={() => setQrModalOpen(true)}
+                              >
+                                {t('services.qrCode')}
+                              </Button>
+                              <Button
+                                  leftSection={<IconDownload size={16} />}
+                                  variant="light"
+                                  onClick={downloadConfig}
+                                  loading={downloading}
+                              >
+                                {t('services.downloadConfig')}
+                              </Button>
+                            </Group>
+                        )}
+                      </Paper>
+                  )}
+
+                  <QrModal
+                      opened={qrModalOpen}
+                      onClose={() => setQrModalOpen(false)}
+                      data={isVpn ? (storageData || '') : (subscriptionUrl || '')}
+                      title={isVpn ? t('services.vpnQrTitle') : t('services.subscriptionQrTitle')}
+                      onDownload={isVpn ? downloadConfig : undefined}
+                  />
+                </Stack>
+              </Tabs.Panel>
+          )}
+        </Tabs>
+
+        {isNotPaid && (
+            <Paper withBorder p="md" radius="md" mt="md">
+              <Stack gap="sm">
+                {forecastLoading ? (
+                    <Group justify="center" py="xs">
+                      <Loader size="sm" />
+                      <Text size="sm">{t('common.loading')}</Text>
+                    </Group>
+                ) : forecastTotal !== null && forecastTotal > 0 ? (
+                    <>
+                      <Group justify="space-between">
+                        <Group gap="xs">
+                          <IconWallet size={18} />
+                          <Text fw={500}>{t('services.amountToPay')}</Text>
+                        </Group>
+                        <Text fw={700} size="lg" c="red">{forecastTotal.toFixed(2)} {t('common.currency')}</Text>
+                      </Group>
+                      {paySystemsLoading ? (
+                          <Group justify="center" py="xs">
+                            <Loader size="sm" />
+                          </Group>
+                      ) : paySystems.length > 0 ? (
+                          <>
+                            <Select
+                                label={t('payments.paymentSystem')}
+                                data={paySystems.map(ps => ({ value: ps.shm_url, label: ps.name }))}
+                                value={selectedPaySystem}
+                                onChange={setSelectedPaySystem}
+                                size="sm"
+                            />
+                            <NumberInput
+                                label={t('payments.amount')}
+                                value={payAmount}
+                                onChange={setPayAmount}
+                                min={1}
+                                step={10}
+                                decimalScale={2}
+                                suffix=" ₽"
+                                size="sm"
+                            />
+                            <Button
+                                fullWidth
+                                leftSection={<IconCreditCard size={18} />}
+                                onClick={handlePay}
+                                loading={paying}
+                                disabled={!selectedPaySystem}
+                            >
+                              {t('services.payService', { amount: payAmount })}
+                            </Button>
+                          </>
+                      ) : null}
+                    </>
                 ) : null}
-              </>
-            ) : null}
-          </Stack>
-        </Paper>
-      )}
+              </Stack>
+            </Paper>
+        )}
 
-      {canChange && (
-        <Button
-          color="blue"
-          variant="light"
-          leftSection={<IconExchange size={16} />}
-          onClick={() => onChangeTariff?.(service)}
-          mt="md"
-          fullWidth
-        >
-          {t('services.changeService')}
-        </Button>
-      )}
+        {canChange && (
+            <Button
+                color="blue"
+                variant="light"
+                leftSection={<IconExchange size={16} />}
+                onClick={() => onChangeTariff?.(service)}
+                mt="md"
+                fullWidth
+            >
+              {t('services.changeService')}
+            </Button>
+        )}
 
-      {canStop && (
-        <Button
-          color="orange"
-          variant="light"
-          leftSection={<IconPlayerStop size={16} />}
-          onClick={() => setConfirmStop(true)}
-          mt="md"
-          fullWidth
-        >
-          {t('services.stopService')}
-        </Button>
-      )}
+        {canStop && (
+            <Button
+                color="orange"
+                variant="light"
+                leftSection={<IconPlayerStop size={16} />}
+                onClick={() => setConfirmStop(true)}
+                mt="md"
+                fullWidth
+            >
+              {t('services.stopService')}
+            </Button>
+        )}
 
-      {canDelete && (
-        <Button
-          color="red"
-          variant="light"
-          leftSection={<IconTrash size={16} />}
-          onClick={() => setConfirmDelete(true)}
-          mt="md"
-          fullWidth
-        >
-          {t('services.deleteService')}
-        </Button>
-      )}
+        {canDelete && (
+            <Button
+                color="red"
+                variant="light"
+                leftSection={<IconTrash size={16} />}
+                onClick={() => setConfirmDelete(true)}
+                mt="md"
+                fullWidth
+            >
+              {t('services.deleteService')}
+            </Button>
+        )}
 
-      <ConfirmModal
-        opened={confirmStop}
-        onClose={() => setConfirmStop(false)}
-        onConfirm={handleStop}
-        title={t('services.stopServiceTitle')}
-        message={t('services.stopServiceMessage')}
-        confirmLabel={t('services.stop')}
-        confirmColor="orange"
-        loading={stopping}
-      />
+        <ConfirmModal
+            opened={confirmStop}
+            onClose={() => setConfirmStop(false)}
+            onConfirm={handleStop}
+            title={t('services.stopServiceTitle')}
+            message={t('services.stopServiceMessage')}
+            confirmLabel={t('services.stop')}
+            confirmColor="orange"
+            loading={stopping}
+        />
 
-      <ConfirmModal
-        opened={confirmDelete}
-        onClose={() => setConfirmDelete(false)}
-        onConfirm={handleDelete}
-        title={t('services.deleteServiceTitle')}
-        message={t('services.deleteServiceMessage')}
-        confirmLabel={t('common.delete')}
-        confirmColor="red"
-        loading={deleting}
-      />
-    </Stack>
+        <ConfirmModal
+            opened={confirmDelete}
+            onClose={() => setConfirmDelete(false)}
+            onConfirm={handleDelete}
+            title={t('services.deleteServiceTitle')}
+            message={t('services.deleteServiceMessage')}
+            confirmLabel={t('common.delete')}
+            confirmColor="red"
+            loading={deleting}
+        />
+      </Stack>
   );
 }
 
@@ -726,92 +712,92 @@ function ServiceCard({ service, onClick, isChild = false, isLastChild = false }:
 
   if (isChild) {
     return (
-      <Group gap={0} wrap="nowrap" align="stretch">
-        <Box
-          style={{
-            width: 24,
-            position: 'relative',
-            flexShrink: 0,
-          }}
-        >
+        <Group gap={0} wrap="nowrap" align="stretch">
           <Box
-            style={{
-              position: 'absolute',
-              left: 10,
-              top: 0,
-              bottom: isLastChild ? '50%' : 0,
-              width: 2,
-              backgroundColor: 'var(--mantine-color-gray-4)',
-            }}
-          />
-          <Box
-            style={{
-              position: 'absolute',
-              left: 10,
-              top: '50%',
-              width: 14,
-              height: 2,
-              backgroundColor: 'var(--mantine-color-gray-4)',
-            }}
-          />
-        </Box>
-        <Card
-          withBorder
-          radius="md"
-          p="sm"
-          style={{ cursor: 'pointer', flex: 1 }}
-          onClick={onClick}
-        >
-          <Group justify="space-between">
-            <div>
-              <Text fw={500} size="sm">#{service.user_service_id} - {prettifyServiceName(service.service.name)}</Text>
-              {service.expire && (
-                <Text size="xs" c="dimmed">
-                  {new Date(service.expire as string).toLocaleDateString(i18n.language === 'ru' ? 'ru-RU' : 'en-US')}
-                </Text>
-              )}
-            </div>
-            <Group gap="sm">
-              {service.service.cost > 0 && (
-                <Text size="sm" c="dimmed">{service.service.cost} {t('common.currency')}</Text>
-              )}
-              <Badge color={statusColor} variant="light" size="sm">
-                {statusLabel}
-              </Badge>
+              style={{
+                width: 24,
+                position: 'relative',
+                flexShrink: 0,
+              }}
+          >
+            <Box
+                style={{
+                  position: 'absolute',
+                  left: 10,
+                  top: 0,
+                  bottom: isLastChild ? '50%' : 0,
+                  width: 2,
+                  backgroundColor: 'var(--mantine-color-gray-4)',
+                }}
+            />
+            <Box
+                style={{
+                  position: 'absolute',
+                  left: 10,
+                  top: '50%',
+                  width: 14,
+                  height: 2,
+                  backgroundColor: 'var(--mantine-color-gray-4)',
+                }}
+            />
+          </Box>
+          <Card
+              withBorder
+              radius="md"
+              p="sm"
+              style={{ cursor: 'pointer', flex: 1 }}
+              onClick={onClick}
+          >
+            <Group justify="space-between">
+              <div>
+                <Text fw={500} size="sm">#{service.user_service_id} - {prettifyServiceName(service.service.name)}</Text>
+                {service.expire && (
+                    <Text size="xs" c="dimmed">
+                      {new Date(service.expire as string).toLocaleDateString(i18n.language === 'ru' ? 'ru-RU' : 'en-US')}
+                    </Text>
+                )}
+              </div>
+              <Group gap="sm">
+                {service.service.cost > 0 && (
+                    <Text size="sm" c="dimmed">{service.service.cost} {t('common.currency')}</Text>
+                )}
+                <Badge color={statusColor} variant="light" size="sm">
+                  {statusLabel}
+                </Badge>
+              </Group>
             </Group>
-          </Group>
-        </Card>
-      </Group>
+          </Card>
+        </Group>
     );
   }
 
   return (
-    <Card
-      withBorder
-      radius="md"
-      p="md"
-      style={{ cursor: 'pointer' }}
-      onClick={onClick}
-    >
-      <Group justify="space-between">
-        <div>
-          <Text fw={500}>#{service.user_service_id} - {prettifyServiceName(service.service.name)}</Text>
-          {service.expire && (
-            <Text size="xs" c="dimmed">
-              {new Date(service.expire as string).toLocaleDateString(i18n.language === 'ru' ? 'ru-RU' : 'en-US')}
-            </Text>
-          )}
-        </div>
-        <Group gap="sm">
-          {service.service.cost > 0 && (
-            <Text size="sm" c="dimmed">{service.service.cost} {t('common.currency')}</Text>
-          )}
-          <Badge color={statusColor} variant="light">
-            {statusLabel}
-          </Badge>
+      <Card
+          withBorder
+          radius="md"
+          p="md"
+          style={{ cursor: 'pointer' }}
+          onClick={onClick}
+      >
+        <Group justify="space-between">
+          <div>
+            <Text fw={500}>#{service.user_service_id} - {prettifyServiceName(service.service.name)}</Text>
+            {service.expire && (
+                <Text size="xs" c="dimmed">
+                  {new Date(service.expire as string).toLocaleDateString(i18n.language === 'ru' ? 'ru-RU' : 'en-US')}
+                </Text>
+            )}
+          </div>
+          <Group gap="sm">
+            {service.service.cost > 0 && (
+                <Text size="sm" c="dimmed">{service.service.cost} {t('common.currency')}</Text>
+            )}
+            <Badge color={statusColor} variant="light">
+              {statusLabel}
+            </Badge>
+          </Group>
         </Group>
-      </Group>
-    </Card>
+      </Card>
   );
 }
 
@@ -832,16 +818,16 @@ export default function Services() {
   const needsEmailGate = config.EMAIL_VERIFY_REQUIRED === 'true' && (!hasEmail || !userEmailVerified);
 
   const emailGateTitle = hasEmail
-    ? 'Не удалось подтвердить email'
-    : 'Добавьте email';
+      ? 'Не удалось подтвердить email'
+      : 'Добавьте email';
 
   const emailGateMessage = hasEmail
-    ? 'Для заказа услуги необходимо подтвердить email.'
-    : 'Для заказа услуги необходимо добавить email. После добавления его нужно будет сразу подтвердить.';
+      ? 'Для заказа услуги необходимо подтвердить email.'
+      : 'Для заказа услуги необходимо добавить email. После добавления его нужно будет сразу подтвердить.';
 
   const emailGateAction = hasEmail
-    ? 'Подтвердить email'
-    : 'Добавить email';
+      ? 'Подтвердить email'
+      : 'Добавить email';
   const [confirmEmailNotVerified, setConfirmEmailNotVerified] = useState(false);
   const navigate = useNavigate();
 
@@ -966,157 +952,157 @@ export default function Services() {
 
   if (loading) {
     return (
-      <Center h={300}>
-        <Loader size="lg" />
-      </Center>
+        <Center h={300}>
+          <Loader size="lg" />
+        </Center>
     );
   }
 
   return (
-    <Stack gap="lg">
-      <Group justify="space-between">
-        <Title order={2}>{t('services.title')}</Title>
-        <Group>
-          <Button leftSection={<IconPlus size={16} />} onClick={needsEmailGate ? () => setConfirmEmailNotVerified(true) : openOrderModal}>
-            {t('services.orderService')}
-          </Button>
-          <Button leftSection={<IconRefresh size={16} />} variant="light" color="cyan" onClick={() => fetchServices()}>
-            {t('common.refresh')}
-          </Button>
+      <Stack gap="lg">
+        <Group justify="space-between">
+          <Title order={2}>{t('services.title')}</Title>
+          <Group>
+            <Button leftSection={<IconPlus size={16} />} onClick={needsEmailGate ? () => setConfirmEmailNotVerified(true) : openOrderModal}>
+              {t('services.orderService')}
+            </Button>
+            <Button leftSection={<IconRefresh size={16} />} variant="light" color="cyan" onClick={() => fetchServices()}>
+              {t('common.refresh')}
+            </Button>
+          </Group>
         </Group>
-      </Group>
 
-      {Object.keys(groupedServices).length === 0 ? (
-        <Paper withBorder p="xl" radius="md">
-          <Center>
-            <Stack align="center" gap="md">
-              <Text c="dimmed">{t('services.noServices')}</Text>
-              <Button leftSection={<IconPlus size={16} />} onClick={needsEmailGate ? () => setConfirmEmailNotVerified(true) : openOrderModal}>
-                {t('services.orderService')}
-              </Button>
-            </Stack>
-          </Center>
-        </Paper>
-      ) : (
-        <Accordion variant="separated" radius="md" multiple defaultValue={Object.keys(groupedServices)}>
-          {Object.entries(groupedServices).map(([category, categoryServices]) => {
-            const page = categoryPages[category] || 1;
-            const totalPages = Math.ceil(categoryServices.length / perPage);
-            const paginatedServices = categoryServices.slice((page - 1) * perPage, page * perPage);
-            let categoryTitle;
-            if ( category === 'vpn' && config.VPN_CATEGORY_TITLE ) {
-              categoryTitle = config.VPN_CATEGORY_TITLE
-            } else if ( category === 'proxy' && config.PROXY_CATEGORY_TITLE ) {
-              categoryTitle = config.PROXY_CATEGORY_TITLE
-            } else {
-              categoryTitle = t(`categories.${category}`, category);
-            }
-            return (
-            <Accordion.Item key={category} value={category}>
-              <Accordion.Control>
-                <Group>
-                  <Text fw={500}>{ categoryTitle }</Text>
-                  <Badge variant="light" size="sm">{categoryServices.length}</Badge>
-                </Group>
-              </Accordion.Control>
-              <Accordion.Panel>
-                <Stack gap="sm">
-                  {paginatedServices.map((service) => (
-                    <Box key={service.user_service_id}>
-                      <ServiceCard
-                        service={service}
-                        onClick={() => handleServiceClick(service)}
-                      />
-                      {service.children && service.children.length > 0 && (
-                        <Stack gap="xs" mt="xs" ml="md">
-                          {service.children.map((child, index) => (
-                            <ServiceCard
-                              key={child.user_service_id}
-                              service={child}
-                              onClick={() => handleServiceClick(child)}
-                              isChild
-                              isLastChild={index === service.children!.length - 1}
-                            />
-                          ))}
-                        </Stack>
-                      )}
-                    </Box>
-                  ))}
-                  {totalPages > 1 && (
-                    <Center mt="xs">
-                      <Pagination
-                        total={totalPages}
-                        value={page}
-                        onChange={(p) => setCategoryPages(prev => ({ ...prev, [category]: p }))}
-                        size="sm"
-                      />
-                    </Center>
-                  )}
+        {Object.keys(groupedServices).length === 0 ? (
+            <Paper withBorder p="xl" radius="md">
+              <Center>
+                <Stack align="center" gap="md">
+                  <Text c="dimmed">{t('services.noServices')}</Text>
+                  <Button leftSection={<IconPlus size={16} />} onClick={needsEmailGate ? () => setConfirmEmailNotVerified(true) : openOrderModal}>
+                    {t('services.orderService')}
+                  </Button>
                 </Stack>
-              </Accordion.Panel>
-            </Accordion.Item>
-            );
-          })}
-        </Accordion>
-      )}
+              </Center>
+            </Paper>
+        ) : (
+            <Accordion variant="separated" radius="md" multiple defaultValue={Object.keys(groupedServices)}>
+              {Object.entries(groupedServices).map(([category, categoryServices]) => {
+                const page = categoryPages[category] || 1;
+                const totalPages = Math.ceil(categoryServices.length / perPage);
+                const paginatedServices = categoryServices.slice((page - 1) * perPage, page * perPage);
+                let categoryTitle;
+                if ( category === 'vpn' && config.VPN_CATEGORY_TITLE ) {
+                  categoryTitle = config.VPN_CATEGORY_TITLE
+                } else if ( category === 'proxy' && config.PROXY_CATEGORY_TITLE ) {
+                  categoryTitle = config.PROXY_CATEGORY_TITLE
+                } else {
+                  categoryTitle = t(`categories.${category}`, category);
+                }
+                return (
+                    <Accordion.Item key={category} value={category}>
+                      <Accordion.Control>
+                        <Group>
+                          <Text fw={500}>{ categoryTitle }</Text>
+                          <Badge variant="light" size="sm">{categoryServices.length}</Badge>
+                        </Group>
+                      </Accordion.Control>
+                      <Accordion.Panel>
+                        <Stack gap="sm">
+                          {paginatedServices.map((service) => (
+                              <Box key={service.user_service_id}>
+                                <ServiceCard
+                                    service={service}
+                                    onClick={() => handleServiceClick(service)}
+                                />
+                                {service.children && service.children.length > 0 && (
+                                    <Stack gap="xs" mt="xs" ml="md">
+                                      {service.children.map((child, index) => (
+                                          <ServiceCard
+                                              key={child.user_service_id}
+                                              service={child}
+                                              onClick={() => handleServiceClick(child)}
+                                              isChild
+                                              isLastChild={index === service.children!.length - 1}
+                                          />
+                                      ))}
+                                    </Stack>
+                                )}
+                              </Box>
+                          ))}
+                          {totalPages > 1 && (
+                              <Center mt="xs">
+                                <Pagination
+                                    total={totalPages}
+                                    value={page}
+                                    onChange={(p) => setCategoryPages(prev => ({ ...prev, [category]: p }))}
+                                    size="sm"
+                                />
+                              </Center>
+                          )}
+                        </Stack>
+                      </Accordion.Panel>
+                    </Accordion.Item>
+                );
+              })}
+            </Accordion>
+        )}
 
-      <Modal opened={opened} onClose={close} title={t('services.serviceDetails')} size="lg">
-        {selectedService && (
-          <ServiceDetail
-            service={selectedService}
-            onDelete={() => {
-              close();
+        <Modal opened={opened} onClose={close} title={t('services.serviceDetails')} size="lg">
+          {selectedService && (
+              <ServiceDetail
+                  service={selectedService}
+                  onDelete={() => {
+                    close();
+                    refreshAttemptsRef.current = 0;
+                    fetchServices();
+                  }}
+                  onChangeTariff={handleChangeTariff}
+              />
+          )}
+        </Modal>
+
+        <OrderServiceModal
+            opened={orderModalOpened}
+            onClose={closeOrderModal}
+            onOrderSuccess={() => {
               refreshAttemptsRef.current = 0;
               fetchServices();
             }}
-            onChangeTariff={handleChangeTariff}
-          />
-        )}
-      </Modal>
+        />
 
-      <OrderServiceModal
-        opened={orderModalOpened}
-        onClose={closeOrderModal}
-        onOrderSuccess={() => {
-          refreshAttemptsRef.current = 0;
-          fetchServices();
-        }}
-      />
+        <OrderServiceModal
+            opened={changeModalOpened}
+            onClose={() => {
+              setChangeService(null);
+              closeChangeModal();
+            }}
+            mode="change"
+            currentService={
+              changeService
+                  ? {
+                    user_service_id: changeService.user_service_id,
+                    service_id: changeService.service_id,
+                    status: changeService.status,
+                    category: changeService.service.category,
+                    name: changeService.service.name,
+                  }
+                  : undefined
+            }
+            onChangeSuccess={() => {
+              refreshAttemptsRef.current = 0;
+              fetchServices();
+            }}
+        />
 
-      <OrderServiceModal
-        opened={changeModalOpened}
-        onClose={() => {
-          setChangeService(null);
-          closeChangeModal();
-        }}
-        mode="change"
-        currentService={
-          changeService
-            ? {
-                user_service_id: changeService.user_service_id,
-                service_id: changeService.service_id,
-                status: changeService.status,
-                category: changeService.service.category,
-                name: changeService.service.name,
-              }
-            : undefined
-        }
-        onChangeSuccess={() => {
-          refreshAttemptsRef.current = 0;
-          fetchServices();
-        }}
-      />
+        <ConfirmModal
+            opened={confirmEmailNotVerified}
+            onClose={() => setConfirmEmailNotVerified(false)}
+            onConfirm={handleEmailNotVerified}
+            title={emailGateTitle}
+            message={emailGateMessage}
+            confirmLabel={emailGateAction}
+            confirmColor="orange"
+        />
 
-      <ConfirmModal
-        opened={confirmEmailNotVerified}
-        onClose={() => setConfirmEmailNotVerified(false)}
-        onConfirm={handleEmailNotVerified}
-        title={emailGateTitle}
-        message={emailGateMessage}
-        confirmLabel={emailGateAction}
-        confirmColor="orange"
-      />
-
-    </Stack>
+      </Stack>
   );
 }
