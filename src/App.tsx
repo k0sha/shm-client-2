@@ -455,6 +455,7 @@ function AppContent() {
   const inviteStart = getInviteStart()?.trim() || null;
   const telegramStartLink = inviteStart ? buildTelegramStartLink(inviteStart) : null;
   const shouldShowTelegramChoice = !isLoading && !isAuthenticated && !preferWebsiteFlow && !isTelegramWebApp && !!inviteStart && !!telegramStartLink && hasPendingInviteChoice() && supportsTelegramChoice();
+  const shouldRenderTelegramChoice = shouldShowTelegramChoice || telegramOpening;
   useEffect(() => {
     if (shouldShowTelegramChoice) {
       clearPendingInviteChoice();
@@ -480,7 +481,7 @@ function AppContent() {
   }
 
   if (!isAuthenticated) {
-    if (shouldShowTelegramChoice) {
+    if (shouldRenderTelegramChoice) {
       return (
         <Center h="100vh" px="md">
           <Card withBorder radius="md" p="xl" w={420}>
