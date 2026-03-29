@@ -372,11 +372,6 @@ function AppContent() {
   const showVersion = () => setVersionOpen(true);
   const longPressProps = useLongPress(showVersion);
 
-  useEffect(() => {
-    if (shouldShowTelegramChoice) {
-      clearPendingInviteChoice();
-    }
-  }, [shouldShowTelegramChoice]);
 
   const handleSupportLink = () => {
     if (config.SUPPORT_LINK) {
@@ -459,6 +454,11 @@ function AppContent() {
   const inviteStart = getInviteStart()?.trim() || null;
   const telegramStartLink = inviteStart ? buildTelegramStartLink(inviteStart) : null;
   const shouldShowTelegramChoice = !isAuthenticated && !preferWebsiteFlow && !isTelegramWebApp && !!inviteStart && !!telegramStartLink && hasPendingInviteChoice() && supportsTelegramChoice();
+  useEffect(() => {
+    if (shouldShowTelegramChoice) {
+      clearPendingInviteChoice();
+    }
+  }, [shouldShowTelegramChoice]);
 
   const handleTelegramContinue = () => {
     if (!inviteStart || telegramOpening) {
