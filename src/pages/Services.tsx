@@ -67,7 +67,7 @@ function normalizeCategory(category: string): string {
   if (proxyCategories.has(category)) {
     return 'proxy';
   }
-  if ( vpnCategories.has(category) ) {
+  if (vpnCategories.has(category)) {
     return 'vpn';
   }
 

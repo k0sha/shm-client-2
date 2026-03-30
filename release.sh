@@ -17,6 +17,7 @@ fi
 npm version "$VERSION" --no-git-tag-version
 git add package.json package-lock.json
 git commit -m "chore: bump version to $VERSION"
+git push
 git tag "$VERSION"
 git push origin tag "$VERSION"
 
