@@ -218,7 +218,7 @@
     "emailNotVerifiedDesc": "To order services, you need to verify your email address. Please verify your email to continue.",
     "emailNotVerifiedAction": "Confirm email",
     "emailRequiredTitle": "Email is required",
-    "emailRequiredDesc": "To order a service, you need to add your email address.",
+    "emailRequiredDesc": "To order a service, you need to add your email address. After adding it, you will need to verify it right away.",
     "emailRequiredAction": "Add email"
   },
   "categories": {

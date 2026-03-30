@@ -819,16 +819,16 @@ export default function Services() {
   const needsEmailGate = config.EMAIL_VERIFY_REQUIRED === 'true' && (!hasEmail || !userEmailVerified);
 
   const emailGateTitle = hasEmail
-      ? 'Не удалось подтвердить email'
-      : 'Добавьте email';
+      ? t('services.emailNotVerifiedTitle')
+      : t('services.emailRequiredTitle');
 
   const emailGateMessage = hasEmail
-      ? 'Для заказа услуги необходимо подтвердить email.'
-      : 'Для заказа услуги необходимо добавить email. После добавления его нужно будет сразу подтвердить.';
+      ? t('services.emailNotVerifiedDesc')
+      : t('services.emailRequiredDesc');
 
   const emailGateAction = hasEmail
-      ? 'Подтвердить email'
-      : 'Добавить email';
+      ? t('services.emailNotVerifiedAction')
+      : t('services.emailRequiredAction');
   const [confirmEmailNotVerified, setConfirmEmailNotVerified] = useState(false);
   const navigate = useNavigate();
 
