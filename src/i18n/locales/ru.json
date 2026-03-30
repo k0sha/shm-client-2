@@ -214,8 +214,12 @@
     "savings_bonus": "Спишем {{amount}} ₽ бонусами",
     "profit": "Ваша выгода {{amount}} ₽ с учётом скидки и бонусов",
     "emailNotVerifiedtitle": "Не удалось подтвердить email",
+    "emailNotVerifiedTitle": "Не удалось подтвердить email",
     "emailNotVerifiedDesc": "Для заказа услуги необходимо подтвердить email.",
-    "emailNotVerifiedAction": "Подтвердить email"
+    "emailNotVerifiedAction": "Подтвердить email",
+    "emailRequiredTitle": "Не удалось добавить email",
+    "emailRequiredDesc": "Для заказа услуги необходимо добавить email.",
+    "emailRequiredAction": "Добавить email"
   },
   "categories": {
     "vpn": "VPN",
