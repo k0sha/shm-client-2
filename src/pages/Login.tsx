@@ -499,7 +499,12 @@ export default function Login() {
       }) as PublicKeyCredential;
 
       if (!credential) {
-        throw new Error('Failed to get credential');
+        notifications.show({
+          title: t('common.error'),
+          message: t('passkey.authError'),
+          color: 'red',
+        });
+        return;
       }
 
       const response = credential.response as AuthenticatorAssertionResponse;
@@ -668,7 +673,7 @@ export default function Login() {
                   >
                     {mode === 'login' ? t('auth.login') : t('auth.register')}
                   </Button>
-                  {mode === 'login' && isWebAuthnSupported && hasTelegramWidget && config.PASSKEY_AUTH_DISABLED === 'false' && (
+                  {mode === 'login' && isWebAuthnSupported && config.PASSKEY_AUTH_DISABLED === 'false' && (
                     <Button
                       variant="light"
                       leftSection={<IconFingerprint size={18} />}

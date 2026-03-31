@@ -9,6 +9,7 @@ import {
 } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { config } from '../config';
+import { isTelegramWebApp } from '../constants/webapp';
 
 interface AppPlatform {
   key: string;
@@ -105,13 +106,19 @@ export default function AppDownloadBlock({ type }: AppDownloadBlockProps) {
   const primary = allPlatforms.find((p) => p.key === detectedKey) || allPlatforms[0];
   const others = allPlatforms.filter((p) => p.key !== primary.key);
 
+  const handleOpenLink = (url: string) => {
+    const tgWebApp = window.Telegram?.WebApp;
+    if (tgWebApp && isTelegramWebApp) {
+      tgWebApp.openLink(url);
+    } else {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   return (
       <Group gap="xs">
         <Button
-          component="a"
-          href={primary.url}
-          target="_blank"
-          rel="noopener noreferrer"
+          onClick={() => handleOpenLink(primary.url)}
           leftSection={primary.icon}
           rightSection={<IconDownload size={16} />}
           variant="light"
@@ -134,10 +141,7 @@ export default function AppDownloadBlock({ type }: AppDownloadBlockProps) {
                 <Menu.Item
                   key={p.key}
                   leftSection={p.icon}
-                  component="a"
-                  href={p.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  onClick={() => handleOpenLink(p.url)}
                 >
                   {p.name}
                 </Menu.Item>

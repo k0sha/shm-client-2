@@ -69,7 +69,7 @@ function normalizeCategory(category: string): string {
   if (proxyCategories.has(category)) {
     return 'proxy';
   }
-  if ( vpnCategories.has(category) ) {
+  if (vpnCategories.has(category)) {
     return 'vpn';
   }
 
@@ -287,14 +287,31 @@ function ServiceDetail({ service, onDelete, onChangeTariff }: ServiceDetailProps
     return '';
   }
 
-  const handleOpenUrlSchema = () => {
+  const handleOpenUrlSchema = async () => {
     const urlSchema = config[`${detectPlatform()}_PROXY_URL_SCHEMA` as keyof typeof config];
-
     if (!urlSchema || !subscriptionUrl) return;
 
-    const link = `${urlSchema}${subscriptionUrl}`;
-    const tgWebApp = window.Telegram?.WebApp;
+    let link = `${urlSchema}${subscriptionUrl}`;
 
+    if (config.SHOW_PROXY_HAPP_CRYPTOLINK === 'true') {
+      try {
+        const response = await fetch(`https://crypto.happ.su/api-v2.php`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ url: subscriptionUrl }),
+        });
+        const data = await response.json();
+        if (data && data.encrypted_link) {
+          link = data.encrypted_link;
+        }
+      } catch {
+        // ignore and fall back to the regular link
+      }
+    }
+
+    const tgWebApp = window.Telegram?.WebApp;
     if (tgWebApp && isTelegramWebApp) {
       tgWebApp.openLink(buildRedirectLink(link));
     } else {

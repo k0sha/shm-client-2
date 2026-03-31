@@ -54,6 +54,7 @@ services:
 | `PROXY_CATEGORY_TITLE` | Название категории | VPN Подписка |
 | `PROXY_STORAGE_PREFIX` | префикс для категории proxy в хранилище, например 'vpm_remna_' | 'vpm_mrzb_' |
 | `SHOW_PROXY_SUB_LINK` | Показывать ссылку на подписку для категории proxy | `true`|
+| `SHOW_PROXY_HAPP_CRYPTOLINK` | Показать крипто ссылку на подписку для категории proxy | `false` |
 | `SHOW_PROXY_QR` | Показывать кнопку `QR` на ссылку подписки для категории proxy | `true`|
 | `VPN_CATEGORY` | Категория VPN чтобы показать QR или возможность скачать файл конфигурации (vpn-wg,vpn-awg) | - |
 | `VPN_CATEGORY_TITLE` | Название категории | VPN |
@@ -94,8 +95,8 @@ services:
 | `MAC_PROXY_URL_SCHEMA` | URL-схема для открытия подписки на macOS (`happ://add/`) | `` |
 | `IOS_PROXY_URL_SCHEMA` | URL-схема для открытия подписки на iOS (`happ://add/`) | `` |
 | `ANDROID_PROXY_URL_SCHEMA` | URL-схема для открытия подписки на Android (`happ://add/`) | `` |
-| `CAPTCHA_ENABLED` | Включить или выключить запрос Капчи при регистрации | `false` |
-| `ORDER_SORTING` | Сортировка услуг при покупке (cost_asc, cost_desc, name_asc, name_desc)| cost_asc |
+| `CAPTCHA_ENABLED` | Включение/выключение капчи (надо включить в кабинете администратора)| `false` |
+| `ORDER_SORTING` | Сортировка услуг при покупке (cost_asc, cost_desc, name_asc, name_desc)| `cost_asc` |
 
 
 ### Telegram Widget
