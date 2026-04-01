@@ -13,7 +13,7 @@ import { auth } from './api/client';
 import { clearInviteTelegramFlow, clearInviteWebsiteFlow, clearPendingInviteChoice, getCookie, getInviteStart, hasInviteTelegramFlow, hasPendingInviteChoice, markInviteTelegramFlow, markInviteWebsiteFlow, parseAndSaveInviteStart, removeCookie, removeInviteStart, parseAndSavePartnerId, parseAndSaveSessionId } from './api/cookie';
 import { config } from './config';
 import LanguageSwitcher from './components/LanguageSwitcher';
-import { hasTelegramWebAppAutoAuth, isTelegramWebApp } from './constants/webapp';
+import { useTelegramWebApp } from './hooks/useTelegramWebApp';
 import { useEmailRequired } from './hooks/useEmailRequired';
 import PayHistoryModal from './components/PayHistoryModal';
 import WithdrawHistoryModal from './components/WithdrawHistoryModal';
@@ -235,7 +235,7 @@ function WebAppHeader({ onShowVersion }: { onShowVersion?: () => void }) {
       >
         {computedColorScheme === 'light' ? <IconMoon size={20} /> : <IconSun size={20} />}
       </ActionIcon>
-      {!hasTelegramWebAppAutoAuth && (
+      {(
         <ActionIcon
           onClick={handleLogout}
           variant="subtle"
@@ -327,6 +327,8 @@ function AppContent() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, userEmail, isAuthenticated, isLoading, setUser, setIsLoading, logout } = useStore();
+  const { isInsideTelegramWebApp, telegramWebApp } = useTelegramWebApp();
+  const isTelegramWebAppRuntime = isInsideTelegramWebApp;
   const isMobile = useMediaQuery('(max-width: 768px)');
   const { t } = useTranslation();
   const {
@@ -388,7 +390,7 @@ function AppContent() {
   const handleSupportLink = () => {
     if (config.SUPPORT_LINK) {
       const tgWebApp = window.Telegram?.WebApp;
-      if (tgWebApp && isTelegramWebApp && config.SUPPORT_LINK.includes('t.me')) {
+      if (tgWebApp && isTelegramWebAppRuntime && config.SUPPORT_LINK.includes('t.me')) {
         tgWebApp.openTelegramLink(config.SUPPORT_LINK);
       } else {
         window.open(config.SUPPORT_LINK, '_blank');
@@ -398,7 +400,7 @@ function AppContent() {
 
   useEffect(() => {
     const tgWebApp = window.Telegram?.WebApp;
-    if (tgWebApp && isTelegramWebApp) {
+    if (tgWebApp && isTelegramWebAppRuntime) {
       tgWebApp.ready();
       tgWebApp.expand();
 
@@ -409,11 +411,11 @@ function AppContent() {
         tgWebApp.setBackgroundColor('secondary_bg_color');
       }
     }
-  }, [isTelegramWebApp]);
+  }, [isTelegramWebAppRuntime]);
 
   useEffect(() => {
     const tgWebApp = window.Telegram?.WebApp;
-    if (!tgWebApp || !isTelegramWebApp) return;
+    if (!tgWebApp || !isTelegramWebAppRuntime) return;
 
     const backButton = tgWebApp.BackButton;
     if (!backButton) return;
@@ -433,7 +435,7 @@ function AppContent() {
       backButton.hide();
       backButton.offClick(() => {});
     };
-  }, [location.pathname, navigate, isTelegramWebApp]);
+  }, [location.pathname, navigate, isTelegramWebAppRuntime]);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -465,7 +467,7 @@ function AppContent() {
 
   const inviteStart = getInviteStart()?.trim() || null;
   const telegramStartLink = inviteStart ? buildTelegramStartLink(inviteStart) : null;
-  const shouldShowTelegramChoice = !isLoading && !isAuthenticated && !preferWebsiteFlow && !isTelegramWebApp && !!inviteStart && !!telegramStartLink && hasPendingInviteChoice() && supportsTelegramChoice();
+  const shouldShowTelegramChoice = !isLoading && !isAuthenticated && !preferWebsiteFlow && !isTelegramWebAppRuntime && !!inviteStart && !!telegramStartLink && hasPendingInviteChoice() && supportsTelegramChoice();
   const shouldRenderTelegramChoice = showInviteChoiceCard || telegramOpening;
   useEffect(() => {
     if (shouldShowTelegramChoice) {
@@ -666,7 +668,7 @@ function AppContent() {
     </Modal>
   );
 
-  if (isTelegramWebApp || isMobile) {
+  if (isTelegramWebAppRuntime || isMobile) {
     return (
       <>
         {emailRequiredModal}
@@ -776,7 +778,7 @@ function AppContent() {
               </ActionIcon> }
               <LanguageSwitcher />
               <ThemeToggle />
-              {!hasTelegramWebAppAutoAuth && (
+              {(
               <ActionIcon
                 onClick={logout}
                 variant="default"

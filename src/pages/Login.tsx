@@ -12,7 +12,7 @@ import TelegramLoginButton, { TelegramUser } from '../components/TelegramLoginBu
 import { config } from '../config';
 import { useTelegramWebApp } from '../hooks/useTelegramWebApp';
 import LanguageSwitcher from '../components/LanguageSwitcher';
-import { hasTelegramWebAppAutoAuth, hasTelegramWidget, hasTelegramWebAppAuth } from '../constants/webapp';
+import { hasTelegramWidget } from '../constants/webapp';
 
 function base64UrlToArrayBuffer(base64url: string): ArrayBuffer {
   const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
@@ -180,10 +180,17 @@ export default function Login() {
     },
   });
   const isWebAuthnSupported = !!window.PublicKeyCredential;
-  const { telegramWebApp } = useTelegramWebApp();
+  const { telegramWebApp, isInsideTelegramWebApp } = useTelegramWebApp();
   const autoAuthTriggeredRef = useRef(false);
   const autoAuthAttemptKey = 'tg_webapp_auto_auth_attempted';
   const autoAuthCooldownMs = 60 * 1000;
+
+  const hasTelegramWebAppAuthRuntime =
+    isInsideTelegramWebApp && config.TELEGRAM_WEBAPP_AUTH_ENABLE === 'true';
+  const hasTelegramWebAppAutoAuthRuntime =
+    hasTelegramWebAppAuthRuntime && config.TELEGRAM_WEBAPP_AUTO_AUTH_ENABLE === 'true';
+  const hasTelegramWidgetRuntime =
+    !isInsideTelegramWebApp && !!config.TELEGRAM_BOT_NAME && config.TELEGRAM_BOT_AUTH_ENABLE === 'true';
 
   const fetchCaptcha = async () => {
     try {
@@ -204,7 +211,7 @@ export default function Login() {
   }, [mode]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
-    if (!hasTelegramWebAppAutoAuth || autoAuthTriggeredRef.current || !telegramWebApp?.initData) {
+    if (!hasTelegramWebAppAutoAuthRuntime || autoAuthTriggeredRef.current || !telegramWebApp?.initData) {
       return;
     }
 
@@ -217,7 +224,7 @@ export default function Login() {
     sessionStorage.setItem(autoAuthAttemptKey, String(Date.now()));
     setShowLoginForm(false);
     void handleTelegramWebAppAuth();
-  }, [hasTelegramWebAppAutoAuth, telegramWebApp?.initData]);
+  }, [hasTelegramWebAppAutoAuthRuntime, telegramWebApp?.initData]);
 
   useEffect(() => {
     const checkResetToken = async () => {
@@ -573,7 +580,7 @@ export default function Login() {
               {mode === 'login' ? t('auth.loginTitle') : t('auth.registerTitle')}
           </Text>
 
-          {hasTelegramWebAppAuth && !showLoginForm && (
+          {hasTelegramWebAppAuthRuntime && !showLoginForm && (
             <>
               <Button
                 color="blue"
@@ -597,7 +604,7 @@ export default function Login() {
             </>
           )}
 
-          {hasTelegramWidget && mode === 'login' && (
+          {hasTelegramWidgetRuntime && mode === 'login' && (
             <>
               <Center>
                 <TelegramLoginButton
@@ -612,7 +619,7 @@ export default function Login() {
             </>
           )}
 
-          {(!hasTelegramWebAppAuth || showLoginForm) && (
+          {(!hasTelegramWebAppAuthRuntime || showLoginForm) && (
             <>
               <form onSubmit={handleSubmit}>
                 <Stack gap="sm">
@@ -712,7 +719,7 @@ export default function Login() {
                 </Text>
               )}
 
-              {hasTelegramWebAppAuth && showLoginForm && (
+              {hasTelegramWebAppAuthRuntime && showLoginForm && (
                 <>
                   <Divider label={t('common.or')} labelPosition="center" />
                   <Button
