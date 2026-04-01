@@ -12,8 +12,6 @@ import TelegramLoginButton, { TelegramUser } from '../components/TelegramLoginBu
 import { config } from '../config';
 import { useTelegramWebApp } from '../hooks/useTelegramWebApp';
 import LanguageSwitcher from '../components/LanguageSwitcher';
-import { hasTelegramWidget } from '../constants/webapp';
-
 function base64UrlToArrayBuffer(base64url: string): ArrayBuffer {
   const base64 = base64url.replace(/-/g, '+').replace(/_/g, '/');
   const padding = '='.repeat((4 - (base64.length % 4)) % 4);

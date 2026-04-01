@@ -327,7 +327,7 @@ function AppContent() {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, userEmail, isAuthenticated, isLoading, setUser, setIsLoading, logout } = useStore();
-  const { isInsideTelegramWebApp, telegramWebApp } = useTelegramWebApp();
+  const { isInsideTelegramWebApp } = useTelegramWebApp();
   const isTelegramWebAppRuntime = isInsideTelegramWebApp;
   const isMobile = useMediaQuery('(max-width: 768px)');
   const { t } = useTranslation();
