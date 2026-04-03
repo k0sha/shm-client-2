@@ -504,7 +504,7 @@ export default function Profile() {
                 onChange={(e) => setFormData({ ...formData, full_name: e.target.value })}
                 disabled={!editing}
               />
-              {/* <Grid>
+              <Grid>
                 <Grid.Col span={{ base: 12, sm: 6 }}>
                   <TextInput
                     label={t('profile.login2')}
@@ -514,7 +514,7 @@ export default function Profile() {
                     disabled={!editing}
                   />
                 </Grid.Col>
-                <Grid.Col span={{ base: 12, sm: 6 }}> */}
+                <Grid.Col span={{ base: 12, sm: 6 }}>
                   <TextInput
                     label={t('profile.phone')}
                     leftSection={<IconPhone size={16} />}
@@ -522,15 +522,15 @@ export default function Profile() {
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                     disabled={!editing}
                   />
-                {/* </Grid.Col>
-              </Grid> */}
+                </Grid.Col>
+              </Grid>
             </Stack>
             <Divider my="md" />
 
             <Group justify="space-between" mb="md">
               <Text fw={500}>Email</Text>
                 <Group gap="xs">
-                  {profileEmail && !emailVerified && (
+                  {config.ALLOW_EMAIL_VERIFY === 'true' && profileEmail && !emailVerified && (
                     <Button
                       variant="light"
                       size="xs"

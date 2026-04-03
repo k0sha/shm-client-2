@@ -292,8 +292,7 @@ function ServiceDetail({ service, onDelete, onChangeTariff }: ServiceDetailProps
     if (!urlSchema || !subscriptionUrl) return;
 
     let link = `${urlSchema}${subscriptionUrl}`;
-
-    if (config.SHOW_PROXY_HAPP_CRYPTOLINK === 'true') {
+    if ( config.SHOW_HAPP_CRYPTOLINK === 'true' ) {
       try {
         const response = await fetch(`https://crypto.happ.su/api-v2.php`, {
           method: 'POST',
@@ -307,7 +306,6 @@ function ServiceDetail({ service, onDelete, onChangeTariff }: ServiceDetailProps
           link = data.encrypted_link;
         }
       } catch {
-        // ignore and fall back to the regular link
       }
     }
 
@@ -486,109 +484,108 @@ function ServiceDetail({ service, onDelete, onChangeTariff }: ServiceDetailProps
                             </>
                         ) }
 
-
-                        <Group gap="xs">
-                          {hasProxyAppUrls ? (
-                              <Timeline active={1} bulletSize={24} lineWidth={2}>
-                                <Timeline.Item bullet={<IconDownload size={12} />} title={t('services.stepDownloadApp')}>
-                                  <AppDownloadBlock type="proxy" />
-                                </Timeline.Item>
-                                <Timeline.Item bullet={<IconDeviceMobileCog size={12} />} title={t('services.stepConfigureApp') + ' ' + (urlSchema ? t('services.deviceConfig') : t('services.openSubLink'))}>
-                                  <Group gap="xs" mt="xs">
-                                    { config.SHOW_PROXY_QR === 'true' && (
-                                        <Button
-                                            leftSection={<IconQrcode size={16} />}
-                                            variant="light"
-                                            onClick={() => setQrModalOpen(true)}
-                                        >
-                                          {t('services.qrCode')}
-                                        </Button>
-                                    )}
-                                    <Button
-                                        component="a"
-                                        color="green"
-                                        onClick={() => urlSchema ? handleOpenUrlSchema() : handleConfigure()}
-                                        leftSection={<IconDeviceMobileCog size={16} />}
-                                        variant="light"
-                                    >
-                                      {urlSchema ? t('services.deviceConfig') : t('services.openSubLink')}
-                                    </Button>
-                                  </Group>
-                                </Timeline.Item>
-                              </Timeline>
-                          ) : (
-                              <Group gap="xs" mt="xs">
-                                {config.SHOW_PROXY_QR && (
-                                    <Button
-                                        leftSection={<IconQrcode size={16} />}
-                                        variant="light"
-                                        onClick={() => setQrModalOpen(true)}
-                                    >
-                                      {t('services.qrCode')}
-                                    </Button>
-                                )}
-                                <Button
-                                    component="a"
-                                    color="green"
-                                    onClick={() => handleConfigure()}
-                                    leftSection={<IconDeviceMobileCog size={16} />}
-                                    variant="light"
-                                >
-                                  {t('services.openSubLink')}
-                                </Button>
-                              </Group>
-                          )}
-                        </Group>
-                      </Paper>
-                  )}
-                  { isVpn && storageData && (
-                      <Paper withBorder p="md" radius="md">
-                        {hasVpnAppUrls ? (
-                            <Timeline active={1} bulletSize={24} lineWidth={2}>
-                              <Timeline.Item bullet={<IconDownload size={12} />} title={t('services.stepDownloadApp')}>
-                                <AppDownloadBlock type="vpn" />
-                              </Timeline.Item>
-                              <Timeline.Item bullet={<IconDeviceMobileCog size={12} />} title={t('services.stepConfigureApp') + ' ' +  (t('services.downloadConfig'))}>
-                                <Group gap="xs" mt="xs">
-                                  <Button
-                                      leftSection={<IconQrcode size={16} />}
-                                      variant="light"
-                                      onClick={() => setQrModalOpen(true)}
-                                  >
-                                    {t('services.qrCode')}
-                                  </Button>
-                                  <Button
-                                      leftSection={<IconDownload size={16} />}
-                                      variant="light"
-                                      onClick={downloadConfig}
-                                      loading={downloading}
-                                  >
-                                    {t('services.downloadConfig')}
-                                  </Button>
-                                </Group>
-                              </Timeline.Item>
-                            </Timeline>
-                        ) : (
-                            <Group gap="xs" mt="xs">
+                  <Group gap="xs">
+                    {hasProxyAppUrls ? (
+                      <Timeline active={1} bulletSize={24} lineWidth={2}>
+                        <Timeline.Item bullet={<IconDownload size={12} />} title={t('services.stepDownloadApp')}>
+                          <AppDownloadBlock type="proxy" />
+                        </Timeline.Item>
+                        <Timeline.Item bullet={<IconDeviceMobileCog size={12} />} title={t('services.stepConfigureApp') + ' ' + (urlSchema ? t('services.deviceConfig') : t('services.openSubLink'))}>
+                          <Group gap="xs" mt="xs">
+                            { config.SHOW_PROXY_QR === 'true' && (
                               <Button
-                                  leftSection={<IconQrcode size={16} />}
-                                  variant="light"
-                                  onClick={() => setQrModalOpen(true)}
+                                leftSection={<IconQrcode size={16} />}
+                                variant="light"
+                                onClick={() => setQrModalOpen(true)}
                               >
                                 {t('services.qrCode')}
-                              </Button>
-                              <Button
-                                  leftSection={<IconDownload size={16} />}
-                                  variant="light"
-                                  onClick={downloadConfig}
-                                  loading={downloading}
-                              >
-                                {t('services.downloadConfig')}
-                              </Button>
-                            </Group>
-                        )}
-                      </Paper>
+                            </Button>
+                            )}
+                            <Button
+                              component="a"
+                              color="green"
+                              onClick={() => urlSchema ? handleOpenUrlSchema() : handleConfigure()}
+                              leftSection={<IconDeviceMobileCog size={16} />}
+                              variant="light"
+                            >
+                              {urlSchema ? t('services.deviceConfig') : t('services.openSubLink')}
+                            </Button>
+                          </Group>
+                        </Timeline.Item>
+                      </Timeline>
+                    ) : (
+                    <Group gap="xs" mt="xs">
+                      {config.SHOW_PROXY_QR && (
+                        <Button
+                          leftSection={<IconQrcode size={16} />}
+                          variant="light"
+                          onClick={() => setQrModalOpen(true)}
+                        >
+                          {t('services.qrCode')}
+                        </Button>
+                      )}
+                      <Button
+                        component="a"
+                        color="green"
+                        onClick={() => handleConfigure()}
+                        leftSection={<IconDeviceMobileCog size={16} />}
+                        variant="light"
+                      >
+                        {t('services.openSubLink')}
+                      </Button>
+                    </Group>
+                    )}
+                  </Group>
+                </Paper>
+              )}
+              { isVpn && storageData && (
+                <Paper withBorder p="md" radius="md">
+                  {hasVpnAppUrls ? (
+                    <Timeline active={1} bulletSize={24} lineWidth={2}>
+                      <Timeline.Item bullet={<IconDownload size={12} />} title={t('services.stepDownloadApp')}>
+                        <AppDownloadBlock type="vpn" />
+                      </Timeline.Item>
+                      <Timeline.Item bullet={<IconDeviceMobileCog size={12} />} title={t('services.stepConfigureApp') + ' ' +  (t('services.downloadConfig'))}>
+                        <Group gap="xs" mt="xs">
+                          <Button
+                            leftSection={<IconQrcode size={16} />}
+                            variant="light"
+                            onClick={() => setQrModalOpen(true)}
+                            >
+                              {t('services.qrCode')}
+                            </Button>
+                          <Button
+                            leftSection={<IconDownload size={16} />}
+                            variant="light"
+                            onClick={downloadConfig}
+                            loading={downloading}
+                          >
+                            {t('services.downloadConfig')}
+                          </Button>
+                        </Group>
+                      </Timeline.Item>
+                    </Timeline>
+                    ) : (
+                    <Group gap="xs" mt="xs">
+                      <Button
+                        leftSection={<IconQrcode size={16} />}
+                        variant="light"
+                        onClick={() => setQrModalOpen(true)}
+                      >
+                        {t('services.qrCode')}
+                      </Button>
+                      <Button
+                        leftSection={<IconDownload size={16} />}
+                        variant="light"
+                        onClick={downloadConfig}
+                        loading={downloading}
+                      >
+                        {t('services.downloadConfig')}
+                      </Button>
+                    </Group>
                   )}
+                </Paper>
+              )}
 
                   <QrModal
                       opened={qrModalOpen}

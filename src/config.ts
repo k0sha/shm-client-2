@@ -20,7 +20,7 @@ interface AppConfig {
   PROXY_CATEGORY_TITLE: string;
   PROXY_STORAGE_PREFIX?: string;
   SHOW_PROXY_SUB_LINK: string;
-  SHOW_PROXY_HAPP_CRYPTOLINK: string;
+  SHOW_HAPP_CRYPTOLINK: string;
   SHOW_PROXY_QR: string;
   VPN_CATEGORY: string;
   VPN_CATEGORY_TITLE: string;
@@ -28,6 +28,7 @@ interface AppConfig {
   VISIBLE_CATEGORIES: string;
   EMAIL_REQUIRED: string;
   EMAIL_VERIFY_REQUIRED: string;
+  ALLOW_EMAIL_VERIFY: string;
   ALLOW_SERVICE_BLOCKED: string;
   ALLOW_SERVICE_DELETE: string;
   ALLOW_SERVICE_CHANGE: string;
@@ -96,7 +97,7 @@ function getConfig(): AppConfig {
     PROXY_CATEGORY_TITLE: runtimeConfig?.PROXY_CATEGORY_TITLE || import.meta.env.VITE_PROXY_CATEGORY_TITLE || '',
     PROXY_STORAGE_PREFIX: runtimeConfig?.PROXY_STORAGE_PREFIX || import.meta.env.VITE_PROXY_STORAGE_PREFIX || '',
     SHOW_PROXY_SUB_LINK: runtimeConfig?.SHOW_PROXY_SUB_LINK || import.meta.env.VITE_SHOW_PROXY_SUB_LINK || 'true',
-    SHOW_PROXY_HAPP_CRYPTOLINK: runtimeConfig?.SHOW_PROXY_HAPP_CRYPTOLINK || import.meta.env.VITE_SHOW_PROXY_HAPP_CRYPTOLINK || 'true',
+    SHOW_HAPP_CRYPTOLINK: runtimeConfig?.SHOW_HAPP_CRYPTOLINK || import.meta.env.VITE_SHOW_HAPP_CRYPTOLINK || 'false',
     SHOW_PROXY_QR: runtimeConfig?.SHOW_PROXY_QR || import.meta.env.VITE_SHOW_PROXY_QR || 'true',
     VPN_CATEGORY: runtimeConfig?.VPN_CATEGORY || import.meta.env.VITE_VPN_CATEGORY || '',
     VPN_CATEGORY_TITLE: runtimeConfig?.VPN_CATEGORY_TITLE || import.meta.env.VITE_VPN_CATEGORY_TITLE|| '',
@@ -105,6 +106,7 @@ function getConfig(): AppConfig {
     ORDER_SORTING: runtimeConfig?.ORDER_SORTING || import.meta.env.VITE_ORDER_SORTING || 'cost_asc',
     EMAIL_REQUIRED: runtimeConfig?.EMAIL_REQUIRED || import.meta.env.VITE_EMAIL_REQUIRED || 'true',
     EMAIL_VERIFY_REQUIRED: runtimeConfig?.EMAIL_VERIFY_REQUIRED || import.meta.env.VITE_EMAIL_VERIFY_REQUIRED || 'false',
+    ALLOW_EMAIL_VERIFY: runtimeConfig?.ALLOW_EMAIL_VERIFY || import.meta.env.VITE_ALLOW_EMAIL_VERIFY || 'true',
     ALLOW_SERVICE_BLOCKED: runtimeConfig?.ALLOW_SERVICE_BLOCKED || import.meta.env.VITE_ALLOW_SERVICE_BLOCKED || 'true',
     ALLOW_SERVICE_DELETE: runtimeConfig?.ALLOW_SERVICE_DELETE || import.meta.env.VITE_ALLOW_SERVICE_DELETE || 'true',
     ALLOW_SERVICE_CHANGE: runtimeConfig?.ALLOW_SERVICE_CHANGE || import.meta.env.VITE_ALLOW_SERVICE_CHANGE || 'true',
