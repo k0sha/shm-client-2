@@ -72,6 +72,14 @@ function formatPeriod(value: number, t: any) {
   return parts.join(' ');
 }
 
+function isTrialUsedValue(value: unknown): boolean {
+  if (value === 1 || value === '1') return true;
+  if (typeof value === 'string') {
+    return value.trim() === '1';
+  }
+  return false;
+}
+
 export default function OrderServiceModal({
   opened,
   onClose,
@@ -151,12 +159,16 @@ export default function OrderServiceModal({
   const fetchUserBalance = async () => {
     try {
       const response = await userApi.getProfile();
-      const userData = response.data.data?.[0] || response.data.data;
-      setUserBalance(userData?.balance || 0);
-      setUserBonus(userData?.bonus || 0);
-      setTrialUsed(String(userData?.settings?.trial || '0') === '1');
+      const rawData = response.data?.data;
+      const userData = Array.isArray(rawData) ? rawData[0] : rawData;
+      const trialUsedValue = isTrialUsedValue(userData?.settings?.trial);
+
+      setUserBalance(Number(userData?.balance || 0));
+      setUserBonus(Number(userData?.bonus || 0));
+      setTrialUsed(trialUsedValue);
+
       if (!isChangeMode) {
-        await fetchServices(String(userData?.settings?.trial || '0') === '1');
+        await fetchServices(trialUsedValue);
       }
     } catch {
     }
