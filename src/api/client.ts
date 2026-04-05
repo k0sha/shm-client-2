@@ -184,8 +184,7 @@ export const telegramApi = {
 };
 
 export const publicTemplateApi = {
-  get: (templateId: string, params?: Record<string, unknown>) => api.get(`/public/${templateId}`, {
-    params,
+  get: (templateId: string) => api.get(`/public/${templateId}`, {
     responseType: 'text',
   }),
 };

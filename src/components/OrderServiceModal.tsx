@@ -178,9 +178,9 @@ export default function OrderServiceModal({
     }
   };
 
-  const fetchAllowedServiceIdsFromPublicTemplate = async (userId: number): Promise<number[] | null> => {
+  const fetchAllowedServiceIdsFromPublicTemplate = async (): Promise<number[] | null> => {
     try {
-      const response = await publicTemplateApi.get(ORDER_SERVICES_PUBLIC_TEMPLATE_ID, { user_id: userId });
+      const response = await publicTemplateApi.get(ORDER_SERVICES_PUBLIC_TEMPLATE_ID);
       const ids = parseAllowedServiceIdsResponse(response.data);
       return ids.length > 0 ? ids : null;
     } catch {
@@ -200,13 +200,9 @@ export default function OrderServiceModal({
           servicesApi.order_list(),
         ]);
 
-        const userData = profileResponse.data.data?.[0] || profileResponse.data.data;
-        const userId = Number(userData?.user_id || 0);
-
+        void profileResponse;
         data = servicesResponse.data.data || [];
-        allowedServiceIds = userId > 0
-          ? await fetchAllowedServiceIdsFromPublicTemplate(userId)
-          : null;
+        allowedServiceIds = await fetchAllowedServiceIdsFromPublicTemplate();
       } else {
         const response = await servicesApi.order_list(
           config.SERVICE_CHANGE_ALL_CATEGORY === 'false' && isChangeMode && currentService?.category ? { category: currentService.category } : undefined
