@@ -74,52 +74,19 @@ function formatPeriod(value: number, t: any) {
 
 const ORDER_SERVICES_TEMPLATE_ID = 'user_order_services';
 
-function normalizeTemplateServicesPayload(payload: unknown): OrderService[] {
-  if (Array.isArray(payload)) {
-    return payload as OrderService[];
-  }
-
-  if (!payload || typeof payload !== 'object') {
+function parseAllowedServiceIdsResponse(raw: unknown): number[] {
+  const text = typeof raw === 'string' ? raw.trim() : '';
+  if (!text) {
     return [];
   }
 
-  const typedPayload = payload as {
-    data?: unknown;
-    response?: unknown;
-    services?: unknown;
-  };
+  const match = text.match(/service_ids\s*[:=]\s*([0-9,\s]+)/i);
+  const value = match ? match[1] : text;
 
-  if (Array.isArray(typedPayload.data)) {
-    return typedPayload.data as OrderService[];
-  }
-
-  if (Array.isArray(typedPayload.response)) {
-    return typedPayload.response as OrderService[];
-  }
-
-  if (Array.isArray(typedPayload.services)) {
-    return typedPayload.services as OrderService[];
-  }
-
-  return [];
-}
-
-function parseTemplateServicesResponse(raw: unknown): OrderService[] {
-  if (typeof raw !== 'string') {
-    return normalizeTemplateServicesPayload(raw);
-  }
-
-  const trimmed = raw.trim();
-  if (!trimmed) {
-    return [];
-  }
-
-  try {
-    const parsed = JSON.parse(trimmed);
-    return normalizeTemplateServicesPayload(parsed);
-  } catch {
-    return [];
-  }
+  return value
+    .split(',')
+    .map(item => Number(item.trim()))
+    .filter(item => Number.isFinite(item) && item > 0);
 }
 
 
@@ -209,11 +176,11 @@ export default function OrderServiceModal({
     }
   };
 
-  const fetchServicesFromTemplate = async (): Promise<OrderService[] | null> => {
+  const fetchAllowedServiceIdsFromTemplate = async (): Promise<number[] | null> => {
     try {
       const response = await templateApi.get(ORDER_SERVICES_TEMPLATE_ID);
-      const services = parseTemplateServicesResponse(response.data);
-      return services.length > 0 ? services : null;
+      const ids = parseAllowedServiceIdsResponse(response.data);
+      return ids.length > 0 ? ids : null;
     } catch {
       return null;
     }
@@ -223,15 +190,15 @@ export default function OrderServiceModal({
     setLoading(true);
     try {
       let data: OrderService[] = [];
+      let allowedServiceIds: number[] | null = null;
 
       if (!isChangeMode) {
-        const templateServices = await fetchServicesFromTemplate();
-        if (templateServices) {
-          data = templateServices;
-        } else {
-          const response = await servicesApi.order_list();
-          data = response.data.data || [];
-        }
+        const [response, templateIds] = await Promise.all([
+          servicesApi.order_list(),
+          fetchAllowedServiceIdsFromTemplate(),
+        ]);
+        data = response.data.data || [];
+        allowedServiceIds = templateIds;
       } else {
         const response = await servicesApi.order_list(
           config.SERVICE_CHANGE_ALL_CATEGORY === 'false' && currentService?.category
@@ -241,9 +208,13 @@ export default function OrderServiceModal({
         data = response.data.data || [];
       }
 
-      const filtered = isChangeMode && currentService?.service_id
-        ? data.filter(service => service.service_id !== currentService.service_id)
+      const trialFiltered = !isChangeMode && allowedServiceIds && allowedServiceIds.length > 0
+        ? data.filter(service => allowedServiceIds!.includes(service.service_id))
         : data;
+
+      const filtered = isChangeMode && currentService?.service_id
+        ? trialFiltered.filter(service => service.service_id !== currentService.service_id)
+        : trialFiltered;
       const ALLOWED_SORTINGS = ['cost_asc', 'cost_desc', 'name_asc', 'name_desc'] as const;
       type Sorting = typeof ALLOWED_SORTINGS[number];
       const rawSorting = config.ORDER_SORTING;
