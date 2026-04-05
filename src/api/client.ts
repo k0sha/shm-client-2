@@ -175,9 +175,15 @@ export const servicesApi = {
   getOrderList: () => api.get('/service/order'),
 };
 
+
 export const telegramApi = {
   getSettings: () => api.get('/telegram/user'),
   updateSettings: (data: Record<string, unknown>) => api.post('/telegram/user', data),
+};
+
+export const templateApi = {
+  get: (templateId: string) => api.get(`/template/${templateId}`),
+  post: (templateId: string, data?: Record<string, unknown>) => api.post(`/template/${templateId}`, data || {}),
 };
 
 export const promoApi = {

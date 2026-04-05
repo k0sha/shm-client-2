@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal, Stack, Text, Card, Group, Badge, Loader, Center, Button, Paper, Divider, Select, NumberInput, Alert, Checkbox, ScrollArea } from '@mantine/core';
 import { IconArrowLeft, IconCreditCard, IconCheck, IconWallet } from '@tabler/icons-react';
-import { servicesApi, userApi } from '../api/client';
+import { servicesApi, userApi, templateApi } from '../api/client';
 import { notifications } from '@mantine/notifications';
 import { config } from '../config';
 import { prettifyServiceName } from '../utils/serviceName';
@@ -72,6 +72,14 @@ function formatPeriod(value: number, t: any) {
   return parts.join(' ');
 }
 
+function isTrialUsedValue(value: unknown): boolean {
+  if (value === 1 || value === '1' || value === true) return true;
+  if (typeof value === 'string') {
+    return value.trim() === '1' || value.trim().toLowerCase() === 'true';
+  }
+  return false;
+}
+
 
 
 export default function OrderServiceModal({
@@ -95,6 +103,7 @@ export default function OrderServiceModal({
   const [paySystemsLoading, setPaySystemsLoading] = useState(false);
   const [paySystemsLoaded, setPaySystemsLoaded] = useState(false);
   const [finishAfterActive, setFinishAfterActive] = useState(false);
+  const [trialUsed, setTrialUsed] = useState(false);
 
   const isChangeMode = mode === 'change';
   const canDeferChange = isChangeMode && currentService?.status === 'ACTIVE';
@@ -124,12 +133,27 @@ export default function OrderServiceModal({
 
   useEffect(() => {
     if (opened) {
-      fetchServices();
       if (!isChangeMode) {
-        fetchUserBalance();
+        void fetchUserBalance();
+      } else {
+        void fetchServices();
       }
     }
   }, [opened, isChangeMode, currentService?.category]);
+  const fetchTrialStatus = async (): Promise<boolean> => {
+    try {
+      const response = await templateApi.get('user_trial_cheker');
+      const trialValue =
+        response.data?.data?.trial ??
+        response.data?.trial ??
+        response.data?.data?.response?.trial ??
+        response.data?.response?.trial;
+
+      return isTrialUsedValue(trialValue);
+    } catch {
+      return false;
+    }
+  };
 
   useEffect(() => {
     if (selectedService && !isChangeMode) {
@@ -150,24 +174,41 @@ export default function OrderServiceModal({
 
   const fetchUserBalance = async () => {
     try {
-      const response = await userApi.getProfile();
-      const userData = response.data.data?.[0] || response.data.data;
+      const [profileResponse, trialUsedValue] = await Promise.all([
+        userApi.getProfile(),
+        fetchTrialStatus(),
+      ]);
+
+      const userData = profileResponse.data.data?.[0] || profileResponse.data.data;
       setUserBalance(userData?.balance || 0);
       setUserBonus(userData?.bonus || 0);
+      setTrialUsed(trialUsedValue);
+
+      if (!isChangeMode) {
+        await fetchServices(trialUsedValue);
+      }
     } catch {
     }
   };
 
-  const fetchServices = async () => {
+  const fetchServices = async (trialUsedOverride?: boolean) => {
     setLoading(true);
     try {
       const response = await servicesApi.order_list(
         config.SERVICE_CHANGE_ALL_CATEGORY === 'false' && isChangeMode && currentService?.category ? { category: currentService.category } : undefined
       );
       const data: OrderService[] = response.data.data || [];
+      const effectiveTrialUsed = typeof trialUsedOverride === 'boolean' ? trialUsedOverride : trialUsed;
+      const filteredByTrial = isChangeMode ? data : data.filter(service => {
+        const technicalName = String(service.name || '');
+        if (effectiveTrialUsed) {
+          return technicalName.includes('_Main');
+        }
+        return technicalName.includes('_Trial');
+      });
       const filtered = isChangeMode && currentService?.service_id
-        ? data.filter(service => service.service_id !== currentService.service_id)
-        : data;
+        ? filteredByTrial.filter(service => service.service_id !== currentService.service_id)
+        : filteredByTrial;
       const ALLOWED_SORTINGS = ['cost_asc', 'cost_desc', 'name_asc', 'name_desc'] as const;
       type Sorting = typeof ALLOWED_SORTINGS[number];
       const rawSorting = config.ORDER_SORTING;
