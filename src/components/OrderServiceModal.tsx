@@ -80,6 +80,10 @@ function isTrialUsedValue(value: unknown): boolean {
   return false;
 }
 
+function getTechnicalServiceName(service: OrderService): string {
+  return `${String(service.name || '')} ${String(service.descr || '')}`;
+}
+
 
 
 export default function OrderServiceModal({
@@ -202,7 +206,7 @@ export default function OrderServiceModal({
       const data: OrderService[] = response.data.data || [];
       const effectiveTrialUsed = typeof trialUsedOverride === 'boolean' ? trialUsedOverride : trialUsed;
       const filteredByTrial = isChangeMode ? data : data.filter(service => {
-        const technicalName = String(service.name || '');
+        const technicalName = getTechnicalServiceName(service);
         if (effectiveTrialUsed) {
           return technicalName.includes('_Main');
         }
