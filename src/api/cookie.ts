@@ -246,7 +246,10 @@ export function parseAndSaveResetToken(): string | null {
   const token = urlParams.get('token');
   if (token) {
     setResetTokenCookie(token);
-    replaceUrlWithoutSearchParam('token');
+    urlParams.delete('token');
+    const newSearch = urlParams.toString();
+    const newUrl = window.location.pathname + (newSearch ? '?' + newSearch : '') + window.location.hash;
+    window.history.replaceState({}, '', newUrl);
     return token;
   }
   return null;

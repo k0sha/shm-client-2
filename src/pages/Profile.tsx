@@ -110,7 +110,8 @@ export default function Profile() {
   const [forecast, setForecast] = useState<ForecastData | null>(null);
   const [forecastOpen, setForecastOpen] = useState(false);
   const { colorScheme } = useMantineColorScheme();
-  const clipboard = useClipboard({ timeout: 1000 });
+  const clipboardId = useClipboard({ timeout: 1000 });
+  const clipboardLink = useClipboard({ timeout: 1000 });
   const { t } = useTranslation();
   const basePath = config.SHM_BASE_PATH && config.SHM_BASE_PATH !== '/' ? config.SHM_BASE_PATH : '';
   const partnerLink = buildEncodedPartnerLink(`${window.location.origin}${basePath}`, profile?.user_id || 0);
@@ -425,11 +426,15 @@ export default function Profile() {
                 color="blue"
                 src={telegramPhoto || undefined}
               >
-                {!telegramPhoto && (profile.full_name?.charAt(0) || profile.login?.charAt(0)?.toUpperCase() || '?')}
+                {profile.full_name?.charAt(0) || profile.login?.charAt(0)?.toUpperCase() || '?'}
               </Avatar>
               <div>
                 <Text fw={500} size="lg">{profile.full_name || profile.login || t('profile.user')}</Text>
-                <Text size="sm" c="dimmed">ID: {profile.user_id} - {profile.login || '-'}</Text>
+                <Text size="sm" c="cyan">{t('profile.id')}: {profile.user_id}
+                  <ActionIcon color={clipboardId.copied ? 'teal' : 'cyan'} variant="subtle" onClick={() => clipboardId.copy(profile.user_id)}>                      {clipboardId.copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
+                  </ActionIcon>
+                </Text>
+                <Text size="sm" c="dimmed">{t('profile.login')}: {profile.login || '-'}</Text>
                 { profile.discount && profile.discount > 0 ? ( <Text size="xm" style={{ color: colorScheme === 'dark' ? '#4ade80' : '#16a34a' }}>{t('profile.discount')}: {profile.discount}%</Text>) : undefined}
               </div>
             </Group>
@@ -439,8 +444,8 @@ export default function Profile() {
             <Group>
               <div style={{ maxWidth: '80%' }}>
                 <Text size="sm"> {partnerLink}
-                  <Tooltip label={clipboard.copied ? t('common.copied') : t('common.copy')}>
-                    <ActionIcon color={clipboard.copied ? 'teal' : 'gray'} variant="subtle" onClick={() => clipboard.copy(partnerLink)}>                      {clipboard.copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
+                  <Tooltip label={clipboardLink.copied ? t('common.copied') : t('common.copy')}>
+                    <ActionIcon color={clipboardLink.copied ? 'teal' : 'gray'} variant="subtle" onClick={() => clipboardLink.copy(partnerLink)}>                      {clipboardLink.copied ? <IconCheck size={16} /> : <IconCopy size={16} />}
                     </ActionIcon>
                   </Tooltip>
                 </Text>
