@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal, Stack, Text, Card, Group, Badge, Loader, Center, Button, Paper, Divider, Select, NumberInput, Alert, Checkbox, ScrollArea } from '@mantine/core';
 import { IconArrowLeft, IconCreditCard, IconCheck, IconWallet } from '@tabler/icons-react';
-import { servicesApi, userApi, templateApi } from '../api/client';
+import { servicesApi, userApi } from '../api/client';
 import { notifications } from '@mantine/notifications';
 import { config } from '../config';
 import { prettifyServiceName } from '../utils/serviceName';
@@ -72,22 +72,10 @@ function formatPeriod(value: number, t: any) {
   return parts.join(' ');
 }
 
-const ORDER_SERVICES_TEMPLATE_ID = 'user_order_services';
-
-function parseAllowedServiceIdsResponse(raw: unknown): number[] {
-  const text = typeof raw === 'string' ? raw.trim() : '';
-  if (!text) {
-    return [];
-  }
-
-  const match = text.match(/service_ids\s*[:=]\s*([0-9,\s]+)/i);
-  const value = match ? match[1] : text;
-
-  return value
-    .split(',')
-    .map(item => Number(item.trim()))
-    .filter(item => Number.isFinite(item) && item > 0);
+function getTechnicalServiceName(service: OrderService): string {
+  return `${String(service.name || '')} ${String(service.descr || '')}`;
 }
+
 
 
 
@@ -176,48 +164,16 @@ export default function OrderServiceModal({
     }
   };
 
-  const fetchAllowedServiceIdsFromTemplate = async (userId: number): Promise<number[] | null> => {
-    try {
-      const response = await templateApi.get(ORDER_SERVICES_TEMPLATE_ID, { user_id: userId });
-      const ids = parseAllowedServiceIdsResponse(response.data);
-      return ids.length > 0 ? ids : null;
-    } catch {
-      return null;
-    }
-  };
-
   const fetchServices = async () => {
     setLoading(true);
     try {
-      let data: OrderService[] = [];
-      let allowedServiceIds: number[] | null = null;
-
-      if (!isChangeMode) {
-        const [profileResponse, servicesResponse] = await Promise.all([
-          userApi.getProfile(),
-          servicesApi.order_list(),
-        ]);
-
-        const userData = profileResponse.data.data?.[0] || profileResponse.data.data;
-        const userId = Number(userData?.user_id || 0);
-
-        data = servicesResponse.data.data || [];
-        allowedServiceIds = userId > 0
-          ? await fetchAllowedServiceIdsFromTemplate(userId)
-          : null;
-      } else {
-        const response = await servicesApi.order_list(
-          config.SERVICE_CHANGE_ALL_CATEGORY === 'false' && currentService?.category
-            ? { category: currentService.category }
-            : undefined
-        );
-        data = response.data.data || [];
-      }
-
-      const trialFiltered = !isChangeMode && allowedServiceIds && allowedServiceIds.length > 0
-        ? data.filter(service => allowedServiceIds!.includes(service.service_id))
-        : data;
-
+      const response = await servicesApi.order_list(
+        config.SERVICE_CHANGE_ALL_CATEGORY === 'false' && isChangeMode && currentService?.category ? { category: currentService.category } : undefined
+      );
+      const data: OrderService[] = response.data.data || [];
+      const trialFiltered = isChangeMode
+        ? data
+        : data.filter(service => getTechnicalServiceName(service).includes('_Trial'));
       const filtered = isChangeMode && currentService?.service_id
         ? trialFiltered.filter(service => service.service_id !== currentService.service_id)
         : trialFiltered;

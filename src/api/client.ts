@@ -182,13 +182,6 @@ export const telegramApi = {
   updateSettings: (data: Record<string, unknown>) => api.post('/telegram/user', data),
 };
 
-export const templateApi = {
-  get: (templateId: string, params?: Record<string, unknown>) => api.get(`/template/${templateId}`, {
-    params,
-    responseType: 'text',
-  }),
-  post: (templateId: string, data?: Record<string, unknown>) => api.post(`/template/${templateId}`, data || {}, { responseType: 'text' }),
-};
 
 
 export const promoApi = {
