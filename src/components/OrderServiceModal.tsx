@@ -72,9 +72,6 @@ function formatPeriod(value: number, t: any) {
   return parts.join(' ');
 }
 
-function getTechnicalServiceName(service: OrderService): string {
-  return `${String(service.name || '')} ${String(service.descr || '')}`;
-}
 
 const ORDER_SERVICES_PUBLIC_TEMPLATE_ID = 'user_order_services';
 
