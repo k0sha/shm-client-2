@@ -90,6 +90,22 @@ function parseAllowedServiceIdsResponse(raw: unknown): number[] {
     .filter(item => Number.isFinite(item) && item > 0);
 }
 
+function getPlatformSortOrder(serviceName: string): number {
+  const normalized = String(serviceName || '').toLowerCase();
+
+  if (normalized.includes('ios')) return 0;
+  if (normalized.includes('android')) return 1;
+  if (normalized.includes('mac')) return 2;
+  if (normalized.includes('pc')) return 3;
+  if (normalized.includes('linux')) return 4;
+
+  return 999;
+}
+
+function compareServicesByPlatform(a: OrderService, b: OrderService): number {
+  return getPlatformSortOrder(a.name) - getPlatformSortOrder(b.name);
+}
+
 
 
 
@@ -227,6 +243,11 @@ export default function OrderServiceModal({
         ? rawSorting as Sorting
         : 'cost_asc';
       const sorted = [...filtered].sort((a, b) => {
+        const platformDiff = compareServicesByPlatform(a, b);
+        if (platformDiff !== 0) {
+          return platformDiff;
+        }
+
         switch (sorting) {
           case 'cost_asc':  return Number(a.cost) - Number(b.cost);
           case 'cost_desc': return Number(b.cost) - Number(a.cost);
@@ -376,6 +397,7 @@ export default function OrderServiceModal({
     setFinishAfterActive(false);
   };
 
+  const hasTrialServices = services.some(service => String(service.name || '').includes('_Trial'));
   const groupedServices = services.reduce((acc, service) => {
     const category = normalizeCategory(service.category || 'other');
 
@@ -384,6 +406,10 @@ export default function OrderServiceModal({
       categoryTitle = config.VPN_CATEGORY_TITLE;
     } else if (category === 'proxy' && config.PROXY_CATEGORY_TITLE) {
       categoryTitle = config.PROXY_CATEGORY_TITLE;
+    } else if (category === 'other') {
+      categoryTitle = hasTrialServices
+        ? t('categories.other_trial')
+        : t('categories.other_main');
     } else {
       categoryTitle = t(`categories.${category}`, category);
     }
