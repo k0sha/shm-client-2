@@ -72,12 +72,28 @@ function formatPeriod(value: number, t: any) {
   return parts.join(' ');
 }
 
+
 function isTrialUsedValue(value: unknown): boolean {
   if (value === 1 || value === '1') return true;
   if (typeof value === 'string') {
     return value.trim() === '1';
   }
   return false;
+}
+
+function extractTrialUsedFromProfileResponse(response: any): boolean {
+  const candidates = [
+    response?.data?.data?.[0]?.settings?.trial,
+    response?.data?.data?.settings?.trial,
+    response?.data?.settings?.trial,
+    response?.data?.trial,
+  ];
+
+  return candidates.some(isTrialUsedValue);
+}
+
+function getTechnicalServiceName(service: OrderService): string {
+  return String(service.name || service.descr || '');
 }
 
 export default function OrderServiceModal({
@@ -161,7 +177,7 @@ export default function OrderServiceModal({
       const response = await userApi.getProfile();
       const rawData = response.data?.data;
       const userData = Array.isArray(rawData) ? rawData[0] : rawData;
-      const trialUsedValue = isTrialUsedValue(userData?.settings?.trial);
+      const trialUsedValue = extractTrialUsedFromProfileResponse(response);
 
       setUserBalance(Number(userData?.balance || 0));
       setUserBonus(Number(userData?.bonus || 0));
@@ -183,7 +199,7 @@ export default function OrderServiceModal({
       const data: OrderService[] = response.data.data || [];
       const effectiveTrialUsed = typeof trialUsedOverride === 'boolean' ? trialUsedOverride : trialUsed;
       const filteredByTrial = isChangeMode ? data : data.filter(service => {
-        const technicalName = String(service.name || '');
+        const technicalName = getTechnicalServiceName(service);
         if (effectiveTrialUsed) {
           return technicalName.includes('_Main');
         }
