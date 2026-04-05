@@ -178,7 +178,7 @@ export default function OrderServiceModal({
 
   const fetchAllowedServiceIdsFromTemplate = async (userId: number): Promise<number[] | null> => {
     try {
-      const response = await templateApi.post(ORDER_SERVICES_TEMPLATE_ID, { user_id: userId });
+      const response = await templateApi.get(ORDER_SERVICES_TEMPLATE_ID, { user_id: userId });
       const ids = parseAllowedServiceIdsResponse(response.data);
       return ids.length > 0 ? ids : null;
     } catch {
