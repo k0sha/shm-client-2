@@ -144,10 +144,12 @@ export default function OrderServiceModal({
     try {
       const response = await templateApi.get('user_trial_cheker');
       const trialValue =
-        response.data?.data?.trial ??
-        response.data?.trial ??
-        response.data?.data?.response?.trial ??
-        response.data?.response?.trial;
+        typeof response.data === 'string'
+          ? response.data.trim()
+          : response.data?.data?.trial ??
+            response.data?.trial ??
+            response.data?.data?.response?.trial ??
+            response.data?.response?.trial;
 
       return isTrialUsedValue(trialValue);
     } catch {
