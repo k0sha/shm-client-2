@@ -180,7 +180,7 @@ export default function OrderServiceModal({
 
   const fetchAllowedServiceIdsFromPublicTemplate = async (userId: number): Promise<number[] | null> => {
     try {
-      const response = await publicTemplateApi.post(ORDER_SERVICES_PUBLIC_TEMPLATE_ID, { user_id: userId });
+      const response = await publicTemplateApi.get(ORDER_SERVICES_PUBLIC_TEMPLATE_ID, { user_id: userId });
       const ids = parseAllowedServiceIdsResponse(response.data);
       return ids.length > 0 ? ids : null;
     } catch {

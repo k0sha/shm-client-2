@@ -188,12 +188,6 @@ export const publicTemplateApi = {
     params,
     responseType: 'text',
   }),
-  post: (templateId: string, settings?: Record<string, unknown>) => api.post(`/public/${templateId}`, {
-    id: templateId,
-    settings: settings || {},
-  }, {
-    responseType: 'text',
-  }),
 };
 
 
