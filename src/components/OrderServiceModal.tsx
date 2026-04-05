@@ -93,6 +93,7 @@ export default function OrderServiceModal({
   const [paySystemsLoading, setPaySystemsLoading] = useState(false);
   const [paySystemsLoaded, setPaySystemsLoaded] = useState(false);
   const [finishAfterActive, setFinishAfterActive] = useState(false);
+  const [trialUsed, setTrialUsed] = useState(false);
 
   const isChangeMode = mode === 'change';
   const canDeferChange = isChangeMode && currentService?.status === 'ACTIVE';
@@ -122,9 +123,10 @@ export default function OrderServiceModal({
 
   useEffect(() => {
     if (opened) {
-      fetchServices();
       if (!isChangeMode) {
-        fetchUserBalance();
+        void fetchUserBalance();
+      } else {
+        void fetchServices();
       }
     }
   }, [opened, isChangeMode, currentService?.category]);
@@ -152,20 +154,32 @@ export default function OrderServiceModal({
       const userData = response.data.data?.[0] || response.data.data;
       setUserBalance(userData?.balance || 0);
       setUserBonus(userData?.bonus || 0);
+      setTrialUsed(String(userData?.settings?.trial || '0') === '1');
+      if (!isChangeMode) {
+        await fetchServices(String(userData?.settings?.trial || '0') === '1');
+      }
     } catch {
     }
   };
 
-  const fetchServices = async () => {
+  const fetchServices = async (trialUsedOverride?: boolean) => {
     setLoading(true);
     try {
       const response = await servicesApi.order_list(
         config.SERVICE_CHANGE_ALL_CATEGORY === 'false' && isChangeMode && currentService?.category ? { category: currentService.category } : undefined
       );
       const data: OrderService[] = response.data.data || [];
+      const effectiveTrialUsed = typeof trialUsedOverride === 'boolean' ? trialUsedOverride : trialUsed;
+      const filteredByTrial = isChangeMode ? data : data.filter(service => {
+        const technicalName = String(service.name || '');
+        if (effectiveTrialUsed) {
+          return technicalName.includes('_Main');
+        }
+        return technicalName.includes('_Trial');
+      });
       const filtered = isChangeMode && currentService?.service_id
-        ? data.filter(service => service.service_id !== currentService.service_id)
-        : data;
+        ? filteredByTrial.filter(service => service.service_id !== currentService.service_id)
+        : filteredByTrial;
       const ALLOWED_SORTINGS = ['cost_asc', 'cost_desc', 'name_asc', 'name_desc'] as const;
       type Sorting = typeof ALLOWED_SORTINGS[number];
       const rawSorting = config.ORDER_SORTING;
