@@ -72,17 +72,56 @@ function formatPeriod(value: number, t: any) {
   return parts.join(' ');
 }
 
-function isTrialUsedValue(value: unknown): boolean {
-  if (value === 1 || value === '1' || value === true) return true;
-  if (typeof value === 'string') {
-    return value.trim() === '1' || value.trim().toLowerCase() === 'true';
+const ORDER_SERVICES_TEMPLATE_ID = 'user_order_services';
+
+function normalizeTemplateServicesPayload(payload: unknown): OrderService[] {
+  if (Array.isArray(payload)) {
+    return payload as OrderService[];
   }
-  return false;
+
+  if (!payload || typeof payload !== 'object') {
+    return [];
+  }
+
+  const typedPayload = payload as {
+    data?: unknown;
+    response?: unknown;
+    services?: unknown;
+  };
+
+  if (Array.isArray(typedPayload.data)) {
+    return typedPayload.data as OrderService[];
+  }
+
+  if (Array.isArray(typedPayload.response)) {
+    return typedPayload.response as OrderService[];
+  }
+
+  if (Array.isArray(typedPayload.services)) {
+    return typedPayload.services as OrderService[];
+  }
+
+  return [];
 }
 
-function getTechnicalServiceName(service: OrderService): string {
-  return `${String(service.name || '')} ${String(service.descr || '')}`;
+function parseTemplateServicesResponse(raw: unknown): OrderService[] {
+  if (typeof raw !== 'string') {
+    return normalizeTemplateServicesPayload(raw);
+  }
+
+  const trimmed = raw.trim();
+  if (!trimmed) {
+    return [];
+  }
+
+  try {
+    const parsed = JSON.parse(trimmed);
+    return normalizeTemplateServicesPayload(parsed);
+  } catch {
+    return [];
+  }
 }
+
 
 
 
@@ -107,7 +146,6 @@ export default function OrderServiceModal({
   const [paySystemsLoading, setPaySystemsLoading] = useState(false);
   const [paySystemsLoaded, setPaySystemsLoaded] = useState(false);
   const [finishAfterActive, setFinishAfterActive] = useState(false);
-  const [trialUsed, setTrialUsed] = useState(false);
 
   const isChangeMode = mode === 'change';
   const canDeferChange = isChangeMode && currentService?.status === 'ACTIVE';
@@ -137,29 +175,12 @@ export default function OrderServiceModal({
 
   useEffect(() => {
     if (opened) {
+      fetchServices();
       if (!isChangeMode) {
-        void fetchUserBalance();
-      } else {
-        void fetchServices();
+        fetchUserBalance();
       }
     }
   }, [opened, isChangeMode, currentService?.category]);
-  const fetchTrialStatus = async (): Promise<boolean> => {
-    try {
-      const response = await templateApi.get('user_trial_cheker');
-      const trialValue =
-        typeof response.data === 'string'
-          ? response.data.trim()
-          : response.data?.data?.trial ??
-            response.data?.trial ??
-            response.data?.data?.response?.trial ??
-            response.data?.response?.trial;
-
-      return isTrialUsedValue(trialValue);
-    } catch {
-      return false;
-    }
-  };
 
   useEffect(() => {
     if (selectedService && !isChangeMode) {
@@ -180,41 +201,49 @@ export default function OrderServiceModal({
 
   const fetchUserBalance = async () => {
     try {
-      const [profileResponse, trialUsedValue] = await Promise.all([
-        userApi.getProfile(),
-        fetchTrialStatus(),
-      ]);
-
-      const userData = profileResponse.data.data?.[0] || profileResponse.data.data;
+      const response = await userApi.getProfile();
+      const userData = response.data.data?.[0] || response.data.data;
       setUserBalance(userData?.balance || 0);
       setUserBonus(userData?.bonus || 0);
-      setTrialUsed(trialUsedValue);
-
-      if (!isChangeMode) {
-        await fetchServices(trialUsedValue);
-      }
     } catch {
     }
   };
 
-  const fetchServices = async (trialUsedOverride?: boolean) => {
+  const fetchServicesFromTemplate = async (): Promise<OrderService[] | null> => {
+    try {
+      const response = await templateApi.get(ORDER_SERVICES_TEMPLATE_ID);
+      const services = parseTemplateServicesResponse(response.data);
+      return services.length > 0 ? services : null;
+    } catch {
+      return null;
+    }
+  };
+
+  const fetchServices = async () => {
     setLoading(true);
     try {
-      const response = await servicesApi.order_list(
-        config.SERVICE_CHANGE_ALL_CATEGORY === 'false' && isChangeMode && currentService?.category ? { category: currentService.category } : undefined
-      );
-      const data: OrderService[] = response.data.data || [];
-      const effectiveTrialUsed = typeof trialUsedOverride === 'boolean' ? trialUsedOverride : trialUsed;
-      const filteredByTrial = isChangeMode ? data : data.filter(service => {
-        const technicalName = getTechnicalServiceName(service);
-        if (effectiveTrialUsed) {
-          return technicalName.includes('_Main');
+      let data: OrderService[] = [];
+
+      if (!isChangeMode) {
+        const templateServices = await fetchServicesFromTemplate();
+        if (templateServices) {
+          data = templateServices;
+        } else {
+          const response = await servicesApi.order_list();
+          data = response.data.data || [];
         }
-        return technicalName.includes('_Trial');
-      });
+      } else {
+        const response = await servicesApi.order_list(
+          config.SERVICE_CHANGE_ALL_CATEGORY === 'false' && currentService?.category
+            ? { category: currentService.category }
+            : undefined
+        );
+        data = response.data.data || [];
+      }
+
       const filtered = isChangeMode && currentService?.service_id
-        ? filteredByTrial.filter(service => service.service_id !== currentService.service_id)
-        : filteredByTrial;
+        ? data.filter(service => service.service_id !== currentService.service_id)
+        : data;
       const ALLOWED_SORTINGS = ['cost_asc', 'cost_desc', 'name_asc', 'name_desc'] as const;
       type Sorting = typeof ALLOWED_SORTINGS[number];
       const rawSorting = config.ORDER_SORTING;
