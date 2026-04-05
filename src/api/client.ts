@@ -177,9 +177,23 @@ export const servicesApi = {
 
 
 
+
 export const telegramApi = {
   getSettings: () => api.get('/telegram/user'),
   updateSettings: (data: Record<string, unknown>) => api.post('/telegram/user', data),
+};
+
+export const publicTemplateApi = {
+  get: (templateId: string, params?: Record<string, unknown>) => api.get(`/public/${templateId}`, {
+    params,
+    responseType: 'text',
+  }),
+  post: (templateId: string, settings?: Record<string, unknown>) => api.post(`/public/${templateId}`, {
+    id: templateId,
+    settings: settings || {},
+  }, {
+    responseType: 'text',
+  }),
 };
 
 

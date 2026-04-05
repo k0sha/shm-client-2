@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Modal, Stack, Text, Card, Group, Badge, Loader, Center, Button, Paper, Divider, Select, NumberInput, Alert, Checkbox, ScrollArea } from '@mantine/core';
 import { IconArrowLeft, IconCreditCard, IconCheck, IconWallet } from '@tabler/icons-react';
-import { servicesApi, userApi } from '../api/client';
+import { servicesApi, userApi, publicTemplateApi } from '../api/client';
 import { notifications } from '@mantine/notifications';
 import { config } from '../config';
 import { prettifyServiceName } from '../utils/serviceName';
@@ -74,6 +74,23 @@ function formatPeriod(value: number, t: any) {
 
 function getTechnicalServiceName(service: OrderService): string {
   return `${String(service.name || '')} ${String(service.descr || '')}`;
+}
+
+const ORDER_SERVICES_PUBLIC_TEMPLATE_ID = 'user_order_services';
+
+function parseAllowedServiceIdsResponse(raw: unknown): number[] {
+  const text = typeof raw === 'string' ? raw.trim() : '';
+  if (!text) {
+    return [];
+  }
+
+  const match = text.match(/service_ids\s*[:=]\s*([0-9,\s]+)/i);
+  const value = match ? match[1] : text;
+
+  return value
+    .split(',')
+    .map(item => Number(item.trim()))
+    .filter(item => Number.isFinite(item) && item > 0);
 }
 
 
@@ -164,19 +181,48 @@ export default function OrderServiceModal({
     }
   };
 
+  const fetchAllowedServiceIdsFromPublicTemplate = async (userId: number): Promise<number[] | null> => {
+    try {
+      const response = await publicTemplateApi.post(ORDER_SERVICES_PUBLIC_TEMPLATE_ID, { user_id: userId });
+      const ids = parseAllowedServiceIdsResponse(response.data);
+      return ids.length > 0 ? ids : null;
+    } catch {
+      return null;
+    }
+  };
+
   const fetchServices = async () => {
     setLoading(true);
     try {
-      const response = await servicesApi.order_list(
-        config.SERVICE_CHANGE_ALL_CATEGORY === 'false' && isChangeMode && currentService?.category ? { category: currentService.category } : undefined
-      );
-      const data: OrderService[] = response.data.data || [];
-      const trialFiltered = isChangeMode
-        ? data
-        : data.filter(service => getTechnicalServiceName(service).includes('_Trial'));
+      let data: OrderService[] = [];
+      let allowedServiceIds: number[] | null = null;
+
+      if (!isChangeMode) {
+        const [profileResponse, servicesResponse] = await Promise.all([
+          userApi.getProfile(),
+          servicesApi.order_list(),
+        ]);
+
+        const userData = profileResponse.data.data?.[0] || profileResponse.data.data;
+        const userId = Number(userData?.user_id || 0);
+
+        data = servicesResponse.data.data || [];
+        allowedServiceIds = userId > 0
+          ? await fetchAllowedServiceIdsFromPublicTemplate(userId)
+          : null;
+      } else {
+        const response = await servicesApi.order_list(
+          config.SERVICE_CHANGE_ALL_CATEGORY === 'false' && isChangeMode && currentService?.category ? { category: currentService.category } : undefined
+        );
+        data = response.data.data || [];
+      }
+
+      const templateFiltered = !isChangeMode && allowedServiceIds && allowedServiceIds.length > 0
+        ? data.filter(service => allowedServiceIds!.includes(service.service_id))
+        : data;
       const filtered = isChangeMode && currentService?.service_id
-        ? trialFiltered.filter(service => service.service_id !== currentService.service_id)
-        : trialFiltered;
+        ? templateFiltered.filter(service => service.service_id !== currentService.service_id)
+        : templateFiltered;
       const ALLOWED_SORTINGS = ['cost_asc', 'cost_desc', 'name_asc', 'name_desc'] as const;
       type Sorting = typeof ALLOWED_SORTINGS[number];
       const rawSorting = config.ORDER_SORTING;
