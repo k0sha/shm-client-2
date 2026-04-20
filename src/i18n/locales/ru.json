@@ -164,7 +164,7 @@
     "methods": "методов",
     "autopaymentEnabled": "Автоплатёж включён",
     "user": "Пользователь",
-    "telegramDescription": "Привязка Telegram позволит получать уведомления о статусе устройств и платежей, так же оплачивать устройства Телеграмм звездами.",
+    "telegramDescription": "Привязка Telegram позволит получать уведомления о статусе устройств и платежей.",
     "partnerLink": "Партнёрская ссылка",
     "partnerLinkDescription": "Приглашайте друзей и получайте бонусы за их заказы и платежи.",
     "payHistory": "История платежей",
@@ -172,7 +172,7 @@
   },
   "services": {
     "title": "Мои устройства",
-    "orderService": "Заказать устройство",
+    "orderService": "Подключить устройство",
     "noServices": "У вас пока нет активных устройств",
     "serviceDetails": "Детали устройства",
     "info": "Информация",
@@ -194,7 +194,7 @@
     "openSubLink": "Настроить",
     "deviceConfig": "Добавить в приложение",
     "stepDownloadApp": "1. Скачайте приложение и вернитесь обратно",
-    "stepConfigureApp": "2. Сканируйте QR-код или нажмите кнопку",
+    "stepConfigureApp": "2. Нажмите кнопку",
     "changeService": "Сменить тариф",
     "changeServiceTitle": "Смена тарифа",
     "changeServiceSuccess": "Тариф изменен",
@@ -220,10 +220,10 @@
     "profit": "Ваша выгода {{amount}} ₽ с учётом скидки и бонусов",
     "emailNotVerifiedtitle": "Не удалось подтвердить email",
     "emailNotVerifiedTitle": "Не удалось подтвердить email",
-    "emailNotVerifiedDesc": "Для заказа устройства необходимо подтвердить email.",
+    "emailNotVerifiedDesc": "Для подключения устройства необходимо подтвердить email.",
     "emailNotVerifiedAction": "Подтвердить email",
     "emailRequiredTitle": "Не удалось добавить email",
-    "emailRequiredDesc": "Для заказа устройства необходимо добавить email.",
+    "emailRequiredDesc": "Для подключения устройства необходимо добавить email.",
     "emailRequiredAction": "Добавить email"
   },
   "categories": {
@@ -274,7 +274,7 @@
     "paymentError": "Ошибка при проведении платежа"
   },
   "order": {
-    "title": "Заказать устройство",
+    "title": "Подключить устройство",
     "serviceDetails": "Детали устройства",
     "backToList": "Назад к списку",
     "description": "Описание",
@@ -282,16 +282,16 @@
     "yourBalance": "Ваш баланс",
     "enoughToPay": "Достаточно для оплаты",
     "needTopUp": "Нужно пополнить на {{amount}} ₽",
-    "orderFor": "Заказать за {{amount}} ₽",
+    "orderFor": "Подключить за {{amount}} ₽",
     "topUpBalance": "Пополнить баланс",
     "minimum": "Минимум",
     "missingAmount": "недостающая сумма",
-    "orderAndPay": "Заказать и оплатить {{amount}} ₽",
-    "noServicesAvailable": "Нет доступных устройств для заказа",
+    "orderAndPay": "Подключить и оплатить {{amount}} ₽",
+    "noServicesAvailable": "Нет доступных устройств для подключения",
     "loadError": "Не удалось загрузить список устройств",
-    "orderSuccess": "Устройство \"{{name}}\" заказано и оплачено с баланса",
-    "orderPaySuccess": "Устройство \"{{name}}\" заказано. Откройте окно оплаты.",
-    "orderError": "Не удалось заказать устройство"
+    "orderSuccess": "Устройство \"{{name}}\" подключено и оплачено с баланса",
+    "orderPaySuccess": "Устройство \"{{name}}\" подключено. Откройте окно оплаты.",
+    "orderError": "Не удалось подключить устройство"
   },
   "confirm": {
     "title": "Подтверждение"

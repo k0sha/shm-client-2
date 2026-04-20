@@ -164,7 +164,7 @@
     "methods": "methods",
     "autopaymentEnabled": "Auto-payment enabled",
     "user": "User",
-    "telegramDescription": "Linking Telegram will allow you to receive notifications about the status of devices and payments, as well as pay for Telegram devices with stars.",
+    "telegramDescription": "Linking Telegram will allow you to receive notifications about the status of devices and payments.",
     "partnerLink": "Partner link",
     "partnerLinkDescription": "Invite friends and receive bonuses for their orders and payments.",
     "payHistory": "Payment history",
@@ -172,7 +172,7 @@
   },
   "services": {
     "title": "My Devices",
-    "orderService": "Order device",
+    "orderService": "Connect device",
     "noServices": "You don't have any active devices yet",
     "serviceDetails": "Device details",
     "info": "Information",
@@ -194,7 +194,7 @@
     "openSubLink": "Сonfigure",
     "deviceConfig": "Add to app",
     "stepDownloadApp": "1. Download app and come back",
-    "stepConfigureApp": "2. Scan QR code or tap the button",
+    "stepConfigureApp": "2. Tap the button",
     "changeService": "Change plan",
     "changeServiceTitle": "Change plan",
     "changeServiceSuccess": "Plan changed",
@@ -220,10 +220,10 @@
     "profit": "Your profit is {{amount}} ₽ considering discount and bonuses",
     "emailNotVerifiedtitle": "Email not verified",
     "emailNotVerifiedTitle": "Email not verified",
-    "emailNotVerifiedDesc": "To order devices, you need to verify your email address. Please verify your email to continue.",
+    "emailNotVerifiedDesc": "To connect devices, you need to verify your email address. Please verify your email to continue.",
     "emailNotVerifiedAction": "Confirm email",
     "emailRequiredTitle": "Email is required",
-    "emailRequiredDesc": "To order a device, you need to add your email address. After adding it, you will need to verify it right away.",
+    "emailRequiredDesc": "To connect a device, you need to add your email address. After adding it, you will need to verify it right away.",
     "emailRequiredAction": "Add email"
   },
   "categories": {
@@ -274,7 +274,7 @@
     "paymentError": "Payment failed"
   },
   "order": {
-    "title": "Order device",
+    "title": "Connect device",
     "serviceDetails": "Device details",
     "backToList": "Back to list",
     "description": "Description",
@@ -282,16 +282,16 @@
     "yourBalance": "Your balance",
     "enoughToPay": "Enough to pay",
     "needTopUp": "Need to top up {{amount}} ₽",
-    "orderFor": "Order for {{amount}} ₽",
+    "orderFor": "Connect for {{amount}} ₽",
     "topUpBalance": "Top up balance",
     "minimum": "Minimum",
     "missingAmount": "missing amount",
-    "orderAndPay": "Order and pay {{amount}} ₽",
-    "noServicesAvailable": "No devices available for order",
+    "orderAndPay": "Connect and pay {{amount}} ₽",
+    "noServicesAvailable": "No devices available for connection",
     "loadError": "Failed to load devices list",
-    "orderSuccess": "Device \"{{name}}\" ordered and paid from balance",
-    "orderPaySuccess": "Device \"{{name}}\" ordered. Open payment window.",
-    "orderError": "Failed to order device"
+    "orderSuccess": "Device \"{{name}}\" connected and paid from balance",
+    "orderPaySuccess": "Device \"{{name}}\" connected. Open payment window.",
+    "orderError": "Failed to connect device"
   },
   "confirm": {
     "title": "Confirmation"
