@@ -435,7 +435,6 @@ export default function Profile() {
                   </ActionIcon>
                 </Text>
                 <Text size="sm" c="dimmed">{t('profile.login')}: {profile.login || '-'}</Text>
-                { profile.discount && profile.discount > 0 ? ( <Text size="xm" style={{ color: colorScheme === 'dark' ? '#4ade80' : '#16a34a' }}>{t('profile.discount')}: {profile.discount}%</Text>) : undefined}
               </div>
             </Group>
 
@@ -468,14 +467,16 @@ export default function Profile() {
 
             <Divider my="md" />
 
-            <Group justify="space-between" align="center">
-              <div>
-                  <Text size="xm" c="dimmed">{t('profile.bonus')}: {profile.bonus}</Text>
-              </div>
-              <Button onClick={() => setPromoModalOpen(true)} color="cyan">
-                {t('profile.enterPromo')}
-              </Button>
-            </Group>
+            <Text size="sm" c="dimmed">{t('profile.bonus')}: {profile.bonus}</Text>
+
+            {profile.discount && profile.discount > 0 ? (
+              <>
+                <Divider my="md" />
+                <Text size="sm" c="dimmed">
+                  {t('profile.discount')}: <Text span fw={600} c="green">{profile.discount}%</Text>
+                </Text>
+              </>
+            ) : null}
 
           </Card>
 
