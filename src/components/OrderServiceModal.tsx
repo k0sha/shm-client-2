@@ -330,9 +330,12 @@ export default function OrderServiceModal({
     }
 
     setOrdering(true);
+    const payWindow = window.open('', '_blank');
     try {
       await servicesApi.order(selectedService.service_id);
-      window.open(paySystem.shm_url + payAmount, '_blank');
+      if (payWindow) {
+        payWindow.location.href = paySystem.shm_url + payAmount;
+      }
 
       notifications.show({
         title: t('common.success'),
@@ -343,6 +346,7 @@ export default function OrderServiceModal({
       onOrderSuccess?.();
       handleClose();
     } catch (error) {
+      if (payWindow) payWindow.close();
       notifications.show({
         title: t('common.error'),
         message: t('order.orderError'),
