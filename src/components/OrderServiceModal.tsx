@@ -124,7 +124,6 @@ export default function OrderServiceModal({
   const [selectedService, setSelectedService] = useState<OrderService | null>(null);
   const [ordering, setOrdering] = useState(false);
   const [userBalance, setUserBalance] = useState<number>(0);
-  const [userBonus, setUserBonus] = useState<number>(0);
   const [paySystems, setPaySystems] = useState<PaySystem[]>([]);
   const [selectedPaySystem, setSelectedPaySystem] = useState<string | null>(null);
   const [payAmount, setPayAmount] = useState<number | string>(0);
@@ -135,16 +134,10 @@ export default function OrderServiceModal({
   const isChangeMode = mode === 'change';
   const canDeferChange = isChangeMode && currentService?.status === 'ACTIVE';
 
-  const getAppliedBonus = (service: OrderService): number => {
-    const plannedBonus = Number(service.cost_bonus || 0);
-    return Math.max(0, Math.min(plannedBonus, Number(userBonus || 0)));
-  };
-
   const getEffectiveCost = (service: OrderService): number => {
     const cost = Number(service.cost || 0);
     const costDiscount = Number(service.cost_discount || 0);
-    const appliedBonus = getAppliedBonus(service);
-    return Math.max(0, cost - costDiscount - appliedBonus);
+    return Math.max(0, cost - costDiscount);
   };
 
   const getTopUpAmount = (service: OrderService, balance: number): number => {
@@ -176,7 +169,7 @@ export default function OrderServiceModal({
         loadPaySystems();
       }
     }
-  }, [selectedService, userBalance, userBonus, isChangeMode]);
+  }, [selectedService, userBalance, isChangeMode]);
 
   useEffect(() => {
     if (isChangeMode) {
@@ -189,7 +182,6 @@ export default function OrderServiceModal({
       const response = await userApi.getProfile();
       const userData = response.data.data?.[0] || response.data.data;
       setUserBalance(userData?.balance || 0);
-      setUserBonus(userData?.bonus || 0);
     } catch {
     }
   };
@@ -494,19 +486,9 @@ export default function OrderServiceModal({
                         {getEffectiveCost(selectedService)} ₽
                     </Text>
                   </Group>
-                  {selectedService.cost_discount && selectedService.cost_discount > 0 && getAppliedBonus(selectedService) === 0 ? (
+                  {selectedService.cost_discount && selectedService.cost_discount > 0 ? (
                     <Text size="xs" c="dimmed" mt="xs">
                       {t('services.savings', { amount: selectedService.cost_discount })}
-                    </Text>
-                  ) : null}
-                  {getAppliedBonus(selectedService) > 0 && selectedService.cost_discount === 0 ? (
-                    <Text size="xs" c="dimmed" mt="xs">
-                      {t('services.savings_bonus', { amount: getAppliedBonus(selectedService) })}
-                    </Text>
-                  ) : null}
-                  {selectedService.cost_discount && selectedService.cost_discount > 0 && getAppliedBonus(selectedService) > 0 ? (
-                    <Text size="xs" c="dimmed" mt="xs">
-                      {t('services.profit', { amount: getAppliedBonus(selectedService) + selectedService.cost_discount })}
                     </Text>
                   ) : null}
                 </div>
@@ -659,14 +641,14 @@ export default function OrderServiceModal({
                         )}
                       </div>
                       <Group gap="sm" align="baseline">
-                        {service.discount && service.discount > 0 || getAppliedBonus(service) > 0 ? (
+                        {service.discount && service.discount > 0 ? (
                           <>
                             <Text size="sm" c="dimmed" style={{ textDecoration: 'line-through' }}>
                               {service.cost} ₽
                             </Text>
                           </>
                         ) : null}
-                        <Text fw={600} color={service.discount && service.discount > 0 || getAppliedBonus(service) > 0 ? 'green' : undefined}>
+                        <Text fw={600} color={service.discount && service.discount > 0 ? 'green' : undefined}>
                           {getEffectiveCost(service)} ₽
                         </Text>
                         <Text size="xs" c="dimmed">
