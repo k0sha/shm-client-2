@@ -190,7 +190,7 @@ function ThemeToggle() {
 
 function WebAppHeader({ onShowVersion }: { onShowVersion?: () => void }) {
   const navigate = useNavigate();
-  const { logout, user } = useStore();
+  const { logout } = useStore();
   const longPressProps = useLongPress(onShowVersion ?? (() => {}));
   const computedColorScheme = useComputedColorScheme('light');
   const { setColorScheme } = useMantineColorScheme();
@@ -216,35 +216,46 @@ function WebAppHeader({ onShowVersion }: { onShowVersion?: () => void }) {
   };
 
   return (
-    <Group justify="flex-end" p="sm" gap="xs">
-     <Text size="sm" style={{ cursor: 'pointer' }} onClick={() => navigate('/')} {...longPressProps}>{user?.login}</Text>
-     { config.SUPPORT_LINK &&  <ActionIcon
-        onClick={handleSupportLink}
-        variant="subtle"
-        size="lg"
-        color="blue"
-      >
-        <IconHeadset size={20} />
-      </ActionIcon> }
-      <LanguageSwitcher />
-      <ActionIcon
-        onClick={handleThemeToggle}
-        variant="subtle"
-        size="lg"
-        color={computedColorScheme === 'dark' ? 'gray' : 'gray'}
-      >
-        {computedColorScheme === 'light' ? <IconMoon size={20} /> : <IconSun size={20} />}
-      </ActionIcon>
-      {(
-        <ActionIcon
-          onClick={handleLogout}
+    <Group justify="space-between" p="sm" gap="xs" wrap="nowrap">
+      <Group gap="xs" onClick={() => navigate('/')} style={{ cursor: 'pointer' }} wrap="nowrap" {...longPressProps}>
+        {config.LOGO_URL && (
+          <img
+            src={config.LOGO_URL}
+            alt=""
+            style={{ height: 28, width: 28, objectFit: 'contain', flexShrink: 0 }}
+          />
+        )}
+        <Text size="md" fw={700}>{config.APP_NAME}</Text>
+      </Group>
+      <Group gap="xs" wrap="nowrap">
+        { config.SUPPORT_LINK &&  <ActionIcon
+          onClick={handleSupportLink}
           variant="subtle"
           size="lg"
-          color="red"
+          color="blue"
         >
-          <IconLogout size={20} />
+          <IconHeadset size={20} />
+        </ActionIcon> }
+        <LanguageSwitcher />
+        <ActionIcon
+          onClick={handleThemeToggle}
+          variant="subtle"
+          size="lg"
+          color={computedColorScheme === 'dark' ? 'gray' : 'gray'}
+        >
+          {computedColorScheme === 'light' ? <IconMoon size={20} /> : <IconSun size={20} />}
         </ActionIcon>
-      )}
+        {(
+          <ActionIcon
+            onClick={handleLogout}
+            variant="subtle"
+            size="lg"
+            color="red"
+          >
+            <IconLogout size={20} />
+          </ActionIcon>
+        )}
+      </Group>
     </Group>
   );
 }
@@ -326,7 +337,7 @@ function BottomNavigation({ onPayments, onWithdrawals }: { onPayments: () => voi
 function AppContent() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, userEmail, isAuthenticated, isLoading, setUser, setIsLoading, logout } = useStore();
+  const { userEmail, isAuthenticated, isLoading, setUser, setIsLoading, logout } = useStore();
   const { isInsideTelegramWebApp } = useTelegramWebApp();
   const isTelegramWebAppRuntime = isInsideTelegramWebApp;
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -767,7 +778,6 @@ function AppContent() {
               })}
             </Group>
             <Group>
-              <Text size="sm" style={{ cursor: 'pointer' }} onClick={() => navigate('/profile')}>{user?.login}</Text>
               { config.SUPPORT_LINK &&  <ActionIcon
                 onClick={handleSupportLink}
                 variant="subtle"
