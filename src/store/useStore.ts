@@ -12,6 +12,7 @@ interface User {
   bonus: number;
   gid: number;
   telegram_user_id?: number;
+  role?: string;
 }
 
 interface AppState {

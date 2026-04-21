@@ -142,6 +142,8 @@ function useTelegramOpenState() {
 
 import Services from './pages/Services';
 import Profile from './pages/Profile';
+import Support from './pages/Support';
+import SupportTicket from './pages/SupportTicket';
 import Login from './pages/Login';
 import NotFound from './pages/NotFound';
 
@@ -265,6 +267,11 @@ function BottomNavigation({ onPayments, onWithdrawals }: { onPayments: () => voi
   const navigate = useNavigate();
   const computedColorScheme = useComputedColorScheme('light');
   const { t } = useTranslation();
+  const { user } = useStore();
+
+  const visibleItems = NAV_ITEMS.filter(
+    (item) => !item.requiresRole || user?.role === item.requiresRole
+  );
 
   const handleClick = (path: string) => {
     if (path === '/payments') { onPayments(); }
@@ -301,7 +308,7 @@ function BottomNavigation({ onPayments, onWithdrawals }: { onPayments: () => voi
         }}
       >
         <Group justify="space-around" gap={4}>
-          {NAV_ITEMS.map((item) => {
+          {visibleItems.map((item) => {
             const isActive = location.pathname === item.path;
             const Icon = item.icon;
             return (
@@ -337,7 +344,10 @@ function BottomNavigation({ onPayments, onWithdrawals }: { onPayments: () => voi
 function AppContent() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { userEmail, isAuthenticated, isLoading, setUser, setIsLoading, logout } = useStore();
+  const { userEmail, isAuthenticated, isLoading, setUser, setIsLoading, logout, user } = useStore();
+  const visibleNavItems = NAV_ITEMS.filter(
+    (item) => !item.requiresRole || user?.role === item.requiresRole
+  );
   const { isInsideTelegramWebApp } = useTelegramWebApp();
   const isTelegramWebAppRuntime = isInsideTelegramWebApp;
   const isMobile = useMediaQuery('(max-width: 768px)');
@@ -691,6 +701,8 @@ function AppContent() {
             <Routes>
               <Route path="/" element={<Services />} />
               <Route path="/profile" element={<Profile />} />
+              {user?.role === 'admin' && <Route path="/support" element={<Support />} />}
+              {user?.role === 'admin' && <Route path="/support/:ticketId" element={<SupportTicket />} />}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Box>
@@ -745,7 +757,7 @@ function AppContent() {
               </Text>
             </Group>
             <Group gap="xs" visibleFrom="sm" wrap="nowrap">
-              {NAV_ITEMS.map((item) => {
+              {visibleNavItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = location.pathname === item.path;
                 if (item.path === '/payments') {
@@ -806,6 +818,8 @@ function AppContent() {
           <Routes>
             <Route path="/" element={<Services />} />
             <Route path="/profile" element={<Profile />} />
+            {user?.role === 'admin' && <Route path="/support" element={<Support />} />}
+            {user?.role === 'admin' && <Route path="/support/:ticketId" element={<SupportTicket />} />}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AppShell.Main>
