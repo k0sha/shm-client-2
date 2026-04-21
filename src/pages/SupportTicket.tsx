@@ -382,6 +382,14 @@ export default function SupportTicket() {
 
   const backPath = isSpecialistView ? '/tickets' : '/support';
 
+  const handleCloseTicket = () => {
+    const updated: Ticket = { ...ticket, status: 'closed', updatedAt: new Date().toISOString() };
+    const idx = MOCK_ALL_TICKETS.findIndex((tk) => tk.id === ticket.id);
+    if (idx !== -1) MOCK_ALL_TICKETS[idx] = updated;
+    setTicket(updated);
+    notifications.show({ color: 'green', message: t('tickets.ticketClosed') });
+  };
+
   return (
     <Stack gap="md" h="100%" style={{ display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
@@ -406,25 +414,15 @@ export default function SupportTicket() {
             )}
           </Group>
         </Stack>
+        {!isSpecialistView && !isClosed && (
+          <Button size="xs" variant="light" color="red" onClick={handleCloseTicket} style={{ flexShrink: 0 }}>
+            {t('tickets.closeTicket')}
+          </Button>
+        )}
       </Group>
 
       {/* User info panel — specialists only */}
       {isSpecialistView && <UserInfoPanel ticket={ticket} />}
-
-      {/* User close action */}
-      {!isSpecialistView && !isClosed && (
-        <Group justify="flex-end">
-          <Button size="xs" variant="light" color="red" onClick={() => {
-            const updated: Ticket = { ...ticket, status: 'closed', updatedAt: new Date().toISOString() };
-            const idx = MOCK_ALL_TICKETS.findIndex((tk) => tk.id === ticket.id);
-            if (idx !== -1) MOCK_ALL_TICKETS[idx] = updated;
-            setTicket(updated);
-            notifications.show({ color: 'green', message: t('tickets.ticketClosed') });
-          }}>
-            {t('tickets.closeTicket')}
-          </Button>
-        </Group>
-      )}
 
       {/* Specialist actions */}
       {isSpecialistView && (

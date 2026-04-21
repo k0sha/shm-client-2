@@ -396,7 +396,7 @@
     "selectServicePlaceholder": "Select the device related to your issue",
     "noServices": "You don't have any active devices",
     "send": "Send",
-    "closeTicket": "Close",
+    "closeTicket": "Close Ticket",
     "ticketCreated": "Request created",
     "ticketClosed": "Request closed",
     "createError": "Failed to create request",

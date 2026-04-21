@@ -396,7 +396,7 @@
     "selectServicePlaceholder": "Выберите устройство, с которым связана проблема",
     "noServices": "У вас нет активных устройств",
     "send": "Отправить",
-    "closeTicket": "Закрыть",
+    "closeTicket": "Закрыть обращение",
     "ticketCreated": "Обращение создано",
     "ticketClosed": "Обращение закрыто",
     "createError": "Не удалось создать обращение",
