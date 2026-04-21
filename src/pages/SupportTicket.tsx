@@ -456,7 +456,7 @@ export default function SupportTicket() {
             <MessageBubble
               key={msg.id}
               msg={msg}
-              isOwn={msg.authorId === (user?.user_id ?? 1)}
+              isOwn={isSpecialistView ? msg.isSpecialist : !msg.isSpecialist}
               ticket={ticket}
             />
           ))}
