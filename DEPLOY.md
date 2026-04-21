@@ -4,7 +4,6 @@
 
 - Сервер с уже установленным SHM (по официальной инструкции)
 - Docker + Docker Compose v2
-- Git
 - Домен с SSL (Certbot уже настроен вместе с SHM)
 
 После установки SHM на сервере должно быть:
@@ -15,19 +14,30 @@
 
 ---
 
-## 1. Клонирование репозитория
+## 1. Подготовка директории на сервере
 
 ```bash
-cd /opt
-git clone https://github.com/k0sha/shm-client-2.git shm_support
+mkdir -p /opt/shm_support
 cd /opt/shm_support
 ```
 
 ---
 
-## 2. Создание .env файла
+## 2. Скачать docker-compose.yml
 
 ```bash
+curl -o docker-compose.yml \
+  https://raw.githubusercontent.com/k0sha/shm-client-2/main/docker-compose.yml
+```
+
+---
+
+## 3. Создать .env файл
+
+```bash
+curl -o .env.example \
+  https://raw.githubusercontent.com/k0sha/shm-client-2/main/.env.example
+
 cp .env.example .env
 nano .env
 ```
@@ -36,7 +46,6 @@ nano .env
 
 ```env
 # Внутренний URL SHM — через какой адрес наш бек будет обращаться к SHM API
-# Используем внешний домен (он же резолвится локально через nginx)
 SHM_INTERNAL_URL=https://bill.yourdomain.com
 
 # PostgreSQL — придумать надёжные пароли
@@ -44,7 +53,7 @@ POSTGRES_USER=support
 POSTGRES_PASSWORD=ВАШ_НАДЁЖНЫЙ_ПАРОЛЬ
 POSTGRES_DB=support
 
-# MinIO — придумать надёжные пароли (минимум 8 символов для секрета)
+# MinIO — минимум 8 символов для секрета
 MINIO_ACCESS_KEY=support_minio
 MINIO_SECRET_KEY=ВАШ_НАДЁЖНЫЙ_ПАРОЛЬ_MINIO
 
@@ -52,11 +61,11 @@ MINIO_SECRET_KEY=ВАШ_НАДЁЖНЫЙ_ПАРОЛЬ_MINIO
 CORS_ORIGIN=https://bill.yourdomain.com
 ```
 
-> **Важно:** `.env` нельзя коммитить в git. Он уже добавлен в `.gitignore`.
+> **Важно:** `.env` не хранится в git и не перезаписывается при обновлении.
 
 ---
 
-## 3. Настройка nginx
+## 4. Настройка nginx
 
 Открыть существующий конфиг nginx для вашего биллинг-домена:
 
@@ -64,7 +73,7 @@ CORS_ORIGIN=https://bill.yourdomain.com
 nano /etc/nginx/sites-available/bill.yourdomain.com
 ```
 
-Найти блок `server` с `server_name bill.yourdomain.com` и добавить внутри него новый `location` **рядом с существующим** `/shm` location:
+Добавить внутри блока `server { ... }` новый location **рядом с существующим** `/shm` location:
 
 ```nginx
 location /shm_support/ {
@@ -88,13 +97,14 @@ nginx -t && systemctl reload nginx
 
 ---
 
-## 4. Первый запуск
+## 5. Первый запуск
 
-### 4.1 Собрать и запустить сервисы
+### 5.1 Скачать образы и запустить сервисы
 
 ```bash
 cd /opt/shm_support
-docker compose up -d --build
+docker compose pull
+docker compose up -d
 ```
 
 Это запустит:
@@ -108,21 +118,17 @@ docker compose up -d --build
 docker compose ps
 ```
 
-Все сервисы должны быть `healthy` или `running`.
+Все сервисы должны быть в статусе `running` или `healthy`.
 
-### 4.2 Создать таблицы в базе данных
+### 5.2 Создать таблицы в базе данных
 
-```bash
-docker compose exec support-api npx prisma migrate deploy
-```
-
-Если выходит ошибка что миграций нет — выполнить вместо этого:
+Выполняется **один раз** при первом развёртывании:
 
 ```bash
 docker compose exec support-api npx prisma db push
 ```
 
-### 4.3 Проверить что API отвечает
+### 5.3 Проверить что API отвечает
 
 ```bash
 curl https://bill.yourdomain.com/shm_support/health
@@ -132,29 +138,18 @@ curl https://bill.yourdomain.com/shm_support/health
 
 ---
 
-## 5. Настройка MinIO
-
-MinIO консоль доступна по адресу `http://IP_СЕРВЕРА:9001`
-
-> Порт 9001 открыт только для прямого доступа. Закрыть его файрволом после первоначальной настройки если не нужен постоянный доступ.
-
-Войти с `MINIO_ACCESS_KEY` / `MINIO_SECRET_KEY` из `.env`.
-
-Бакет `support` создаётся автоматически при старте сервиса. Убедиться что он появился в разделе **Buckets**.
-
----
-
 ## 6. Обновление
 
-При выходе новых версий:
+При выходе новой версии образ автоматически собирается GitHub Actions.
+На сервере достаточно:
 
 ```bash
 cd /opt/shm_support
-git pull
-docker compose up -d --build support-api
+docker compose pull support-api
+docker compose up -d support-api
 ```
 
-Если изменилась схема БД (новые миграции):
+Если в обновлении есть изменения схемы БД (будет указано в changelog):
 
 ```bash
 docker compose exec support-api npx prisma migrate deploy
@@ -162,16 +157,31 @@ docker compose exec support-api npx prisma migrate deploy
 
 ---
 
-## 7. Полезные команды
+## 7. Настройка MinIO (опционально)
+
+Консоль MinIO доступна по адресу `http://IP_СЕРВЕРА:9001`
+
+Войти с `MINIO_ACCESS_KEY` / `MINIO_SECRET_KEY` из `.env`.
+
+Бакет `support` создаётся автоматически при первом старте.
+
+> Рекомендуется закрыть порт 9001 файрволом после настройки:
+> ```bash
+> ufw deny 9001
+> ```
+
+---
+
+## 8. Полезные команды
 
 ```bash
-# Посмотреть логи бека
+# Логи бека
 docker compose logs -f support-api
 
-# Посмотреть логи всех сервисов
+# Логи всех сервисов
 docker compose logs -f
 
-# Перезапустить только бек
+# Перезапустить бек
 docker compose restart support-api
 
 # Остановить всё
@@ -183,56 +193,55 @@ docker compose down -v
 # Подключиться к базе данных
 docker compose exec postgres psql -U support -d support
 
-# Открыть shell в контейнере бека
+# Shell внутри контейнера бека
 docker compose exec support-api sh
 ```
 
 ---
 
-## 8. Структура API
+## 9. Структура API
 
 Базовый путь: `https://bill.yourdomain.com/shm_support/v1/`
 
-Авторизация: через заголовок `session_id` (тот же что и для SHM, фронт отправляет автоматически).
+Авторизация: заголовок `session_id` (тот же что для SHM, фронт отправляет автоматически).
 
 | Метод | Путь | Доступ | Описание |
 |-------|------|--------|----------|
-| GET | `/v1/tickets` | Все | Список тикетов (пользователь — свои, специалист — все) |
+| GET | `/v1/tickets` | Все | Список тикетов |
 | POST | `/v1/tickets` | Все | Создать тикет |
-| GET | `/v1/tickets/:id` | Все | Тикет с сообщениями |
+| GET | `/v1/tickets/:id` | Все | Тикет с сообщениями и вложениями |
 | PATCH | `/v1/tickets/:id` | Все | Изменить статус / взять в работу |
-| POST | `/v1/tickets/:id/messages` | Все | Отправить сообщение (multipart, поддерживает файлы) |
-| GET | `/v1/attachments/:id` | Все | Получить presigned URL для скачивания файла |
+| POST | `/v1/tickets/:id/messages` | Все | Отправить сообщение (поддерживает файлы) |
+| GET | `/v1/attachments/:id` | Все | Presigned URL для скачивания файла |
 | DELETE | `/v1/tickets/:id` | Специалист | Удалить тикет |
 | GET | `/health` | — | Проверка доступности |
 
 ---
 
-## 9. Возможные проблемы
+## 10. Возможные проблемы
 
 **`support-api` не стартует — ошибка подключения к postgres**
 
-Postgres ещё не готов. Подождать 10–15 секунд и повторить:
+Postgres ещё инициализируется. Подождать 15 секунд:
 ```bash
 docker compose restart support-api
 ```
 
-**Ошибка верификации сессии (401 на всех запросах)**
+**401 на всех запросах к API**
 
-Проверить что `SHM_INTERNAL_URL` в `.env` доступен с сервера:
+Проверить что `SHM_INTERNAL_URL` доступен:
 ```bash
 curl https://bill.yourdomain.com/shm/v1/user
+# Должен вернуть 401, но не ошибку соединения
 ```
-Должен вернуть `401` (не ошибку соединения). Если ошибка соединения — неверный URL.
 
-**MinIO недоступен из контейнера бека**
+**MinIO недоступен**
 
-Проверить что сервис `minio` запущен:
 ```bash
 docker compose ps minio
 docker compose logs minio
 ```
 
-**`nginx -t` возвращает ошибку**
+**nginx: `[emerg] unknown directive`**
 
-Скорее всего синтаксическая ошибка при добавлении location. Проверить что location добавлен **внутри** блока `server { }`, а не снаружи.
+Location добавлен вне блока `server { }`. Проверить структуру конфига.

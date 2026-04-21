@@ -31,8 +31,8 @@ Thumbs.db
 # Test coverage
 coverage/
 
-# GitHub Actions
-.github/*
+# GitHub Actions (upstream workflows ignored, our own are committed)
+.github/workflows/upstream-*.yml
 
 vite.config-s.ts
 /public/config.js

@@ -10,6 +10,7 @@ services:
     restart: unless-stopped
 
   support-api:
+    image: ghcr.io/k0sha/shm-support-api:latest
     build:
       context: ./api
       dockerfile: Dockerfile
