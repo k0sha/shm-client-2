@@ -83,7 +83,20 @@ function AttachmentItem({ att, isOwn, scheme }: { att: TicketAttachment; isOwn: 
   );
 }
 
-function MessageBubble({ msg, isOwn }: { msg: TicketMessage; isOwn: boolean }) {
+function resolveAuthorLabel(msg: TicketMessage, ticket: Ticket): string {
+  if (msg.isSpecialist) return msg.authorName;
+  const info = ticket.userInfo;
+  if (!info) return msg.authorName;
+  if (info.fullName) return info.fullName;
+  const tg = info.login.startsWith('@') ? info.login : null;
+  const email = info.login2 && !info.login2.startsWith('@') ? info.login2 : null;
+  if (tg && email) return `${tg} · ${email}`;
+  if (tg) return tg;
+  if (email) return email;
+  return `#${info.user_id}`;
+}
+
+function MessageBubble({ msg, isOwn, ticket }: { msg: TicketMessage; isOwn: boolean; ticket: Ticket }) {
   const scheme = useComputedColorScheme('light');
 
   return (
@@ -91,7 +104,7 @@ function MessageBubble({ msg, isOwn }: { msg: TicketMessage; isOwn: boolean }) {
       <Box style={{ maxWidth: '72%' }}>
         {!isOwn && (
           <Text size="xs" c="dimmed" mb={2} ml={4}>
-            {msg.isSpecialist ? '🛡 ' : ''}{msg.authorName}
+            {msg.isSpecialist ? '🛡 ' : ''}{resolveAuthorLabel(msg, ticket)}
           </Text>
         )}
         <Paper
@@ -444,6 +457,7 @@ export default function SupportTicket() {
               key={msg.id}
               msg={msg}
               isOwn={msg.authorId === (user?.user_id ?? 1)}
+              ticket={ticket}
             />
           ))}
           {isClosed && (
