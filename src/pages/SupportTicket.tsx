@@ -2,15 +2,15 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   Stack, Group, Text, ActionIcon, Textarea, Button,
-  Paper, Box, Select, Badge, ScrollArea, Divider, Collapse, Table,
+  Paper, Box, Select, Badge, ScrollArea, Divider, Collapse, Table, Pill,
 } from '@mantine/core';
-import { IconArrowLeft, IconSend, IconChevronDown, IconChevronUp } from '@tabler/icons-react';
+import { IconArrowLeft, IconSend, IconChevronDown, IconChevronUp, IconPaperclip, IconFile } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { notifications } from '@mantine/notifications';
 import { useComputedColorScheme } from '@mantine/core';
 import { TicketStatusBadge } from '../components/support/TicketStatusBadge';
 import { MOCK_ALL_TICKETS } from '../data/mockTickets';
-import type { Ticket, TicketMessage, TicketStatus } from '../data/mockTickets';
+import type { Ticket, TicketMessage, TicketStatus, TicketAttachment } from '../data/mockTickets';
 import { useStore } from '../store/useStore';
 
 function formatTime(iso: string): string {
@@ -25,6 +25,62 @@ function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString('ru-RU', {
     day: '2-digit', month: '2-digit', year: 'numeric',
   });
+}
+
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+  return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function truncateName(name: string, max = 28): string {
+  return name.length > max ? name.slice(0, max - 1) + '…' : name;
+}
+
+function AttachmentItem({ att, isOwn, scheme }: { att: TicketAttachment; isOwn: boolean; scheme: string }) {
+  if (att.mimeType.startsWith('image/')) {
+    return (
+      <Box
+        component="a"
+        href={att.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{ display: 'block' }}
+      >
+        <img
+          src={att.url}
+          alt={att.name}
+          style={{ maxWidth: '100%', maxHeight: 200, borderRadius: 6, display: 'block' }}
+        />
+      </Box>
+    );
+  }
+
+  return (
+    <Box
+      component="a"
+      href={att.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      style={{
+        display: 'flex', alignItems: 'center', gap: 8,
+        padding: '6px 8px', borderRadius: 6, textDecoration: 'none',
+        background: isOwn
+          ? 'rgba(255,255,255,0.15)'
+          : scheme === 'dark' ? 'rgba(0,0,0,0.25)' : 'rgba(0,0,0,0.06)',
+      }}
+    >
+      <IconFile size={16} style={{ color: isOwn ? 'white' : 'inherit', flexShrink: 0 }} />
+      <Stack gap={0} style={{ minWidth: 0 }}>
+        <Text size="xs" fw={500} style={{ color: isOwn ? 'white' : 'inherit' }} truncate>
+          {att.name}
+        </Text>
+        <Text size="xs" style={{ color: isOwn ? 'rgba(255,255,255,0.65)' : 'var(--mantine-color-dimmed)' }}>
+          {formatFileSize(att.size)}
+        </Text>
+      </Stack>
+    </Box>
+  );
 }
 
 function MessageBubble({ msg, isOwn }: { msg: TicketMessage; isOwn: boolean }) {
@@ -51,12 +107,21 @@ function MessageBubble({ msg, isOwn }: { msg: TicketMessage; isOwn: boolean }) {
             borderBottomLeftRadius: !isOwn ? 4 : undefined,
           }}
         >
-          <Text
-            size="sm"
-            style={{ color: isOwn ? 'white' : 'inherit', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
-          >
-            {msg.text}
-          </Text>
+          {msg.text ? (
+            <Text
+              size="sm"
+              style={{ color: isOwn ? 'white' : 'inherit', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
+            >
+              {msg.text}
+            </Text>
+          ) : null}
+          {msg.attachments && msg.attachments.length > 0 && (
+            <Stack gap="xs" mt={msg.text ? 'xs' : 0}>
+              {msg.attachments.map((att) => (
+                <AttachmentItem key={att.id} att={att} isOwn={isOwn} scheme={scheme} />
+              ))}
+            </Stack>
+          )}
         </Paper>
         <Text size="xs" c="dimmed" mt={2} ta={isOwn ? 'right' : 'left'} mr={isOwn ? 4 : 0} ml={isOwn ? 0 : 4}>
           {formatTime(msg.createdAt)}
@@ -169,8 +234,10 @@ export default function SupportTicket() {
     MOCK_ALL_TICKETS.find((tk) => tk.id === ticketId)
   );
   const [replyText, setReplyText] = useState('');
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [sending, setSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -189,9 +256,27 @@ export default function SupportTicket() {
 
   const isClosed = ticket.status === 'closed' || ticket.status === 'resolved';
 
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    setSelectedFiles((prev) => [...prev, ...files]);
+    e.target.value = '';
+  };
+
+  const removeFile = (index: number) => {
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const handleSend = () => {
-    if (!replyText.trim()) return;
+    if (!replyText.trim() && selectedFiles.length === 0) return;
     setSending(true);
+
+    const attachments: TicketAttachment[] = selectedFiles.map((file) => ({
+      id: `a${Date.now()}-${Math.random().toString(36).slice(2)}`,
+      name: file.name,
+      size: file.size,
+      mimeType: file.type || 'application/octet-stream',
+      url: URL.createObjectURL(file),
+    }));
 
     const newMsg: TicketMessage = {
       id: `m${Date.now()}`,
@@ -200,12 +285,13 @@ export default function SupportTicket() {
       isSpecialist: isSpecialistView,
       text: replyText.trim(),
       createdAt: new Date().toISOString(),
+      ...(attachments.length > 0 && { attachments }),
     };
 
     const updated: Ticket = {
       ...ticket,
       messages: [...ticket.messages, newMsg],
-      lastMessage: newMsg.text,
+      lastMessage: newMsg.text || undefined,
       updatedAt: newMsg.createdAt,
     };
 
@@ -214,6 +300,7 @@ export default function SupportTicket() {
 
     setTicket(updated);
     setReplyText('');
+    setSelectedFiles([]);
     setSending(false);
   };
 
@@ -230,7 +317,7 @@ export default function SupportTicket() {
     const updated: Ticket = {
       ...ticket,
       status: 'in_progress',
-      assignedTo: user?.login ?? 'specialist',
+      assignedTo: user?.full_name ?? user?.login ?? 'Специалист',
       updatedAt: new Date().toISOString(),
     };
     const idx = MOCK_ALL_TICKETS.findIndex((tk) => tk.id === ticket.id);
@@ -258,15 +345,13 @@ export default function SupportTicket() {
         </ActionIcon>
         <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
           <Group gap="xs" wrap="nowrap">
-            <Text fw={700} size="lg" truncate style={{ minWidth: 0 }}>{ticket.subject}</Text>
+            <Text fw={700} size="lg" truncate style={{ minWidth: 0 }}>
+              {t(`tickets.ticketType.${ticket.type}`)}
+            </Text>
             <TicketStatusBadge status={ticket.status} />
           </Group>
           <Group gap="xs">
             <Text size="xs" c="dimmed">#{ticket.id}</Text>
-            <Text size="xs" c="dimmed">·</Text>
-            <Badge size="xs" variant="outline" color="gray">
-              {t(`tickets.ticketType.${ticket.type}`)}
-            </Badge>
             {ticket.assignedTo && (
               <>
                 <Text size="xs" c="dimmed">·</Text>
@@ -324,6 +409,15 @@ export default function SupportTicket() {
       {/* Reply */}
       {!isClosed && (
         <Paper withBorder p="sm" radius="md">
+          {selectedFiles.length > 0 && (
+            <Pill.Group mb="xs">
+              {selectedFiles.map((file, i) => (
+                <Pill key={i} withRemoveButton onRemove={() => removeFile(i)} size="sm">
+                  {truncateName(file.name)}
+                </Pill>
+              ))}
+            </Pill.Group>
+          )}
           <Group gap="sm" align="flex-end">
             <Textarea
               placeholder={t('tickets.messagePlaceholder')}
@@ -336,16 +430,26 @@ export default function SupportTicket() {
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault();
-                  handleSend();
+                  if (replyText.trim() || selectedFiles.length > 0) handleSend();
                 }
               }}
             />
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              style={{ display: 'none' }}
+              onChange={handleFileSelect}
+            />
+            <ActionIcon size="lg" variant="subtle" onClick={() => fileInputRef.current?.click()}>
+              <IconPaperclip size={16} />
+            </ActionIcon>
             <ActionIcon
               size="lg"
               variant="filled"
               onClick={handleSend}
               loading={sending}
-              disabled={!replyText.trim()}
+              disabled={!replyText.trim() && selectedFiles.length === 0}
             >
               <IconSend size={16} />
             </ActionIcon>

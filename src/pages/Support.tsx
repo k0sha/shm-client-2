@@ -44,14 +44,11 @@ function TicketCard({ ticket }: { ticket: Ticket }) {
               />
             )}
             <Text fw={ticket.unread ? 700 : 500} size="sm" truncate>
-              {ticket.subject}
+              {t(`tickets.ticketType.${ticket.type}`)}
             </Text>
           </Group>
           <Group gap="xs">
             <TicketStatusBadge status={ticket.status} />
-            <Badge variant="outline" size="xs" color="gray">
-              {t(`tickets.ticketType.${ticket.type}`)}
-            </Badge>
           </Group>
           {ticket.lastMessage && (
             <Text size="xs" c="dimmed" lineClamp={1}>{ticket.lastMessage}</Text>

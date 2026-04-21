@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Stack, Group, Title, Tabs, Text, Paper, Badge,
-  ActionIcon, TextInput,
+  Stack, Group, Title, Tabs, Text, Paper, Badge, ActionIcon, TextInput,
 } from '@mantine/core';
 import { IconChevronRight, IconSearch } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
@@ -42,13 +41,10 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
             {ticket.unread && (
               <Badge size="xs" variant="filled" color="blue" circle style={{ flexShrink: 0 }}>·</Badge>
             )}
-            <Text fw={500} size="sm" truncate>{ticket.subject}</Text>
+            <Text fw={500} size="sm" truncate>{t(`tickets.ticketType.${ticket.type}`)}</Text>
           </Group>
           <Group gap="xs" wrap="wrap">
             <TicketStatusBadge status={ticket.status} />
-            <Badge variant="outline" size="xs" color="gray">
-              {t(`tickets.ticketType.${ticket.type}`)}
-            </Badge>
             <Text size="xs" c="dimmed">
               #{ticket.userInfo?.user_id ?? ticket.userId} · {ticket.userInfo?.fullName ? `${ticket.userInfo.fullName} · ` : ''}{displayLogin(ticket)}
             </Text>

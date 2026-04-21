@@ -445,8 +445,10 @@
       "urgent": "Urgent"
     },
     "ticketType": {
-      "service": "Device Issue",
-      "payment": "Payment / Balance",
+      "vpn": "VPN not working",
+      "setup": "Setup issues",
+      "payment": "Payment & balance",
+      "account": "Account & access",
       "other": "Other"
     }
   },

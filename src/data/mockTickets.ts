@@ -1,5 +1,13 @@
 export type TicketStatus = 'open' | 'in_progress' | 'waiting' | 'resolved' | 'closed';
-export type TicketType = 'service' | 'payment' | 'other';
+export type TicketType = 'vpn' | 'setup' | 'payment' | 'account' | 'other';
+
+export interface TicketAttachment {
+  id: string;
+  name: string;
+  size: number;
+  mimeType: string;
+  url: string;
+}
 
 export interface TicketMessage {
   id: string;
@@ -8,6 +16,7 @@ export interface TicketMessage {
   isSpecialist: boolean;
   text: string;
   createdAt: string;
+  attachments?: TicketAttachment[];
 }
 
 export interface TicketUserService {
@@ -30,7 +39,7 @@ export interface TicketUserInfo {
 
 export interface Ticket {
   id: string;
-  subject: string;
+  subject?: string;
   status: TicketStatus;
   type: TicketType;
   createdAt: string;
@@ -50,7 +59,7 @@ export const MOCK_MY_TICKETS: Ticket[] = [
     id: '1',
     subject: 'Не работает VPN на iPhone',
     status: 'open',
-    type: 'service',
+    type: 'vpn',
     createdAt: '2026-04-20T10:30:00',
     updatedAt: '2026-04-20T10:30:00',
     userId: 1,
@@ -91,7 +100,7 @@ export const MOCK_MY_TICKETS: Ticket[] = [
     userId: 1,
     userLogin: '@215866391',
     userLogin2: 'andrey.koshevoy@icloud.com',
-    assignedTo: 'support_agent',
+    assignedTo: 'Алексей Смирнов',
     messages: [
       {
         id: 'm2',
@@ -128,13 +137,13 @@ export const MOCK_MY_TICKETS: Ticket[] = [
     id: '3',
     subject: 'Медленная скорость соединения',
     status: 'resolved',
-    type: 'service',
+    type: 'vpn',
     createdAt: '2026-04-15T11:00:00',
     updatedAt: '2026-04-18T16:30:00',
     userId: 1,
     userLogin: '@215866391',
     userLogin2: 'andrey.koshevoy@icloud.com',
-    assignedTo: 'support_agent',
+    assignedTo: 'Алексей Смирнов',
     messages: [
       {
         id: 'm4',
@@ -209,7 +218,7 @@ export const MOCK_ALL_TICKETS: Ticket[] = [
     id: '5',
     subject: 'Устройство заблокировано ошибочно',
     status: 'open',
-    type: 'service',
+    type: 'vpn',
     createdAt: '2026-04-21T07:30:00',
     updatedAt: '2026-04-21T07:30:00',
     userId: 100002,
@@ -251,7 +260,7 @@ export const MOCK_ALL_TICKETS: Ticket[] = [
     userId: 100003,
     userLogin: '@100003',
     userLogin2: 'maria.k@yandex.ru',
-    assignedTo: 'support_agent',
+    assignedTo: 'Алексей Смирнов',
     messages: [
       {
         id: 'm8',
