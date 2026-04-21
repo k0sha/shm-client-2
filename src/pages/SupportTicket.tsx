@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-  Stack, Group, Title, Text, ActionIcon, Textarea, Button,
+  Stack, Group, Text, ActionIcon, Textarea, Button,
   Paper, Box, Select, Badge, ScrollArea, Divider,
 } from '@mantine/core';
 import { IconArrowLeft, IconSend } from '@tabler/icons-react';
@@ -158,7 +158,7 @@ export default function SupportTicket() {
         </ActionIcon>
         <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
           <Group gap="xs" wrap="nowrap">
-            <Title order={4} truncate>{ticket.subject}</Title>
+            <Text fw={700} size="lg" truncate style={{ minWidth: 0 }}>{ticket.subject}</Text>
             <TicketStatusBadge status={ticket.status} />
           </Group>
           <Group gap="xs">
