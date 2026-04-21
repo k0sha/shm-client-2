@@ -143,6 +143,7 @@ function useTelegramOpenState() {
 import Services from './pages/Services';
 import Profile from './pages/Profile';
 import Support from './pages/Support';
+import Tickets from './pages/Tickets';
 import SupportTicket from './pages/SupportTicket';
 import Login from './pages/Login';
 import NotFound from './pages/NotFound';
@@ -708,6 +709,7 @@ function AppContent() {
               <Route path="/" element={<Services />} />
               <Route path="/profile" element={<Profile />} />
               {isSupportUser && <Route path="/support" element={<Support />} />}
+              {isSupportUser && <Route path="/tickets" element={<Tickets />} />}
               {isSupportUser && <Route path="/support/:ticketId" element={<SupportTicket />} />}
               <Route path="*" element={<NotFound />} />
             </Routes>

@@ -10,6 +10,22 @@ export interface TicketMessage {
   createdAt: string;
 }
 
+export interface TicketUserService {
+  user_service_id: number;
+  name: string;
+  status: string;
+  expire: string | null;
+}
+
+export interface TicketUserInfo {
+  user_id: number;
+  login: string;
+  login2?: string;
+  discount: number;
+  created: string;
+  services: TicketUserService[];
+}
+
 export interface Ticket {
   id: string;
   subject: string;
@@ -19,13 +35,14 @@ export interface Ticket {
   updatedAt: string;
   userId: number;
   userLogin: string;
+  userLogin2?: string;
   assignedTo?: string;
   messages: TicketMessage[];
   lastMessage?: string;
   unread?: boolean;
+  userInfo?: TicketUserInfo;
 }
 
-// Tickets belonging to the current admin user (userId = 1 as placeholder)
 export const MOCK_MY_TICKETS: Ticket[] = [
   {
     id: '1',
@@ -35,12 +52,13 @@ export const MOCK_MY_TICKETS: Ticket[] = [
     createdAt: '2026-04-20T10:30:00',
     updatedAt: '2026-04-20T10:30:00',
     userId: 1,
-    userLogin: 'admin',
+    userLogin: '@215866391',
+    userLogin2: 'andrey.koshevoy@icloud.com',
     messages: [
       {
         id: 'm1',
         authorId: 1,
-        authorName: 'admin',
+        authorName: '@215866391',
         isSpecialist: false,
         text: 'Здравствуйте! После последнего обновления iOS VPN перестал подключаться. Пробовал переустанавливать приложение — не помогло.',
         createdAt: '2026-04-20T10:30:00',
@@ -48,6 +66,17 @@ export const MOCK_MY_TICKETS: Ticket[] = [
     ],
     lastMessage: 'Здравствуйте! После последнего обновления iOS VPN перестал подключаться.',
     unread: true,
+    userInfo: {
+      user_id: 1,
+      login: '@215866391',
+      login2: 'andrey.koshevoy@icloud.com',
+      discount: 50,
+      created: '2025-01-28T16:07:38',
+      services: [
+        { user_service_id: 101, name: 'VPN iPhone', status: 'ACTIVE', expire: '2026-05-28' },
+        { user_service_id: 102, name: 'VPN MacBook', status: 'ACTIVE', expire: '2026-05-28' },
+      ],
+    },
   },
   {
     id: '2',
@@ -57,13 +86,14 @@ export const MOCK_MY_TICKETS: Ticket[] = [
     createdAt: '2026-04-19T14:15:00',
     updatedAt: '2026-04-20T09:00:00',
     userId: 1,
-    userLogin: 'admin',
+    userLogin: '@215866391',
+    userLogin2: 'andrey.koshevoy@icloud.com',
     assignedTo: 'support_agent',
     messages: [
       {
         id: 'm2',
         authorId: 1,
-        authorName: 'admin',
+        authorName: '@215866391',
         isSpecialist: false,
         text: 'Здравствуйте, с баланса списали деньги дважды за одно устройство.',
         createdAt: '2026-04-19T14:15:00',
@@ -78,6 +108,17 @@ export const MOCK_MY_TICKETS: Ticket[] = [
       },
     ],
     lastMessage: 'Здравствуйте! Принял обращение в работу, проверяю историю платежей.',
+    userInfo: {
+      user_id: 1,
+      login: '@215866391',
+      login2: 'andrey.koshevoy@icloud.com',
+      discount: 50,
+      created: '2025-01-28T16:07:38',
+      services: [
+        { user_service_id: 101, name: 'VPN iPhone', status: 'ACTIVE', expire: '2026-05-28' },
+        { user_service_id: 102, name: 'VPN MacBook', status: 'ACTIVE', expire: '2026-05-28' },
+      ],
+    },
   },
   {
     id: '3',
@@ -87,13 +128,14 @@ export const MOCK_MY_TICKETS: Ticket[] = [
     createdAt: '2026-04-15T11:00:00',
     updatedAt: '2026-04-18T16:30:00',
     userId: 1,
-    userLogin: 'admin',
+    userLogin: '@215866391',
+    userLogin2: 'andrey.koshevoy@icloud.com',
     assignedTo: 'support_agent',
     messages: [
       {
         id: 'm4',
         authorId: 1,
-        authorName: 'admin',
+        authorName: '@215866391',
         isSpecialist: false,
         text: 'Скорость VPN упала до 1 Мбит/с, раньше было 50+. Проверил на разных серверах — везде медленно.',
         createdAt: '2026-04-15T11:00:00',
@@ -108,10 +150,20 @@ export const MOCK_MY_TICKETS: Ticket[] = [
       },
     ],
     lastMessage: 'Проблема устранена — был перегружен сервер.',
+    userInfo: {
+      user_id: 1,
+      login: '@215866391',
+      login2: 'andrey.koshevoy@icloud.com',
+      discount: 50,
+      created: '2025-01-28T16:07:38',
+      services: [
+        { user_service_id: 101, name: 'VPN iPhone', status: 'ACTIVE', expire: '2026-05-28' },
+        { user_service_id: 102, name: 'VPN MacBook', status: 'ACTIVE', expire: '2026-05-28' },
+      ],
+    },
   },
 ];
 
-// All tickets visible to specialists (includes tickets from other users)
 export const MOCK_ALL_TICKETS: Ticket[] = [
   ...MOCK_MY_TICKETS,
   {
@@ -122,12 +174,13 @@ export const MOCK_ALL_TICKETS: Ticket[] = [
     createdAt: '2026-04-21T08:00:00',
     updatedAt: '2026-04-21T08:00:00',
     userId: 100001,
-    userLogin: 'user123',
+    userLogin: '@100001',
+    userLogin2: 'user123@mail.ru',
     messages: [
       {
         id: 'm6',
         authorId: 100001,
-        authorName: 'user123',
+        authorName: '@100001',
         isSpecialist: false,
         text: 'Забыл пароль, ссылка для сброса не приходит на почту уже 30 минут. Проверил спам — нет.',
         createdAt: '2026-04-21T08:00:00',
@@ -135,6 +188,16 @@ export const MOCK_ALL_TICKETS: Ticket[] = [
     ],
     lastMessage: 'Забыл пароль, ссылка для сброса не приходит на почту уже 30 минут.',
     unread: true,
+    userInfo: {
+      user_id: 100001,
+      login: '@100001',
+      login2: 'user123@mail.ru',
+      discount: 0,
+      created: '2026-02-10T09:15:00',
+      services: [
+        { user_service_id: 201, name: 'VPN Android', status: 'ACTIVE', expire: '2026-05-10' },
+      ],
+    },
   },
   {
     id: '5',
@@ -144,12 +207,13 @@ export const MOCK_ALL_TICKETS: Ticket[] = [
     createdAt: '2026-04-21T07:30:00',
     updatedAt: '2026-04-21T07:30:00',
     userId: 100002,
-    userLogin: 'vpn_user_77',
+    userLogin: '@100002',
+    userLogin2: 'vpn_user_77@gmail.com',
     messages: [
       {
         id: 'm7',
         authorId: 100002,
-        authorName: 'vpn_user_77',
+        authorName: '@100002',
         isSpecialist: false,
         text: 'Мой баланс положительный (остаток 350₽), но устройство заблокировано. Пожалуйста, разблокируйте.',
         createdAt: '2026-04-21T07:30:00',
@@ -157,6 +221,17 @@ export const MOCK_ALL_TICKETS: Ticket[] = [
     ],
     lastMessage: 'Мой баланс положительный (остаток 350₽), но устройство заблокировано.',
     unread: true,
+    userInfo: {
+      user_id: 100002,
+      login: '@100002',
+      login2: 'vpn_user_77@gmail.com',
+      discount: 10,
+      created: '2025-11-05T14:22:00',
+      services: [
+        { user_service_id: 301, name: 'VPN iPhone', status: 'BLOCK', expire: '2026-04-15' },
+        { user_service_id: 302, name: 'VPN iPad', status: 'ACTIVE', expire: '2026-05-05' },
+      ],
+    },
   },
   {
     id: '6',
@@ -166,13 +241,14 @@ export const MOCK_ALL_TICKETS: Ticket[] = [
     createdAt: '2026-04-20T16:00:00',
     updatedAt: '2026-04-21T06:00:00',
     userId: 100003,
-    userLogin: 'maria_k',
+    userLogin: '@100003',
+    userLogin2: 'maria.k@yandex.ru',
     assignedTo: 'support_agent',
     messages: [
       {
         id: 'm8',
         authorId: 100003,
-        authorName: 'maria_k',
+        authorName: '@100003',
         isSpecialist: false,
         text: 'Хочу подключить VPN на второй смартфон. Как это сделать?',
         createdAt: '2026-04-20T16:00:00',
@@ -187,5 +263,15 @@ export const MOCK_ALL_TICKETS: Ticket[] = [
       },
     ],
     lastMessage: 'Для подключения второго устройства перейдите в раздел "Устройства"...',
+    userInfo: {
+      user_id: 100003,
+      login: '@100003',
+      login2: 'maria.k@yandex.ru',
+      discount: 20,
+      created: '2025-08-17T11:45:00',
+      services: [
+        { user_service_id: 401, name: 'VPN Samsung', status: 'ACTIVE', expire: '2026-06-17' },
+      ],
+    },
   },
 ];

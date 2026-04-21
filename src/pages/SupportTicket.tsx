@@ -2,9 +2,9 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Stack, Group, Text, ActionIcon, Textarea, Button,
-  Paper, Box, Select, Badge, ScrollArea, Divider,
+  Paper, Box, Select, Badge, ScrollArea, Divider, Collapse, Table,
 } from '@mantine/core';
-import { IconArrowLeft, IconSend } from '@tabler/icons-react';
+import { IconArrowLeft, IconSend, IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { notifications } from '@mantine/notifications';
 import { useComputedColorScheme } from '@mantine/core';
@@ -18,6 +18,12 @@ function formatTime(iso: string): string {
   return d.toLocaleString('ru-RU', {
     day: '2-digit', month: '2-digit', year: '2-digit',
     hour: '2-digit', minute: '2-digit',
+  });
+}
+
+function formatDate(iso: string): string {
+  return new Date(iso).toLocaleDateString('ru-RU', {
+    day: '2-digit', month: '2-digit', year: 'numeric',
   });
 }
 
@@ -60,6 +66,93 @@ function MessageBubble({ msg, isOwn }: { msg: TicketMessage; isOwn: boolean }) {
   );
 }
 
+function UserInfoPanel({ ticket }: { ticket: Ticket }) {
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const info = ticket.userInfo;
+  if (!info) return null;
+
+  const statusColors: Record<string, string> = {
+    ACTIVE: 'green',
+    BLOCK: 'red',
+    'NOT PAID': 'orange',
+    PROGRESS: 'yellow',
+    ERROR: 'red',
+  };
+
+  return (
+    <Paper withBorder radius="md" p="sm">
+      <Group
+        justify="space-between"
+        style={{ cursor: 'pointer' }}
+        onClick={() => setOpen((v) => !v)}
+      >
+        <Group gap="xs">
+          <Text size="sm" fw={600}>{t('tickets.userInfo')}</Text>
+          <Text size="sm" c="dimmed">
+            #{info.user_id} · {info.login2 && !info.login2.startsWith('@') ? info.login2 : info.login}
+          </Text>
+        </Group>
+        <ActionIcon variant="subtle" size="sm">
+          {open ? <IconChevronUp size={14} /> : <IconChevronDown size={14} />}
+        </ActionIcon>
+      </Group>
+
+      <Collapse in={open}>
+        <Divider my="xs" />
+        <Stack gap="xs">
+          <Group gap="xl">
+            <Stack gap={2}>
+              <Text size="xs" c="dimmed">{t('tickets.userDiscount')}</Text>
+              <Text size="sm" fw={500}>{info.discount}%</Text>
+            </Stack>
+            <Stack gap={2}>
+              <Text size="xs" c="dimmed">{t('tickets.userCreated')}</Text>
+              <Text size="sm" fw={500}>{formatDate(info.created)}</Text>
+            </Stack>
+            {info.login2 && (
+              <Stack gap={2}>
+                <Text size="xs" c="dimmed">{t('tickets.userLogin2')}</Text>
+                <Text size="sm" fw={500}>{info.login}</Text>
+              </Stack>
+            )}
+          </Group>
+
+          {info.services.length > 0 && (
+            <>
+              <Text size="xs" c="dimmed" mt={4}>{t('tickets.userServices')}</Text>
+              <Table fz="xs" withRowBorders={false} verticalSpacing={4}>
+                <Table.Thead>
+                  <Table.Tr>
+                    <Table.Th>{t('services.title').replace('Мои ', '')}</Table.Th>
+                    <Table.Th>{t('services.status')}</Table.Th>
+                    <Table.Th>{t('services.validUntil')}</Table.Th>
+                  </Table.Tr>
+                </Table.Thead>
+                <Table.Tbody>
+                  {info.services.map((svc) => (
+                    <Table.Tr key={svc.user_service_id}>
+                      <Table.Td>{svc.name}</Table.Td>
+                      <Table.Td>
+                        <Badge size="xs" color={statusColors[svc.status] ?? 'gray'} variant="light">
+                          {t(`status.${svc.status}`, { defaultValue: svc.status })}
+                        </Badge>
+                      </Table.Td>
+                      <Table.Td c="dimmed">
+                        {svc.expire ? formatDate(svc.expire) : '—'}
+                      </Table.Td>
+                    </Table.Tr>
+                  ))}
+                </Table.Tbody>
+              </Table>
+            </>
+          )}
+        </Stack>
+      </Collapse>
+    </Paper>
+  );
+}
+
 export default function SupportTicket() {
   const { ticketId } = useParams<{ ticketId: string }>();
   const navigate = useNavigate();
@@ -97,7 +190,7 @@ export default function SupportTicket() {
     const newMsg: TicketMessage = {
       id: `m${Date.now()}`,
       authorId: user?.user_id ?? 1,
-      authorName: user?.login ?? 'admin',
+      authorName: user?.login ?? 'user',
       isSpecialist: isSupportUser,
       text: replyText.trim(),
       createdAt: new Date().toISOString(),
@@ -110,7 +203,6 @@ export default function SupportTicket() {
       updatedAt: newMsg.createdAt,
     };
 
-    // Update in the mock array so navigation back reflects the change
     const idx = MOCK_ALL_TICKETS.findIndex((tk) => tk.id === ticket.id);
     if (idx !== -1) MOCK_ALL_TICKETS[idx] = updated;
 
@@ -132,7 +224,7 @@ export default function SupportTicket() {
     const updated: Ticket = {
       ...ticket,
       status: 'in_progress',
-      assignedTo: user?.login ?? 'admin',
+      assignedTo: user?.login ?? 'specialist',
       updatedAt: new Date().toISOString(),
     };
     const idx = MOCK_ALL_TICKETS.findIndex((tk) => tk.id === ticket.id);
@@ -149,11 +241,14 @@ export default function SupportTicket() {
     { value: 'closed', label: t('tickets.status.closed') },
   ];
 
+  // Back link: specialists go to /tickets, users go to /support
+  const backPath = isSupportUser ? '/tickets' : '/support';
+
   return (
     <Stack gap="md" h="100%" style={{ display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
       <Group gap="sm" wrap="nowrap">
-        <ActionIcon variant="subtle" size="lg" onClick={() => navigate('/support')}>
+        <ActionIcon variant="subtle" size="lg" onClick={() => navigate(backPath)}>
           <IconArrowLeft size={18} />
         </ActionIcon>
         <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
@@ -167,8 +262,6 @@ export default function SupportTicket() {
             <Badge size="xs" variant="outline" color="gray">
               {t(`tickets.ticketType.${ticket.type}`)}
             </Badge>
-            <Text size="xs" c="dimmed">·</Text>
-            <Text size="xs" c="dimmed">{ticket.userLogin}</Text>
             {ticket.assignedTo && (
               <>
                 <Text size="xs" c="dimmed">·</Text>
@@ -178,6 +271,9 @@ export default function SupportTicket() {
           </Group>
         </Stack>
       </Group>
+
+      {/* User info panel — specialists only */}
+      {isSupportUser && <UserInfoPanel ticket={ticket} />}
 
       {/* Specialist actions */}
       {isSupportUser && (
@@ -202,12 +298,8 @@ export default function SupportTicket() {
         </>
       )}
 
-      {/* Chat messages */}
-      <ScrollArea
-        flex={1}
-        viewportRef={scrollRef}
-        style={{ minHeight: 300 }}
-      >
+      {/* Chat */}
+      <ScrollArea flex={1} viewportRef={scrollRef} style={{ minHeight: 300 }}>
         <Stack gap="sm" p="xs">
           {ticket.messages.map((msg) => (
             <MessageBubble
@@ -224,7 +316,7 @@ export default function SupportTicket() {
         </Stack>
       </ScrollArea>
 
-      {/* Reply input */}
+      {/* Reply */}
       {!isClosed && (
         <Paper withBorder p="sm" radius="md">
           <Group gap="sm" align="flex-end">
