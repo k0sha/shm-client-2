@@ -408,7 +408,7 @@ export default function SupportTicket() {
 
       {/* Reply */}
       {!isClosed && (
-        <Paper withBorder p="sm" radius="md">
+        <Paper withBorder radius="md" p="sm">
           {selectedFiles.length > 0 && (
             <Pill.Group mb="xs">
               {selectedFiles.map((file, i) => (
@@ -418,43 +418,45 @@ export default function SupportTicket() {
               ))}
             </Pill.Group>
           )}
-          <Group gap="sm" align="flex-end">
-            <Textarea
-              placeholder={t('tickets.messagePlaceholder')}
-              value={replyText}
-              onChange={(e) => setReplyText(e.target.value)}
-              style={{ flex: 1 }}
-              minRows={2}
-              autosize
-              maxRows={6}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  if (replyText.trim() || selectedFiles.length > 0) handleSend();
-                }
-              }}
-            />
-            <input
-              ref={fileInputRef}
-              type="file"
-              multiple
-              style={{ display: 'none' }}
-              onChange={handleFileSelect}
-            />
-            <ActionIcon size="lg" variant="subtle" onClick={() => fileInputRef.current?.click()}>
-              <IconPaperclip size={16} />
+          <Textarea
+            variant="unstyled"
+            placeholder={t('tickets.messagePlaceholder')}
+            value={replyText}
+            onChange={(e) => setReplyText(e.target.value)}
+            minRows={1}
+            autosize
+            maxRows={6}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                if (replyText.trim() || selectedFiles.length > 0) handleSend();
+              }
+            }}
+          />
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            style={{ display: 'none' }}
+            onChange={handleFileSelect}
+          />
+          <Group justify="space-between" mt="xs">
+            <ActionIcon size="sm" variant="default" onClick={() => fileInputRef.current?.click()}>
+              <IconPaperclip size={14} />
             </ActionIcon>
-            <ActionIcon
-              size="lg"
-              variant="filled"
-              onClick={handleSend}
-              loading={sending}
-              disabled={!replyText.trim() && selectedFiles.length === 0}
-            >
-              <IconSend size={16} />
-            </ActionIcon>
+            <Group gap="xs">
+              <Text size="xs" c="dimmed">{t('tickets.enterToSend')}</Text>
+              <ActionIcon
+                size="sm"
+                variant="filled"
+                onClick={handleSend}
+                loading={sending}
+                disabled={!replyText.trim() && selectedFiles.length === 0}
+              >
+                <IconSend size={14} />
+              </ActionIcon>
+            </Group>
           </Group>
-          <Text size="xs" c="dimmed" mt={4}>{t('tickets.enterToSend')}</Text>
         </Paper>
       )}
     </Stack>

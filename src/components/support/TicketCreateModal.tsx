@@ -131,8 +131,8 @@ export function TicketCreateModal({ opened, onClose, onCreated }: Props) {
           onChange={handleFileSelect}
         />
         <Group justify="space-between">
-          <ActionIcon variant="subtle" size="lg" onClick={() => fileInputRef.current?.click()}>
-            <IconPaperclip size={18} />
+          <ActionIcon variant="default" size="md" onClick={() => fileInputRef.current?.click()}>
+            <IconPaperclip size={16} />
           </ActionIcon>
           <Group gap="xs">
             <Button variant="light" onClick={handleClose}>{t('common.cancel')}</Button>
