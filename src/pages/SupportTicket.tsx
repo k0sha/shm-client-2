@@ -365,6 +365,21 @@ export default function SupportTicket() {
       {/* User info panel — specialists only */}
       {isSpecialistView && <UserInfoPanel ticket={ticket} />}
 
+      {/* User close action */}
+      {!isSpecialistView && !isClosed && (
+        <Group justify="flex-end">
+          <Button size="xs" variant="light" color="red" onClick={() => {
+            const updated: Ticket = { ...ticket, status: 'closed', updatedAt: new Date().toISOString() };
+            const idx = MOCK_ALL_TICKETS.findIndex((tk) => tk.id === ticket.id);
+            if (idx !== -1) MOCK_ALL_TICKETS[idx] = updated;
+            setTicket(updated);
+            notifications.show({ color: 'green', message: t('tickets.ticketClosed') });
+          }}>
+            {t('tickets.closeTicket')}
+          </Button>
+        </Group>
+      )}
+
       {/* Specialist actions */}
       {isSpecialistView && (
         <>
