@@ -15,12 +15,14 @@ function formatDate(iso: string): string {
   });
 }
 
-function displayLogin(ticket: Ticket): string {
-  // Prefer login2 if it looks like an email (more readable), otherwise use login
-  if (ticket.userLogin2 && ticket.userLogin2.includes('@') && !ticket.userLogin2.startsWith('@')) {
-    return ticket.userLogin2;
-  }
-  return ticket.userLogin;
+function displayUser(ticket: Ticket): string {
+  if (ticket.userInfo?.fullName) return ticket.userInfo.fullName;
+  const email = ticket.userLogin2 && !ticket.userLogin2.startsWith('@') ? ticket.userLogin2 : null;
+  const tg = ticket.userLogin.startsWith('@') ? ticket.userLogin : null;
+  if (email && tg) return `${tg} · ${email}`;
+  if (email) return email;
+  if (tg) return tg;
+  return `#${ticket.userInfo?.user_id ?? ticket.userId}`;
 }
 
 function TicketRow({ ticket }: { ticket: Ticket }) {
@@ -46,7 +48,7 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
           <Group gap="xs" wrap="wrap">
             <TicketStatusBadge status={ticket.status} />
             <Text size="xs" c="dimmed">
-              #{ticket.userInfo?.user_id ?? ticket.userId} · {ticket.userInfo?.fullName ? `${ticket.userInfo.fullName} · ` : ''}{displayLogin(ticket)}
+              #{ticket.userInfo?.user_id ?? ticket.userId} · {displayUser(ticket)}
             </Text>
             {ticket.assignedTo && (
               <Text size="xs" c="dimmed">🛡 {ticket.assignedTo}</Text>

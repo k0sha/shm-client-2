@@ -145,6 +145,9 @@ function UserInfoPanel({ ticket }: { ticket: Ticket }) {
     ERROR: 'red',
   };
 
+  const tgLogin = info.login.startsWith('@') ? info.login : null;
+  const emailLogin = info.login2 && !info.login2.startsWith('@') ? info.login2 : null;
+
   return (
     <Paper withBorder radius="md" p="sm">
       <Group
@@ -152,25 +155,60 @@ function UserInfoPanel({ ticket }: { ticket: Ticket }) {
         style={{ cursor: 'pointer' }}
         onClick={() => setOpen((v) => !v)}
       >
-        <Group gap="xs">
-          <Text size="sm" fw={600}>{t('tickets.userInfo')}</Text>
-          <Text size="sm" c="dimmed">
-            #{info.user_id}{info.fullName ? ` · ${info.fullName}` : ''} · {info.login2 && !info.login2.startsWith('@') ? info.login2 : info.login}
+        <Group gap="xs" wrap="nowrap" style={{ minWidth: 0 }}>
+          <Text size="sm" fw={600} style={{ flexShrink: 0 }}>{t('tickets.userInfo')}</Text>
+          <Text size="sm" c="dimmed" truncate>
+            #{info.user_id}{info.fullName ? ` · ${info.fullName}` : ''}{tgLogin ? ` · ${tgLogin}` : ''}{emailLogin ? ` · ${emailLogin}` : ''}
           </Text>
         </Group>
-        <ActionIcon variant="subtle" size="sm">
+        <ActionIcon variant="subtle" size="sm" style={{ flexShrink: 0 }}>
           {open ? <IconChevronUp size={14} /> : <IconChevronDown size={14} />}
         </ActionIcon>
       </Group>
 
       <Collapse in={open}>
         <Divider my="xs" />
-        <Stack gap="xs">
-          <Group gap="xl">
+        <Stack gap="sm">
+          {/* Identity */}
+          <Group gap="lg" wrap="wrap">
+            <Stack gap={2}>
+              <Text size="xs" c="dimmed">{t('tickets.userShmId')}</Text>
+              <Text size="sm" fw={500}>#{info.user_id}</Text>
+            </Stack>
+            {info.fullName && (
+              <Stack gap={2}>
+                <Text size="xs" c="dimmed">{t('tickets.userFullName')}</Text>
+                <Text size="sm" fw={500}>{info.fullName}</Text>
+              </Stack>
+            )}
+            {tgLogin && (
+              <Stack gap={2}>
+                <Text size="xs" c="dimmed">{t('tickets.userTgLogin')}</Text>
+                <Text size="sm" fw={500}>{tgLogin}</Text>
+              </Stack>
+            )}
+            {emailLogin && (
+              <Stack gap={2}>
+                <Text size="xs" c="dimmed">{t('tickets.userEmailLogin')}</Text>
+                <Text size="sm" fw={500}>{emailLogin}</Text>
+              </Stack>
+            )}
+          </Group>
+
+          <Divider />
+
+          {/* Financials */}
+          <Group gap="lg" wrap="wrap">
             <Stack gap={2}>
               <Text size="xs" c="dimmed">{t('tickets.userBalance')}</Text>
               <Text size="sm" fw={500}>{info.balance} ₽</Text>
             </Stack>
+            {info.bonuses !== undefined && (
+              <Stack gap={2}>
+                <Text size="xs" c="dimmed">{t('tickets.userBonuses')}</Text>
+                <Text size="sm" fw={500}>{info.bonuses} ₽</Text>
+              </Stack>
+            )}
             <Stack gap={2}>
               <Text size="xs" c="dimmed">{t('tickets.userDiscount')}</Text>
               <Text size="sm" fw={500}>{info.discount}%</Text>
@@ -179,17 +217,12 @@ function UserInfoPanel({ ticket }: { ticket: Ticket }) {
               <Text size="xs" c="dimmed">{t('tickets.userCreated')}</Text>
               <Text size="sm" fw={500}>{formatDate(info.created)}</Text>
             </Stack>
-            {info.login2 && (
-              <Stack gap={2}>
-                <Text size="xs" c="dimmed">{t('tickets.userLogin2')}</Text>
-                <Text size="sm" fw={500}>{info.login}</Text>
-              </Stack>
-            )}
           </Group>
 
+          {/* Services */}
           {info.services.length > 0 && (
             <>
-              <Text size="xs" c="dimmed" mt={4}>{t('tickets.userServices')}</Text>
+              <Text size="xs" c="dimmed" mt={2}>{t('tickets.userServices')}</Text>
               <Table fz="xs" withRowBorders={false} verticalSpacing={4}>
                 <Table.Thead>
                   <Table.Tr>
