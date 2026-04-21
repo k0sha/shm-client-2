@@ -397,6 +397,8 @@
     "noServices": "You don't have any active devices",
     "send": "Send",
     "closeTicket": "Close Ticket",
+    "reopenTicket": "Reopen Ticket",
+    "ticketReopened": "Ticket has been reopened",
     "ticketCreated": "Request created",
     "ticketClosed": "Request closed",
     "createError": "Failed to create request",

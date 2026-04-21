@@ -459,9 +459,20 @@ export default function SupportTicket() {
             />
           ))}
           {isClosed && (
-            <Text size="xs" c="dimmed" ta="center" py="xs">
-              {t('tickets.ticketClosedInfo')}
-            </Text>
+            <Stack align="center" gap="xs" py="xs">
+              <Text size="xs" c="dimmed" ta="center">{t('tickets.ticketClosedInfo')}</Text>
+              {!isSpecialistView && (
+                <Button size="xs" variant="light" onClick={() => {
+                  const updated: Ticket = { ...ticket, status: 'open', updatedAt: new Date().toISOString() };
+                  const idx = MOCK_ALL_TICKETS.findIndex((tk) => tk.id === ticket.id);
+                  if (idx !== -1) MOCK_ALL_TICKETS[idx] = updated;
+                  setTicket(updated);
+                  notifications.show({ color: 'blue', message: t('tickets.ticketReopened') });
+                }}>
+                  {t('tickets.reopenTicket')}
+                </Button>
+              )}
+            </Stack>
           )}
         </Stack>
       </ScrollArea>
