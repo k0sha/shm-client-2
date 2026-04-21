@@ -64,7 +64,7 @@ export default function SupportTicket() {
   const { ticketId } = useParams<{ ticketId: string }>();
   const navigate = useNavigate();
   const { t } = useTranslation();
-  const { user } = useStore();
+  const { user, isSupportUser } = useStore();
 
   const [ticket, setTicket] = useState<Ticket | undefined>(
     MOCK_ALL_TICKETS.find((tk) => tk.id === ticketId)
@@ -98,7 +98,7 @@ export default function SupportTicket() {
       id: `m${Date.now()}`,
       authorId: user?.user_id ?? 1,
       authorName: user?.login ?? 'admin',
-      isSpecialist: user?.role === 'admin',
+      isSpecialist: isSupportUser,
       text: replyText.trim(),
       createdAt: new Date().toISOString(),
     };
@@ -180,7 +180,7 @@ export default function SupportTicket() {
       </Group>
 
       {/* Specialist actions */}
-      {user?.role === 'admin' && (
+      {isSupportUser && (
         <>
           <Divider />
           <Group gap="sm" wrap="wrap">

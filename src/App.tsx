@@ -9,7 +9,7 @@ import { IconSun, IconMoon, IconLogout, IconHeadset, IconBrandTelegram } from '@
 import { useTranslation } from 'react-i18next';
 import { useStore } from './store/useStore';
 import { NAV_ITEMS } from './constants/navigation';
-import { auth } from './api/client';
+import { auth, storageApi } from './api/client';
 import { clearInviteTelegramFlow, clearInviteWebsiteFlow, clearPendingInviteChoice, getCookie, getInviteStart, hasInviteTelegramFlow, hasPendingInviteChoice, markInviteTelegramFlow, markInviteWebsiteFlow, parseAndSaveInviteStart, removeCookie, removeInviteStart, parseAndSavePartnerId, parseAndSaveSessionId } from './api/cookie';
 import { config } from './config';
 import LanguageSwitcher from './components/LanguageSwitcher';
@@ -267,10 +267,10 @@ function BottomNavigation({ onPayments, onWithdrawals }: { onPayments: () => voi
   const navigate = useNavigate();
   const computedColorScheme = useComputedColorScheme('light');
   const { t } = useTranslation();
-  const { user } = useStore();
+  const { isSupportUser } = useStore();
 
   const visibleItems = NAV_ITEMS.filter(
-    (item) => !item.requiresRole || user?.role === item.requiresRole
+    (item) => !item.requiresRole || isSupportUser
   );
 
   const handleClick = (path: string) => {
@@ -344,9 +344,9 @@ function BottomNavigation({ onPayments, onWithdrawals }: { onPayments: () => voi
 function AppContent() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { userEmail, isAuthenticated, isLoading, setUser, setIsLoading, logout, user } = useStore();
+  const { userEmail, isAuthenticated, isLoading, setUser, setIsLoading, logout, isSupportUser, setIsSupportUser } = useStore();
   const visibleNavItems = NAV_ITEMS.filter(
-    (item) => !item.requiresRole || user?.role === item.requiresRole
+    (item) => !item.requiresRole || isSupportUser
   );
   const { isInsideTelegramWebApp } = useTelegramWebApp();
   const isTelegramWebAppRuntime = isInsideTelegramWebApp;
@@ -472,6 +472,12 @@ function AppContent() {
         const responseData = response.data.data;
         const userData: any = Array.isArray(responseData) ? responseData[0] : responseData;
         setUser(userData);
+        try {
+          const storageRes = await storageApi.get('support_role');
+          setIsSupportUser(storageRes.data === 'specialist');
+        } catch {
+          setIsSupportUser(false);
+        }
       } catch {
         removeCookie();
       } finally {
@@ -701,8 +707,8 @@ function AppContent() {
             <Routes>
               <Route path="/" element={<Services />} />
               <Route path="/profile" element={<Profile />} />
-              {user?.role === 'admin' && <Route path="/support" element={<Support />} />}
-              {user?.role === 'admin' && <Route path="/support/:ticketId" element={<SupportTicket />} />}
+              {isSupportUser && <Route path="/support" element={<Support />} />}
+              {isSupportUser && <Route path="/support/:ticketId" element={<SupportTicket />} />}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Box>
@@ -818,8 +824,8 @@ function AppContent() {
           <Routes>
             <Route path="/" element={<Services />} />
             <Route path="/profile" element={<Profile />} />
-            {user?.role === 'admin' && <Route path="/support" element={<Support />} />}
-            {user?.role === 'admin' && <Route path="/support/:ticketId" element={<SupportTicket />} />}
+            {isSupportUser && <Route path="/support" element={<Support />} />}
+            {isSupportUser && <Route path="/support/:ticketId" element={<SupportTicket />} />}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AppShell.Main>

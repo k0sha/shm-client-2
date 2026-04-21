@@ -12,7 +12,6 @@ interface User {
   bonus: number;
   gid: number;
   telegram_user_id?: number;
-  role?: string;
 }
 
 interface AppState {
@@ -25,6 +24,7 @@ interface AppState {
   telegramPhoto: string | null;
   hasNewTicketMessages: boolean;
   lastTicketCheck: number;
+  isSupportUser: boolean;
 
   setUser: (user: User | null) => void;
   setUserEmail: (email: string | null) => void;
@@ -34,6 +34,7 @@ interface AppState {
   setTelegramPhoto: (photo: string | null) => void;
   setHasNewTicketMessages: (hasNew: boolean) => void;
   setLastTicketCheck: (timestamp: number) => void;
+  setIsSupportUser: (value: boolean) => void;
   openVerifyModal: boolean;
   setOpenVerifyModal: (open: boolean) => void;
   logout: () => void;
@@ -49,6 +50,7 @@ export const useStore = create<AppState>((set) => ({
   telegramPhoto: localStorage.getItem('shm_telegram_photo'),
   hasNewTicketMessages: false,
   lastTicketCheck: parseInt(localStorage.getItem('shm_last_ticket_check') || '0'),
+  isSupportUser: false,
   openVerifyModal: false,
 
   setUser: (user) => set({
@@ -72,10 +74,11 @@ export const useStore = create<AppState>((set) => ({
     localStorage.setItem('shm_last_ticket_check', String(timestamp));
     set({ lastTicketCheck: timestamp });
   },
+  setIsSupportUser: (value: boolean) => set({ isSupportUser: value }),
   setOpenVerifyModal: (open) => set({ openVerifyModal: open }),
   logout: () => {
     removeCookie();
     localStorage.removeItem('shm_telegram_photo');
-    set({ user: null, isAuthenticated: false, telegramPhoto: null, hasNewTicketMessages: false, userEmail: null, userEmailVerified: null, isEmailLoaded: false });
+    set({ user: null, isAuthenticated: false, telegramPhoto: null, hasNewTicketMessages: false, userEmail: null, userEmailVerified: null, isEmailLoaded: false, isSupportUser: false });
   },
 }));
