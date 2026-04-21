@@ -1,0 +1,13 @@
+# Add this location block to your existing bill.yourdomain.com nginx config
+# (alongside the existing /shm/ location)
+
+location /shm_support/ {
+    proxy_pass         http://localhost:3002/;
+    proxy_http_version 1.1;
+    proxy_set_header   Host $host;
+    proxy_set_header   session_id $http_session_id;
+    proxy_set_header   X-Real-IP $remote_addr;
+    proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header   X-Forwarded-Proto $scheme;
+    proxy_read_timeout 60s;
+}

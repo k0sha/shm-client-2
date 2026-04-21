@@ -1,0 +1,42 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Ticket {
+  id          String    @id @default(cuid())
+  userId      Int
+  type        String
+  status      String    @default("open")
+  assignedTo  String?
+  lastMessage String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  messages    Message[]
+}
+
+model Message {
+  id           String       @id @default(cuid())
+  ticketId     String
+  ticket       Ticket       @relation(fields: [ticketId], references: [id], onDelete: Cascade)
+  authorId     Int
+  isSpecialist Boolean      @default(false)
+  text         String?
+  createdAt    DateTime     @default(now())
+  attachments  Attachment[]
+}
+
+model Attachment {
+  id        String   @id @default(cuid())
+  messageId String
+  message   Message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  filename  String
+  minioKey  String
+  mimeType  String
+  size      Int
+  createdAt DateTime @default(now())
+}
