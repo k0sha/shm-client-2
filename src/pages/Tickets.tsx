@@ -89,7 +89,7 @@ export default function Tickets() {
       const matchesStatus = !statuses || statuses.includes(tk.status);
       const q = search.toLowerCase();
       const matchesSearch = !q
-        || tk.subject.toLowerCase().includes(q)
+        || (tk.subject ?? '').toLowerCase().includes(q)
         || tk.userLogin.toLowerCase().includes(q)
         || (tk.userLogin2 ?? '').toLowerCase().includes(q)
         || (tk.userInfo?.fullName ?? '').toLowerCase().includes(q)
