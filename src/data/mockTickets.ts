@@ -21,6 +21,7 @@ export interface TicketUserInfo {
   user_id: number;
   login: string;
   login2?: string;
+  fullName?: string;
   discount: number;
   balance: number;
   created: string;
@@ -230,6 +231,7 @@ export const MOCK_ALL_TICKETS: Ticket[] = [
       user_id: 100002,
       login: '@100002',
       login2: 'vpn_user_77@gmail.com',
+      fullName: 'Иван Петров',
       discount: 10,
       balance: 350,
       created: '2025-11-05T14:22:00',
@@ -273,6 +275,7 @@ export const MOCK_ALL_TICKETS: Ticket[] = [
       user_id: 100003,
       login: '@100003',
       login2: 'maria.k@yandex.ru',
+      fullName: 'Мария Козлова',
       discount: 20,
       balance: 720,
       created: '2025-08-17T11:45:00',

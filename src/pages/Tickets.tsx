@@ -34,7 +34,7 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
       p="md"
       radius="md"
       style={{ cursor: 'pointer' }}
-      onClick={() => navigate(`/support/${ticket.id}`)}
+      onClick={() => navigate(`/tickets/${ticket.id}`)}
     >
       <Group justify="space-between" wrap="nowrap" gap="xs">
         <Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
@@ -50,7 +50,7 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
               {t(`tickets.ticketType.${ticket.type}`)}
             </Badge>
             <Text size="xs" c="dimmed">
-              #{ticket.userInfo?.user_id ?? ticket.userId} · {displayLogin(ticket)}
+              #{ticket.userInfo?.user_id ?? ticket.userId} · {ticket.userInfo?.fullName ? `${ticket.userInfo.fullName} · ` : ''}{displayLogin(ticket)}
             </Text>
             {ticket.assignedTo && (
               <Text size="xs" c="dimmed">🛡 {ticket.assignedTo}</Text>
@@ -96,6 +96,7 @@ export default function Tickets() {
         || tk.subject.toLowerCase().includes(q)
         || tk.userLogin.toLowerCase().includes(q)
         || (tk.userLogin2 ?? '').toLowerCase().includes(q)
+        || (tk.userInfo?.fullName ?? '').toLowerCase().includes(q)
         || String(tk.userId).includes(q);
       return matchesStatus && matchesSearch;
     });

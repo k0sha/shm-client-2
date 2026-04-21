@@ -90,7 +90,7 @@ function UserInfoPanel({ ticket }: { ticket: Ticket }) {
         <Group gap="xs">
           <Text size="sm" fw={600}>{t('tickets.userInfo')}</Text>
           <Text size="sm" c="dimmed">
-            #{info.user_id} · {info.login2 && !info.login2.startsWith('@') ? info.login2 : info.login}
+            #{info.user_id}{info.fullName ? ` · ${info.fullName}` : ''} · {info.login2 && !info.login2.startsWith('@') ? info.login2 : info.login}
           </Text>
         </Group>
         <ActionIcon variant="subtle" size="sm">
