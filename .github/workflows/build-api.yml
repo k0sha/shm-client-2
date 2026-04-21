@@ -20,6 +20,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Generate package-lock.json
+        working-directory: api
+        run: npm install --package-lock-only
+
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
         with:
