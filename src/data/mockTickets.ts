@@ -22,6 +22,7 @@ export interface TicketUserInfo {
   login: string;
   login2?: string;
   discount: number;
+  balance: number;
   created: string;
   services: TicketUserService[];
 }
@@ -71,6 +72,7 @@ export const MOCK_MY_TICKETS: Ticket[] = [
       login: '@215866391',
       login2: 'andrey.koshevoy@icloud.com',
       discount: 50,
+      balance: 1250,
       created: '2025-01-28T16:07:38',
       services: [
         { user_service_id: 101, name: 'VPN iPhone', status: 'ACTIVE', expire: '2026-05-28' },
@@ -113,6 +115,7 @@ export const MOCK_MY_TICKETS: Ticket[] = [
       login: '@215866391',
       login2: 'andrey.koshevoy@icloud.com',
       discount: 50,
+      balance: 1250,
       created: '2025-01-28T16:07:38',
       services: [
         { user_service_id: 101, name: 'VPN iPhone', status: 'ACTIVE', expire: '2026-05-28' },
@@ -155,6 +158,7 @@ export const MOCK_MY_TICKETS: Ticket[] = [
       login: '@215866391',
       login2: 'andrey.koshevoy@icloud.com',
       discount: 50,
+      balance: 1250,
       created: '2025-01-28T16:07:38',
       services: [
         { user_service_id: 101, name: 'VPN iPhone', status: 'ACTIVE', expire: '2026-05-28' },
@@ -193,6 +197,7 @@ export const MOCK_ALL_TICKETS: Ticket[] = [
       login: '@100001',
       login2: 'user123@mail.ru',
       discount: 0,
+      balance: 0,
       created: '2026-02-10T09:15:00',
       services: [
         { user_service_id: 201, name: 'VPN Android', status: 'ACTIVE', expire: '2026-05-10' },
@@ -226,6 +231,7 @@ export const MOCK_ALL_TICKETS: Ticket[] = [
       login: '@100002',
       login2: 'vpn_user_77@gmail.com',
       discount: 10,
+      balance: 350,
       created: '2025-11-05T14:22:00',
       services: [
         { user_service_id: 301, name: 'VPN iPhone', status: 'BLOCK', expire: '2026-04-15' },
@@ -268,6 +274,7 @@ export const MOCK_ALL_TICKETS: Ticket[] = [
       login: '@100003',
       login2: 'maria.k@yandex.ru',
       discount: 20,
+      balance: 720,
       created: '2025-08-17T11:45:00',
       services: [
         { user_service_id: 401, name: 'VPN Samsung', status: 'ACTIVE', expire: '2026-06-17' },

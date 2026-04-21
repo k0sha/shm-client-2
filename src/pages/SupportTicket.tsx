@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   Stack, Group, Text, ActionIcon, Textarea, Button,
   Paper, Box, Select, Badge, ScrollArea, Divider, Collapse, Table,
@@ -103,6 +103,10 @@ function UserInfoPanel({ ticket }: { ticket: Ticket }) {
         <Stack gap="xs">
           <Group gap="xl">
             <Stack gap={2}>
+              <Text size="xs" c="dimmed">{t('tickets.userBalance')}</Text>
+              <Text size="sm" fw={500}>{info.balance} ₽</Text>
+            </Stack>
+            <Stack gap={2}>
               <Text size="xs" c="dimmed">{t('tickets.userDiscount')}</Text>
               <Text size="sm" fw={500}>{info.discount}%</Text>
             </Stack>
@@ -156,8 +160,10 @@ function UserInfoPanel({ ticket }: { ticket: Ticket }) {
 export default function SupportTicket() {
   const { ticketId } = useParams<{ ticketId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation();
-  const { user, isSupportUser } = useStore();
+  const { user } = useStore();
+  const isSpecialistView = location.pathname.startsWith('/tickets/');
 
   const [ticket, setTicket] = useState<Ticket | undefined>(
     MOCK_ALL_TICKETS.find((tk) => tk.id === ticketId)
@@ -191,7 +197,7 @@ export default function SupportTicket() {
       id: `m${Date.now()}`,
       authorId: user?.user_id ?? 1,
       authorName: user?.login ?? 'user',
-      isSpecialist: isSupportUser,
+      isSpecialist: isSpecialistView,
       text: replyText.trim(),
       createdAt: new Date().toISOString(),
     };
@@ -241,8 +247,7 @@ export default function SupportTicket() {
     { value: 'closed', label: t('tickets.status.closed') },
   ];
 
-  // Back link: specialists go to /tickets, users go to /support
-  const backPath = isSupportUser ? '/tickets' : '/support';
+  const backPath = isSpecialistView ? '/tickets' : '/support';
 
   return (
     <Stack gap="md" h="100%" style={{ display: 'flex', flexDirection: 'column' }}>
@@ -273,10 +278,10 @@ export default function SupportTicket() {
       </Group>
 
       {/* User info panel — specialists only */}
-      {isSupportUser && <UserInfoPanel ticket={ticket} />}
+      {isSpecialistView && <UserInfoPanel ticket={ticket} />}
 
       {/* Specialist actions */}
-      {isSupportUser && (
+      {isSpecialistView && (
         <>
           <Divider />
           <Group gap="sm" wrap="wrap">

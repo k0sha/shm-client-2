@@ -425,6 +425,7 @@
     "ticketClosedInfo": "Обращение закрыто",
     "enterToSend": "Enter — отправить, Shift+Enter — новая строка",
     "userInfo": "Сводка по пользователю",
+    "userBalance": "Баланс",
     "userDiscount": "Скидка",
     "userCreated": "Дата регистрации",
     "userLogin2": "Логин (tg)",

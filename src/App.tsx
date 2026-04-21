@@ -709,8 +709,9 @@ function AppContent() {
               <Route path="/" element={<Services />} />
               <Route path="/profile" element={<Profile />} />
               {isSupportUser && <Route path="/support" element={<Support />} />}
-              {isSupportUser && <Route path="/tickets" element={<Tickets />} />}
               {isSupportUser && <Route path="/support/:ticketId" element={<SupportTicket />} />}
+              {isSupportUser && <Route path="/tickets" element={<Tickets />} />}
+              {isSupportUser && <Route path="/tickets/:ticketId" element={<SupportTicket />} />}
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Box>
@@ -828,6 +829,8 @@ function AppContent() {
             <Route path="/profile" element={<Profile />} />
             {isSupportUser && <Route path="/support" element={<Support />} />}
             {isSupportUser && <Route path="/support/:ticketId" element={<SupportTicket />} />}
+            {isSupportUser && <Route path="/tickets" element={<Tickets />} />}
+            {isSupportUser && <Route path="/tickets/:ticketId" element={<SupportTicket />} />}
             <Route path="*" element={<NotFound />} />
           </Routes>
         </AppShell.Main>
