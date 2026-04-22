@@ -358,6 +358,7 @@ function AppContent() {
   const location = useLocation();
   const navigate = useNavigate();
   const { userEmail, isAuthenticated, isLoading, setUser, setIsLoading, logout, isSupportUser, setIsSupportUser } = useStore();
+  const [roleChecked, setRoleChecked] = useState(false);
   const visibleNavItems = NAV_ITEMS.filter(
     (item) => !item.requiresRole || isSupportUser
   );
@@ -493,10 +494,11 @@ function AppContent() {
   }, [setUser, setIsLoading]);
 
   useEffect(() => {
-    if (!isAuthenticated) return;
+    if (!isAuthenticated) { setRoleChecked(true); return; }
     storageApi.get('support_role')
       .then((res) => setIsSupportUser(!!res.data))
-      .catch(() => setIsSupportUser(false));
+      .catch(() => setIsSupportUser(false))
+      .finally(() => setRoleChecked(true));
   }, [isAuthenticated, setIsSupportUser]);
 
   useHotkeys([
@@ -526,7 +528,7 @@ function AppContent() {
     openTelegramLinkSmart(inviteStart);
   };
 
-  if (isLoading) {
+  if (isLoading || !roleChecked) {
     return (
       <Center h="100vh">
         <Loader size="lg" />
