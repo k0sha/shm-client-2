@@ -5,6 +5,7 @@ import {
 } from '@mantine/core';
 import { IconChevronRight, IconSearch } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
+import { useStore } from '../store/useStore';
 import { TicketStatusBadge } from '../components/support/TicketStatusBadge';
 import { supportApi } from '../api/supportApi';
 import type { Ticket, TicketStatus } from '../data/mockTickets';
@@ -78,9 +79,14 @@ export default function Tickets() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
+  const { setTicketsUnreadCount } = useStore();
+
   useEffect(() => {
     supportApi.listTickets()
-      .then(setAllTickets)
+      .then((data) => {
+        setAllTickets(data);
+        setTicketsUnreadCount(data.filter((tk) => tk.unread).length);
+      })
       .finally(() => setLoading(false));
   }, []);
 

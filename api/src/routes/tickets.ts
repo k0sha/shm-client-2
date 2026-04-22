@@ -23,7 +23,7 @@ export default async function ticketRoutes(app: FastifyInstance) {
     if (!isSpecialist || query.own === 'true') where.userId = user_id;
     if (query.status) where.status = query.status;
 
-    return app.prisma.ticket.findMany({
+    const tickets = await app.prisma.ticket.findMany({
       where,
       orderBy: { updatedAt: 'desc' },
       select: {
@@ -37,10 +37,16 @@ export default async function ticketRoutes(app: FastifyInstance) {
         status: true,
         assignedTo: true,
         lastMessage: true,
+        unreadForUser: true,
+        unreadForSpec: true,
         createdAt: true,
         updatedAt: true,
       },
     });
+    return tickets.map((tk) => ({
+      ...tk,
+      unread: isSpecialist ? tk.unreadForSpec > 0 : tk.unreadForUser > 0,
+    }));
   });
 
   // POST /v1/tickets
@@ -84,9 +90,16 @@ export default async function ticketRoutes(app: FastifyInstance) {
       return reply.status(403).send({ error: 'Forbidden' });
     }
 
+    // сброс счётчика непрочитанных для текущего зрителя
+    if (isSpecialist && ticket.unreadForSpec > 0) {
+      await app.prisma.ticket.update({ where: { id }, data: { unreadForSpec: 0 } });
+    } else if (!isSpecialist && ticket.unreadForUser > 0) {
+      await app.prisma.ticket.update({ where: { id }, data: { unreadForUser: 0 } });
+    }
+
     attachFileUrls(ticket.messages);
     const messagesWithOwn = ticket.messages.map((msg) => ({ ...msg, isOwn: msg.authorId === user_id }));
-    return { ...ticket, messages: messagesWithOwn };
+    return { ...ticket, unreadForUser: 0, unreadForSpec: 0, messages: messagesWithOwn };
   });
 
   // PATCH /v1/tickets/:id

@@ -25,6 +25,8 @@ interface AppState {
   hasNewTicketMessages: boolean;
   lastTicketCheck: number;
   isSupportUser: boolean;
+  supportUnreadCount: number;
+  ticketsUnreadCount: number;
 
   setUser: (user: User | null) => void;
   setUserEmail: (email: string | null) => void;
@@ -35,6 +37,8 @@ interface AppState {
   setHasNewTicketMessages: (hasNew: boolean) => void;
   setLastTicketCheck: (timestamp: number) => void;
   setIsSupportUser: (value: boolean) => void;
+  setSupportUnreadCount: (n: number) => void;
+  setTicketsUnreadCount: (n: number) => void;
   openVerifyModal: boolean;
   setOpenVerifyModal: (open: boolean) => void;
   logout: () => void;
@@ -51,6 +55,8 @@ export const useStore = create<AppState>((set) => ({
   hasNewTicketMessages: false,
   lastTicketCheck: parseInt(localStorage.getItem('shm_last_ticket_check') || '0'),
   isSupportUser: false,
+  supportUnreadCount: 0,
+  ticketsUnreadCount: 0,
   openVerifyModal: false,
 
   setUser: (user) => set({
@@ -75,6 +81,8 @@ export const useStore = create<AppState>((set) => ({
     set({ lastTicketCheck: timestamp });
   },
   setIsSupportUser: (value: boolean) => set({ isSupportUser: value }),
+  setSupportUnreadCount: (n: number) => set({ supportUnreadCount: n }),
+  setTicketsUnreadCount: (n: number) => set({ ticketsUnreadCount: n }),
   setOpenVerifyModal: (open) => set({ openVerifyModal: open }),
   logout: () => {
     removeCookie();

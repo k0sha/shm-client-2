@@ -6,6 +6,7 @@ import {
 } from '@mantine/core';
 import { IconPlus, IconChevronRight } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
+import { useStore } from '../store/useStore';
 import { TicketStatusBadge } from '../components/support/TicketStatusBadge';
 import { TicketCreateModal } from '../components/support/TicketCreateModal';
 import { supportApi } from '../api/supportApi';
@@ -60,13 +61,17 @@ function TicketCard({ ticket }: { ticket: Ticket }) {
 
 export default function Support() {
   const { t } = useTranslation();
+  const { setSupportUnreadCount } = useStore();
   const [createOpen, setCreateOpen] = useState(false);
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     supportApi.listTickets({ own: true })
-      .then(setTickets)
+      .then((data) => {
+        setTickets(data);
+        setSupportUnreadCount(data.filter((tk) => tk.unread).length);
+      })
       .finally(() => setLoading(false));
   }, []);
 

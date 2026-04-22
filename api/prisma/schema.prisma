@@ -17,8 +17,10 @@ model Ticket {
   type         String
   status       String    @default("open")
   assignedTo   String?
-  lastMessage  String?
-  createdAt    DateTime  @default(now())
+  lastMessage    String?
+  unreadForUser  Int       @default(0)
+  unreadForSpec  Int       @default(0)
+  createdAt      DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
   messages     Message[]
 }

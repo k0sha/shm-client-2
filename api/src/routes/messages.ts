@@ -60,7 +60,11 @@ export default async function messageRoutes(app: FastifyInstance) {
 
     await app.prisma.ticket.update({
       where: { id: ticketId },
-      data: { updatedAt: new Date(), lastMessage: text.trim() || undefined },
+      data: {
+        updatedAt: new Date(),
+        lastMessage: text.trim() || undefined,
+        ...(isSpecialist ? { unreadForUser: { increment: 1 } } : { unreadForSpec: { increment: 1 } }),
+      },
     });
 
     for (const att of message.attachments) {

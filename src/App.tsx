@@ -268,7 +268,7 @@ function BottomNavigation({ onPayments, onWithdrawals }: { onPayments: () => voi
   const navigate = useNavigate();
   const computedColorScheme = useComputedColorScheme('light');
   const { t } = useTranslation();
-  const { isSupportUser } = useStore();
+  const { isSupportUser, supportUnreadCount, ticketsUnreadCount } = useStore();
 
   const visibleItems = NAV_ITEMS.filter(
     (item) => !item.requiresRole || isSupportUser
@@ -331,7 +331,19 @@ function BottomNavigation({ onPayments, onWithdrawals }: { onPayments: () => voi
                   transition: 'all 0.2s ease',
                 }}
               >
-                <Icon size={20} />
+                <Box style={{ position: 'relative', display: 'inline-flex' }}>
+                  <Icon size={20} />
+                  {item.path === '/support' && supportUnreadCount > 0 && (
+                    <Badge size="xs" variant="filled" color="red" circle style={{ position: 'absolute', top: -6, right: -8, minWidth: 16, height: 16, fontSize: 9, padding: '0 3px' }}>
+                      {supportUnreadCount}
+                    </Badge>
+                  )}
+                  {item.path === '/tickets' && ticketsUnreadCount > 0 && (
+                    <Badge size="xs" variant="filled" color="red" circle style={{ position: 'absolute', top: -6, right: -8, minWidth: 16, height: 16, fontSize: 9, padding: '0 3px' }}>
+                      {ticketsUnreadCount}
+                    </Badge>
+                  )}
+                </Box>
                 <Text size="xs" mt={4} fw={isActive ? 600 : 400}>{t(item.labelKey)}</Text>
               </Box>
             );
