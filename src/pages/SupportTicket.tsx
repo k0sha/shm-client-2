@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
-import { useMediaQuery } from '@mantine/hooks';
 import {
   Stack, Group, Text, ActionIcon, Textarea, Button,
   Paper, Box, Select, Badge, Divider, Collapse, Table, Pill, Loader, Center,
@@ -256,7 +255,6 @@ export default function SupportTicket() {
   const location = useLocation();
   const { t } = useTranslation();
   const isSpecialistView = location.pathname.startsWith('/tickets/');
-  const isMobile = useMediaQuery('(max-width: 768px)') ?? false;
 
   const [ticket, setTicket] = useState<Ticket | undefined>();
   const [loading, setLoading] = useState(true);
@@ -368,7 +366,12 @@ export default function SupportTicket() {
   ];
 
   return (
-    <Stack gap="md" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+    <Stack gap="md" p="md" style={{
+      position: 'fixed', inset: 0, zIndex: 200,
+      display: 'flex', flexDirection: 'column', overflow: 'hidden',
+      background: 'var(--mantine-color-body)',
+      paddingBottom: 'calc(var(--mantine-spacing-md) + env(safe-area-inset-bottom, 0px))',
+    }}>
       {/* Header */}
       <Group gap="sm" wrap="nowrap">
         <ActionIcon variant="subtle" size="lg" onClick={() => navigate(backPath)}>
@@ -446,7 +449,7 @@ export default function SupportTicket() {
 
       {/* Reply */}
       {!isClosed && (
-        <Paper withBorder radius="md" p="sm" style={{ marginBottom: isMobile ? 92 : 0 }}>
+        <Paper withBorder radius="md" p="sm">
           {selectedFiles.length > 0 && (
             <Pill.Group mb="xs">
               {selectedFiles.map((file, i) => (
