@@ -14,6 +14,7 @@ export interface TicketMessage {
   authorId: number;
   authorName: string;
   isSpecialist: boolean;
+  isOwn?: boolean;
   text: string;
   createdAt: string;
   attachments?: TicketAttachment[];

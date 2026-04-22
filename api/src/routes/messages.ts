@@ -67,6 +67,6 @@ export default async function messageRoutes(app: FastifyInstance) {
       (att as Record<string, unknown>).url = `${FILES_PATH}/${att.minioKey}`;
     }
 
-    return reply.status(201).send(message);
+    return reply.status(201).send({ ...message, isOwn: true });
   });
 }

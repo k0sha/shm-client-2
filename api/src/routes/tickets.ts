@@ -85,7 +85,8 @@ export default async function ticketRoutes(app: FastifyInstance) {
     }
 
     attachFileUrls(ticket.messages);
-    return ticket;
+    const messagesWithOwn = ticket.messages.map((msg) => ({ ...msg, isOwn: msg.authorId === user_id }));
+    return { ...ticket, messages: messagesWithOwn };
   });
 
   // PATCH /v1/tickets/:id

@@ -76,13 +76,14 @@ function resolveAuthorLabel(msg: TicketMessage, ticket: Ticket): string {
   return msg.authorName;
 }
 
-function MessageBubble({ msg, isOwn, ticket }: { msg: TicketMessage; isOwn: boolean; ticket: Ticket }) {
+function MessageBubble({ msg, isOwn, ticket, showAllLabels }: { msg: TicketMessage; isOwn: boolean; ticket: Ticket; showAllLabels?: boolean }) {
   const scheme = useComputedColorScheme('light');
+  const showLabel = showAllLabels || !isOwn;
   return (
     <Box style={{ display: 'flex', justifyContent: isOwn ? 'flex-end' : 'flex-start' }}>
       <Box style={{ maxWidth: '72%' }}>
-        {!isOwn && (
-          <Text size="xs" c="dimmed" mb={2} ml={4}>
+        {showLabel && (
+          <Text size="xs" c="dimmed" mb={2} ml={isOwn ? 0 : 4} mr={isOwn ? 4 : 0} ta={isOwn ? 'right' : 'left'}>
             {msg.isSpecialist ? '🛡 ' : ''}{resolveAuthorLabel(msg, ticket)}
           </Text>
         )}
@@ -177,16 +178,16 @@ function UserInfoPanel({ ticket }: { ticket: Ticket }) {
                   <Text size="sm" fw={500}>{info.fullName}</Text>
                 </Stack>
               )}
-              {tgLogin && (
+              {(info.login || tgLogin) && (
                 <Stack gap={2}>
                   <Text size="xs" c="dimmed">{t('tickets.userTgLogin')}</Text>
-                  <Text size="sm" fw={500}>{tgLogin}</Text>
+                  <Text size="sm" fw={500}>{info.login ?? tgLogin}</Text>
                 </Stack>
               )}
-              {emailLogin && (
+              {(info.login2 || emailLogin) && (
                 <Stack gap={2}>
                   <Text size="xs" c="dimmed">{t('tickets.userEmailLogin')}</Text>
-                  <Text size="sm" fw={500}>{emailLogin}</Text>
+                  <Text size="sm" fw={500}>{info.login2 ?? emailLogin}</Text>
                 </Stack>
               )}
             </Group>
@@ -427,8 +428,9 @@ export default function SupportTicket() {
             <MessageBubble
               key={msg.id}
               msg={msg}
-              isOwn={isSpecialistView ? msg.isSpecialist : !msg.isSpecialist}
+              isOwn={msg.isOwn ?? (isSpecialistView ? msg.isSpecialist : !msg.isSpecialist)}
               ticket={ticket}
+              showAllLabels={isSpecialistView}
             />
           ))}
           {isClosed && (

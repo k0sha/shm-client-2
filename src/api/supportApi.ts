@@ -29,6 +29,7 @@ function transformMessage(m: Record<string, unknown>): TicketMessage {
     authorId: m.authorId as number,
     authorName: m.authorName as string,
     isSpecialist: m.isSpecialist as boolean,
+    isOwn: m.isOwn as boolean | undefined,
     text: (m.text as string) ?? '',
     createdAt: m.createdAt as string,
     attachments: (m.attachments as Record<string, unknown>[])?.map(transformAttachment),
