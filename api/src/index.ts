@@ -9,6 +9,7 @@ import ticketRoutes from './routes/tickets.js';
 import messageRoutes from './routes/messages.js';
 import attachmentRoutes from './routes/attachments.js';
 import userInfoRoutes from './routes/userInfo.js';
+import fileRoutes from './routes/files.js';
 
 const app = Fastify({ logger: true });
 
@@ -22,6 +23,7 @@ await app.register(ticketRoutes);
 await app.register(messageRoutes);
 await app.register(attachmentRoutes);
 await app.register(userInfoRoutes);
+await app.register(fileRoutes);
 
 app.get('/health', async () => ({ ok: true }));
 

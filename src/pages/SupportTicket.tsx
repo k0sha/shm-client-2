@@ -66,9 +66,8 @@ function AttachmentItem({ att, isOwn, scheme }: { att: TicketAttachment; isOwn: 
 
 function resolveAuthorLabel(msg: TicketMessage, ticket: Ticket): string {
   if (msg.isSpecialist) return msg.authorName;
-  const info = ticket.userInfo;
-  if (info?.fullName) return info.fullName;
-  const tg = ticket.userLogin.startsWith('@') ? ticket.userLogin : null;
+  if (ticket.userFullName) return ticket.userFullName;
+  const tg = ticket.userLogin?.startsWith('@') ? ticket.userLogin : null;
   const email = ticket.userLogin2 && !ticket.userLogin2.startsWith('@') ? ticket.userLogin2 : null;
   if (tg && email) return `${tg} · ${email}`;
   if (tg) return tg;
@@ -380,7 +379,7 @@ export default function SupportTicket() {
             <TicketStatusBadge status={ticket.status} />
           </Group>
           <Group gap="xs">
-            <Text size="xs" c="dimmed">#{ticket.id}</Text>
+            <Text size="xs" c="dimmed">#{ticket.number ?? ticket.id.slice(0, 8)}</Text>
             {ticket.assignedTo && (
               <>
                 <Text size="xs" c="dimmed">·</Text>

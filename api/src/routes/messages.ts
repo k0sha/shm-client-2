@@ -4,7 +4,7 @@ import { randomUUID } from 'crypto';
 import path from 'path';
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024;
-const PRESIGNED_EXPIRY_SEC = 60 * 60;
+const FILES_PATH = process.env.FILES_PUBLIC_PATH ?? '/shm_support/v1/files';
 
 export default async function messageRoutes(app: FastifyInstance) {
   app.post('/v1/tickets/:id/messages', { preHandler: requireAuth }, async (req, reply) => {
@@ -63,13 +63,8 @@ export default async function messageRoutes(app: FastifyInstance) {
       data: { updatedAt: new Date(), lastMessage: text.trim() || undefined },
     });
 
-    // Add presigned URLs to attachments in response
     for (const att of message.attachments) {
-      (att as Record<string, unknown>).url = await app.minio.presignedGetObject(
-        app.minioBucket,
-        att.minioKey,
-        PRESIGNED_EXPIRY_SEC,
-      );
+      (att as Record<string, unknown>).url = `${FILES_PATH}/${att.minioKey}`;
     }
 
     return reply.status(201).send(message);

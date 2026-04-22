@@ -38,6 +38,7 @@ function transformMessage(m: Record<string, unknown>): TicketMessage {
 function transformTicket(t: Record<string, unknown>): Ticket {
   return {
     id: t.id as string,
+    number: t.number as number | undefined,
     type: t.type as TicketType,
     status: t.status as Ticket['status'],
     createdAt: t.createdAt as string,
@@ -45,6 +46,7 @@ function transformTicket(t: Record<string, unknown>): Ticket {
     userId: t.userId as number,
     userLogin: t.userLogin as string,
     userLogin2: t.userLogin2 as string | undefined,
+    userFullName: t.userFullName as string | undefined,
     assignedTo: t.assignedTo as string | undefined,
     lastMessage: t.lastMessage as string | undefined,
     messages: (t.messages as Record<string, unknown>[])?.map(transformMessage) ?? [],

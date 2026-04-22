@@ -1,19 +1,14 @@
 import type { FastifyInstance } from 'fastify';
 import { requireAuth, requireSpecialist } from '../middleware/auth.js';
 
-const PRESIGNED_EXPIRY_SEC = 60 * 60;
+const FILES_PATH = process.env.FILES_PUBLIC_PATH ?? '/shm_support/v1/files';
 
-async function attachPresignedUrls(
-  app: FastifyInstance,
-  messages: Array<{ attachments: Array<{ id: string; minioKey: string; filename: string; mimeType: string; size: number; createdAt: Date }> } & Record<string, unknown>>,
+function attachFileUrls(
+  messages: Array<{ attachments: Array<{ minioKey: string }> } & Record<string, unknown>>,
 ) {
   for (const msg of messages) {
     for (const att of msg.attachments) {
-      (att as Record<string, unknown>).url = await app.minio.presignedGetObject(
-        app.minioBucket,
-        att.minioKey,
-        PRESIGNED_EXPIRY_SEC,
-      );
+      (att as Record<string, unknown>).url = `${FILES_PATH}/${att.minioKey}`;
     }
   }
 }
@@ -33,6 +28,7 @@ export default async function ticketRoutes(app: FastifyInstance) {
       orderBy: { updatedAt: 'desc' },
       select: {
         id: true,
+        number: true,
         userId: true,
         userLogin: true,
         userLogin2: true,
@@ -88,7 +84,7 @@ export default async function ticketRoutes(app: FastifyInstance) {
       return reply.status(403).send({ error: 'Forbidden' });
     }
 
-    await attachPresignedUrls(app, ticket.messages);
+    attachFileUrls(ticket.messages);
     return ticket;
   });
 

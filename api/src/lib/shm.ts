@@ -26,14 +26,21 @@ export interface ShmUserService {
   expire: string | null;
 }
 
+function extractList<T>(raw: unknown): T[] {
+  if (Array.isArray(raw)) return raw as T[];
+  if (raw && typeof raw === 'object' && Array.isArray((raw as Record<string, unknown>).data)) {
+    return (raw as { data: T[] }).data;
+  }
+  return [];
+}
+
 export async function fetchShmUser(userId: number): Promise<ShmUserInfo | null> {
   try {
     const res = await axios.get(`${SHM_INTERNAL_URL}/shm/v1/admin/user`, {
       headers: adminHeaders(),
       params: { user_id: userId },
     });
-    const data = Array.isArray(res.data) ? res.data[0] : res.data;
-    return data ?? null;
+    return extractList<ShmUserInfo>(res.data)[0] ?? null;
   } catch {
     return null;
   }
@@ -45,7 +52,7 @@ export async function fetchShmUserServices(userId: number): Promise<ShmUserServi
       headers: adminHeaders(),
       params: { user_id: userId },
     });
-    return Array.isArray(res.data) ? res.data : [];
+    return extractList<ShmUserService>(res.data);
   } catch {
     return [];
   }

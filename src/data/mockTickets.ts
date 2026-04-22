@@ -40,6 +40,7 @@ export interface TicketUserInfo {
 
 export interface Ticket {
   id: string;
+  number?: number;
   subject?: string;
   status: TicketStatus;
   type: TicketType;
@@ -48,6 +49,7 @@ export interface Ticket {
   userId: number;
   userLogin: string;
   userLogin2?: string;
+  userFullName?: string;
   assignedTo?: string;
   messages: TicketMessage[];
   lastMessage?: string;

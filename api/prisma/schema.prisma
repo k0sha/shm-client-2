@@ -9,6 +9,7 @@ datasource db {
 
 model Ticket {
   id           String    @id @default(cuid())
+  number       Int       @default(autoincrement())
   userId       Int
   userLogin    String
   userLogin2   String?
