@@ -377,7 +377,6 @@ export default function SupportTicket() {
       zIndex: 200,
       display: 'flex',
       flexDirection: 'column',
-      alignItems: 'stretch',
       overflow: 'hidden',
       background: 'var(--mantine-color-body)',
     }}>
@@ -386,9 +385,8 @@ export default function SupportTicket() {
       minHeight: 0,
       maxWidth: isMobile ? undefined : 1200,
       width: '100%',
-      alignSelf: 'center',
+      margin: '0 auto',
       display: 'flex', flexDirection: 'column', overflow: 'hidden',
-      paddingBottom: isMobile ? 'calc(112px + env(safe-area-inset-bottom, 0px))' : 'var(--mantine-spacing-md)',
     }}>
       {/* Header */}
       <Group gap="sm" wrap="nowrap">
@@ -512,6 +510,9 @@ export default function SupportTicket() {
         </Paper>
       )}
     </Stack>
+    {isMobile && (
+      <Box style={{ height: 'calc(112px + env(safe-area-inset-bottom, 0px))', flexShrink: 0 }} />
+    )}
     </Box>
   );
 }

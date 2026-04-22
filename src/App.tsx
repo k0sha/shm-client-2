@@ -704,32 +704,6 @@ function AppContent() {
   );
 
   if (isTelegramWebAppRuntime || isMobile) {
-    const isChatPage = isSupportUser && /\/(support|tickets)\/.+/.test(location.pathname);
-
-    if (isChatPage) {
-      return (
-        <>
-          {emailRequiredModal}
-          {verifyRequiredModal}
-          {versionModal}
-          <Box style={{ position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-            <WebAppHeader onShowVersion={showVersion} />
-            <Box
-              px="md"
-              style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
-            >
-              <Routes>
-                {isSupportUser && <Route path="/support/:ticketId" element={<SupportTicket />} />}
-                {isSupportUser && <Route path="/tickets/:ticketId" element={<SupportTicket />} />}
-                <Route path="*" element={null} />
-              </Routes>
-            </Box>
-          </Box>
-          <BottomNavigation />
-        </>
-      );
-    }
-
     return (
       <>
         {emailRequiredModal}
