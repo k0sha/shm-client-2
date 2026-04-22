@@ -76,6 +76,21 @@ export default function Support() {
       .finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const { ticketId, isSpecialist } = (e as CustomEvent<{ ticketId: string; isSpecialist: boolean }>).detail;
+      if (!isSpecialist) return;
+      setTickets((prev) => {
+        const idx = prev.findIndex((t) => t.id === ticketId);
+        if (idx === -1) return prev;
+        const ticket = { ...prev[idx], unread: true };
+        return [ticket, ...prev.filter((_, i) => i !== idx)];
+      });
+    };
+    window.addEventListener('ticket:new_message', handler);
+    return () => window.removeEventListener('ticket:new_message', handler);
+  }, []);
+
   const activeTickets = tickets.filter((tk) => ACTIVE_STATUSES.has(tk.status));
   const closedTickets = tickets.filter((tk) => CLOSED_STATUSES.has(tk.status));
   const openCount = tickets.filter((tk) => tk.status === 'open').length;

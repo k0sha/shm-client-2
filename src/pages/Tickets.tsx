@@ -91,6 +91,21 @@ export default function Tickets() {
       .finally(() => setLoading(false));
   }, []);
 
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const { ticketId, isSpecialist } = (e as CustomEvent<{ ticketId: string; isSpecialist: boolean }>).detail;
+      if (isSpecialist) return;
+      setAllTickets((prev) => {
+        const idx = prev.findIndex((t) => t.id === ticketId);
+        if (idx === -1) return prev;
+        const ticket = { ...prev[idx], unread: true };
+        return [ticket, ...prev.filter((_, i) => i !== idx)];
+      });
+    };
+    window.addEventListener('ticket:new_message', handler);
+    return () => window.removeEventListener('ticket:new_message', handler);
+  }, []);
+
   function filter(statuses?: TicketStatus[]): Ticket[] {
     return allTickets.filter((tk) => {
       const matchesStatus = !statuses || statuses.includes(tk.status);

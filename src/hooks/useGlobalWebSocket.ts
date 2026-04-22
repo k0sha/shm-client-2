@@ -42,13 +42,19 @@ export function useGlobalWebSocket(enabled: boolean) {
         if (msg.type !== 'new_message') return;
 
         const currentPath = window.location.pathname;
-        if (currentPath.includes(msg.ticketId)) return;
+        const isViewingTicket = currentPath.includes(msg.ticketId);
 
-        if (isSupportUserRef.current) {
-          if (!msg.isSpecialist) incrementTicketsRef.current();
-        } else {
-          if (msg.isSpecialist) incrementSupportRef.current();
+        if (!isViewingTicket) {
+          if (isSupportUserRef.current) {
+            if (!msg.isSpecialist) incrementTicketsRef.current();
+          } else {
+            if (msg.isSpecialist) incrementSupportRef.current();
+          }
         }
+
+        window.dispatchEvent(
+          new CustomEvent('ticket:new_message', { detail: { ticketId: msg.ticketId, isSpecialist: msg.isSpecialist } })
+        );
       } catch { /* ignore */ }
     };
 
