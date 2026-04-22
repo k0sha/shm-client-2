@@ -43,7 +43,9 @@ export function useGlobalWebSocket(enabled: boolean) {
         const isViewingTicket = currentPath.includes(msg.ticketId);
 
         if (!isViewingTicket) {
-          if (msg.target === 'specialist') {
+          // target field was added later; fall back to isSpecialist for old backend images
+          const forSpecialist = msg.target === 'specialist' || (msg.target == null && !msg.isSpecialist);
+          if (forSpecialist) {
             incrementTicketsRef.current();
           } else {
             incrementSupportRef.current();

@@ -78,10 +78,10 @@ export default async function messageRoutes(app: FastifyInstance) {
 
     broadcast(ticketId, { type: 'message', data: { ...message, isOwn: false } });
 
-    if (isSpecialist) {
-      notifyUser(ticket.userId, { type: 'new_message', ticketId, isSpecialist, target: 'user' });
-    } else {
+    if (isTicketOwner) {
       notifySpecialists({ type: 'new_message', ticketId, isSpecialist, target: 'specialist' });
+    } else {
+      notifyUser(ticket.userId, { type: 'new_message', ticketId, isSpecialist, target: 'user' });
     }
 
     return reply.status(201).send({ ...message, isOwn: true });
