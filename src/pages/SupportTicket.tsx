@@ -368,7 +368,7 @@ export default function SupportTicket() {
   ];
 
   return (
-    <Stack gap="md" h="100%" style={{ display: 'flex', flexDirection: 'column' }}>
+    <Stack gap="md" style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
       {/* Header */}
       <Group gap="sm" wrap="nowrap">
         <ActionIcon variant="subtle" size="lg" onClick={() => navigate(backPath)}>
@@ -420,7 +420,7 @@ export default function SupportTicket() {
       )}
 
       {/* Chat */}
-      <ScrollArea flex={1} viewportRef={scrollRef} style={{ minHeight: 300 }}>
+      <ScrollArea flex={1} viewportRef={scrollRef} style={{ minHeight: 0 }}>
         <Stack gap="sm" p="xs">
           {ticket.messages.map((msg) => (
             <MessageBubble

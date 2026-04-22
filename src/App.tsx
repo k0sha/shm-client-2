@@ -708,25 +708,41 @@ function AppContent() {
 
   if (isTelegramWebAppRuntime || isMobile) {
     const isChatPage = isSupportUser && /\/(support|tickets)\/.+/.test(location.pathname);
+
+    if (isChatPage) {
+      return (
+        <>
+          {emailRequiredModal}
+          {verifyRequiredModal}
+          {versionModal}
+          <Box style={{ position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column' }}>
+            <WebAppHeader onShowVersion={showVersion} />
+            <Box
+              px="md"
+              style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
+            >
+              <Routes>
+                {isSupportUser && <Route path="/support/:ticketId" element={<SupportTicket />} />}
+                {isSupportUser && <Route path="/tickets/:ticketId" element={<SupportTicket />} />}
+                <Route path="*" element={null} />
+              </Routes>
+            </Box>
+          </Box>
+          <BottomNavigation onPayments={() => setPayHistoryOpen(true)} onWithdrawals={() => setWithdrawHistoryOpen(true)} />
+          <PayHistoryModal opened={payHistoryOpen} onClose={() => setPayHistoryOpen(false)} />
+          <WithdrawHistoryModal opened={withdrawHistoryOpen} onClose={() => setWithdrawHistoryOpen(false)} />
+        </>
+      );
+    }
+
     return (
       <>
         {emailRequiredModal}
         {verifyRequiredModal}
         {versionModal}
-        <Box style={{
-          height: isChatPage ? '100dvh' : undefined,
-          minHeight: isChatPage ? undefined : '100vh',
-          paddingBottom: isChatPage ? 0 : 100,
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: isChatPage ? 'hidden' : undefined,
-        }}>
+        <Box style={{ minHeight: '100vh', paddingBottom: 100 }}>
           <WebAppHeader onShowVersion={showVersion} />
-          <Box px="md" style={{
-            flex: 1,
-            minHeight: 0,
-            overflow: isChatPage ? 'hidden' : undefined,
-          }}>
+          <Box px="md">
             <Routes>
               <Route path="/" element={<Services />} />
               <Route path="/profile" element={<Profile />} />
