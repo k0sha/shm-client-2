@@ -7,10 +7,7 @@ function buildWsUrl(): string {
 }
 
 export function useGlobalWebSocket(enabled: boolean) {
-  const { isSupportUser, incrementSupportUnread, incrementTicketsUnread } = useStore();
-
-  const isSupportUserRef = useRef(isSupportUser);
-  isSupportUserRef.current = isSupportUser;
+  const { incrementSupportUnread, incrementTicketsUnread } = useStore();
 
   const incrementSupportRef = useRef(incrementSupportUnread);
   incrementSupportRef.current = incrementSupportUnread;
@@ -37,6 +34,7 @@ export function useGlobalWebSocket(enabled: boolean) {
           type: string;
           ticketId: string;
           isSpecialist: boolean;
+          target?: 'user' | 'specialist';
         };
 
         if (msg.type !== 'new_message') return;
@@ -45,10 +43,10 @@ export function useGlobalWebSocket(enabled: boolean) {
         const isViewingTicket = currentPath.includes(msg.ticketId);
 
         if (!isViewingTicket) {
-          if (isSupportUserRef.current) {
-            if (!msg.isSpecialist) incrementTicketsRef.current();
+          if (msg.target === 'specialist') {
+            incrementTicketsRef.current();
           } else {
-            if (msg.isSpecialist) incrementSupportRef.current();
+            incrementSupportRef.current();
           }
         }
 

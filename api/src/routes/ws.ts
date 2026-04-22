@@ -99,9 +99,8 @@ export default async function wsRoutes(app: FastifyInstance) {
 
     if (authUser.isSpecialist) {
       registerSpecialist(raw);
-    } else {
-      registerUser(authUser.user_id, raw);
     }
+    registerUser(authUser.user_id, raw);
 
     const pingInterval = setInterval(() => {
       if (raw.readyState === 1) raw.ping();
@@ -112,9 +111,8 @@ export default async function wsRoutes(app: FastifyInstance) {
         clearInterval(pingInterval);
         if (authUser.isSpecialist) {
           unregisterSpecialist(raw);
-        } else {
-          unregisterUser(authUser.user_id, raw);
         }
+        unregisterUser(authUser.user_id, raw);
         resolve();
       };
       socket.on('close', cleanup);
