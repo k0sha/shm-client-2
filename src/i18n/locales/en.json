@@ -429,6 +429,7 @@
     "userInfo": "User Summary",
     "userShmId": "SHM ID",
     "userFullName": "Full Name",
+    "userLogin": "Login",
     "userTgLogin": "Telegram",
     "userEmailLogin": "Email",
     "userBalance": "Balance",

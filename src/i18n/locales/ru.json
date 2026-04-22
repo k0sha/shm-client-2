@@ -429,6 +429,7 @@
     "userInfo": "Сводка по пользователю",
     "userShmId": "ID в SHM",
     "userFullName": "Имя",
+    "userLogin": "Логин",
     "userTgLogin": "Telegram",
     "userEmailLogin": "Email",
     "userBalance": "Баланс",

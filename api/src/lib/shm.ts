@@ -15,6 +15,7 @@ export interface ShmUserInfo {
   login2?: string;
   full_name?: string;
   balance: number;
+  bonus?: number;
   credit: number;
   discount: number;
 }

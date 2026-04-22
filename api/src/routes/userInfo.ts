@@ -22,7 +22,7 @@ export default async function userInfoRoutes(app: FastifyInstance) {
       login2: user.login2,
       full_name: user.full_name,
       balance: user.balance,
-      bonuses: user.credit,
+      bonuses: user.bonus ?? 0,
       discount: user.discount,
       services: services.map((s) => ({
         user_service_id: s.user_service_id,

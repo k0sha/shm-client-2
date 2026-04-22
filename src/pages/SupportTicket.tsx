@@ -118,6 +118,10 @@ function MessageBubble({ msg, isOwn, ticket, showAllLabels }: { msg: TicketMessa
   );
 }
 
+function isTelegramLogin(login: string): boolean {
+  return /^@\d+$/.test(login);
+}
+
 function UserInfoPanel({ ticket }: { ticket: Ticket }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
@@ -131,8 +135,9 @@ function UserInfoPanel({ ticket }: { ticket: Ticket }) {
 
   const handleToggle = () => setOpen((v) => !v);
 
-  const tgLogin = ticket.userLogin.startsWith('@') ? ticket.userLogin : null;
-  const emailLogin = ticket.userLogin2 && !ticket.userLogin2.startsWith('@') ? ticket.userLogin2 : null;
+  const loginValue = info?.login ?? ticket.userLogin;
+  const login2Value = info?.login2 ?? ticket.userLogin2;
+  const fullNameValue = info?.fullName ?? ticket.userFullName;
 
   const statusColors: Record<string, string> = {
     ACTIVE: 'green', BLOCK: 'red', 'NOT PAID': 'orange', PROGRESS: 'yellow', ERROR: 'red',
@@ -145,9 +150,9 @@ function UserInfoPanel({ ticket }: { ticket: Ticket }) {
           <Text size="sm" fw={600} style={{ flexShrink: 0 }}>{t('tickets.userInfo')}</Text>
           <Text size="sm" c="dimmed" truncate>
             #{ticket.userId}
-            {(info?.fullName ?? ticket.userFullName) ? ` · ${info?.fullName ?? ticket.userFullName}` : ''}
-            {tgLogin ? ` · ${tgLogin}` : ''}
-            {emailLogin ? ` · ${emailLogin}` : ''}
+            {fullNameValue ? ` · ${fullNameValue}` : ''}
+            {loginValue ? ` · ${loginValue}` : ''}
+            {login2Value ? ` · ${login2Value}` : ''}
           </Text>
         </Group>
         <ActionIcon variant="subtle" size="sm" style={{ flexShrink: 0 }}>
@@ -164,22 +169,24 @@ function UserInfoPanel({ ticket }: { ticket: Ticket }) {
                 <Text size="xs" c="dimmed">{t('tickets.userShmId')}</Text>
                 <Text size="sm" fw={500}>#{info.user_id}</Text>
               </Stack>
-              {info.fullName && (
+              {fullNameValue && (
                 <Stack gap={2}>
                   <Text size="xs" c="dimmed">{t('tickets.userFullName')}</Text>
-                  <Text size="sm" fw={500}>{info.fullName}</Text>
+                  <Text size="sm" fw={500}>{fullNameValue}</Text>
                 </Stack>
               )}
-              {(info.login || tgLogin) && (
+              {loginValue && (
                 <Stack gap={2}>
-                  <Text size="xs" c="dimmed">{t('tickets.userTgLogin')}</Text>
-                  <Text size="sm" fw={500}>{info.login ?? tgLogin}</Text>
+                  <Text size="xs" c="dimmed">
+                    {isTelegramLogin(loginValue) ? t('tickets.userTgLogin') : t('tickets.userLogin')}
+                  </Text>
+                  <Text size="sm" fw={500}>{loginValue}</Text>
                 </Stack>
               )}
-              {(info.login2 || emailLogin) && (
+              {login2Value && (
                 <Stack gap={2}>
                   <Text size="xs" c="dimmed">{t('tickets.userEmailLogin')}</Text>
-                  <Text size="sm" fw={500}>{info.login2 ?? emailLogin}</Text>
+                  <Text size="sm" fw={500}>{login2Value}</Text>
                 </Stack>
               )}
             </Group>
