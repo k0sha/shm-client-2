@@ -17,13 +17,19 @@ async function resolveSession(sessionId: string): Promise<AuthUser> {
   if (cached && cached.expiresAt > Date.now()) return cached.user;
 
   const headers = { session_id: sessionId };
+  const timeout = 4000;
 
   const [userRes, roleRes] = await Promise.allSettled([
-    axios.get<ShmUser>(`${SHM_INTERNAL_URL}/shm/v1/user`, { headers }),
-    axios.get(`${SHM_INTERNAL_URL}/shm/v1/storage/manage/support_role`, { headers }),
+    axios.get<ShmUser>(`${SHM_INTERNAL_URL}/shm/v1/user`, { headers, timeout }),
+    axios.get(`${SHM_INTERNAL_URL}/shm/v1/storage/manage/support_role`, { headers, timeout }),
   ]);
 
-  if (userRes.status === 'rejected' || userRes.value.status !== 200) {
+  if (userRes.status === 'rejected') {
+    const err = userRes.reason as { code?: string; message?: string };
+    console.error(`[auth] SHM user request failed: ${err.code ?? err.message} — SHM_INTERNAL_URL=${SHM_INTERNAL_URL}`);
+    throw new Error('unauthorized');
+  }
+  if (userRes.value.status !== 200) {
     throw new Error('unauthorized');
   }
 
