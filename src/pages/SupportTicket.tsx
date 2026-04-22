@@ -122,22 +122,14 @@ function UserInfoPanel({ ticket }: { ticket: Ticket }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [info, setInfo] = useState<TicketUserInfo | null>(ticket.userInfo ?? null);
-  const [loadingInfo, setLoadingInfo] = useState(false);
 
-  const handleToggle = async () => {
-    if (!open && !info) {
-      setLoadingInfo(true);
-      try {
-        const data = await supportApi.getUserInfo(ticket.userId);
-        setInfo(data);
-      } catch {
-        // показываем то что есть из ticket
-      } finally {
-        setLoadingInfo(false);
-      }
-    }
-    setOpen((v) => !v);
-  };
+  useEffect(() => {
+    supportApi.getUserInfo(ticket.userId)
+      .then(setInfo)
+      .catch(() => {});
+  }, [ticket.userId]);
+
+  const handleToggle = () => setOpen((v) => !v);
 
   const tgLogin = ticket.userLogin.startsWith('@') ? ticket.userLogin : null;
   const emailLogin = ticket.userLogin2 && !ticket.userLogin2.startsWith('@') ? ticket.userLogin2 : null;
@@ -158,7 +150,7 @@ function UserInfoPanel({ ticket }: { ticket: Ticket }) {
             {emailLogin ? ` · ${emailLogin}` : ''}
           </Text>
         </Group>
-        <ActionIcon variant="subtle" size="sm" style={{ flexShrink: 0 }} loading={loadingInfo}>
+        <ActionIcon variant="subtle" size="sm" style={{ flexShrink: 0 }}>
           {open ? <IconChevronUp size={14} /> : <IconChevronDown size={14} />}
         </ActionIcon>
       </Group>
