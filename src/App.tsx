@@ -15,6 +15,7 @@ import { config } from './config';
 import LanguageSwitcher from './components/LanguageSwitcher';
 import { useTelegramWebApp } from './hooks/useTelegramWebApp';
 import { useEmailRequired } from './hooks/useEmailRequired';
+import { useGlobalWebSocket } from './hooks/useGlobalWebSocket';
 
 parseAndSaveSessionId();
 parseAndSaveInviteStart();
@@ -353,7 +354,7 @@ function BottomNavigation() {
 function AppContent() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { userEmail, isAuthenticated, isLoading, setUser, setIsLoading, logout, isSupportUser, setIsSupportUser } = useStore();
+  const { userEmail, isAuthenticated, isLoading, setUser, setIsLoading, logout, isSupportUser, setIsSupportUser, supportUnreadCount, ticketsUnreadCount } = useStore();
   const [roleChecked, setRoleChecked] = useState(false);
   const visibleNavItems = NAV_ITEMS.filter(
     (item) => !item.requiresRole || isSupportUser
@@ -495,6 +496,8 @@ function AppContent() {
       .catch(() => setIsSupportUser(false))
       .finally(() => setRoleChecked(true));
   }, [isAuthenticated, setIsSupportUser]);
+
+  useGlobalWebSocket(isAuthenticated);
 
   useHotkeys([
     ['shift + V', () => setVersionOpen(true)],
@@ -774,12 +777,23 @@ function AppContent() {
               {visibleNavItems.map((item) => {
                 const Icon = item.icon;
                 const isActive = location.pathname === item.path;
+                const unread = item.path === '/support' ? supportUnreadCount
+                  : item.path === '/tickets' ? ticketsUnreadCount : 0;
                 return (
                   <Button
                     key={item.path}
                     component={Link}
                     to={item.path}
-                    leftSection={<Icon size={16} />}
+                    leftSection={
+                      <Box style={{ position: 'relative', display: 'inline-flex' }}>
+                        <Icon size={16} />
+                        {unread > 0 && (
+                          <Badge size="xs" variant="filled" color="red" circle style={{ position: 'absolute', top: -6, right: -8, minWidth: 16, height: 16, fontSize: 9, padding: '0 3px' }}>
+                            {unread}
+                          </Badge>
+                        )}
+                      </Box>
+                    }
                     variant={isActive ? 'light' : 'subtle'}
                     size="xs"
                     radius="md"

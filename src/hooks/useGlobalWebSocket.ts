@@ -1,0 +1,77 @@
+import { useEffect, useRef, useCallback } from 'react';
+import { useStore } from '../store/useStore';
+
+function buildWsUrl(): string {
+  const proto = window.location.protocol === 'https:' ? 'wss' : 'ws';
+  return `${proto}://${window.location.host}/shm_support/v1/ws`;
+}
+
+export function useGlobalWebSocket(enabled: boolean) {
+  const { isSupportUser, incrementSupportUnread, incrementTicketsUnread } = useStore();
+
+  const isSupportUserRef = useRef(isSupportUser);
+  isSupportUserRef.current = isSupportUser;
+
+  const incrementSupportRef = useRef(incrementSupportUnread);
+  incrementSupportRef.current = incrementSupportUnread;
+
+  const incrementTicketsRef = useRef(incrementTicketsUnread);
+  incrementTicketsRef.current = incrementTicketsUnread;
+
+  const wsRef = useRef<WebSocket | null>(null);
+  const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const attemptsRef = useRef(0);
+  const destroyedRef = useRef(false);
+
+  const connect = useCallback(() => {
+    if (!enabled || destroyedRef.current) return;
+
+    const ws = new WebSocket(buildWsUrl());
+    wsRef.current = ws;
+
+    ws.onopen = () => { attemptsRef.current = 0; };
+
+    ws.onmessage = (event) => {
+      try {
+        const msg = JSON.parse(event.data as string) as {
+          type: string;
+          ticketId: string;
+          isSpecialist: boolean;
+        };
+
+        if (msg.type !== 'new_message') return;
+
+        const currentPath = window.location.pathname;
+        if (currentPath.includes(msg.ticketId)) return;
+
+        if (isSupportUserRef.current) {
+          if (!msg.isSpecialist) incrementTicketsRef.current();
+        } else {
+          if (msg.isSpecialist) incrementSupportRef.current();
+        }
+      } catch { /* ignore */ }
+    };
+
+    ws.onclose = (e) => {
+      if (destroyedRef.current) return;
+      if (e.code === 4001 || e.code === 4003) return;
+      const delay = Math.min(1000 * 2 ** attemptsRef.current, 30_000);
+      attemptsRef.current += 1;
+      reconnectTimer.current = setTimeout(connect, delay);
+    };
+
+    ws.onerror = () => {};
+  }, [enabled]);
+
+  useEffect(() => {
+    destroyedRef.current = false;
+    attemptsRef.current = 0;
+    connect();
+
+    return () => {
+      destroyedRef.current = true;
+      if (reconnectTimer.current) clearTimeout(reconnectTimer.current);
+      wsRef.current?.close();
+    };
+  }, [connect]);
+}

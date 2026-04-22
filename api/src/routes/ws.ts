@@ -1,6 +1,10 @@
 import type { FastifyInstance } from 'fastify';
 import { resolveSession } from '../middleware/auth.js';
 import { register, unregister } from '../ws/registry.js';
+import {
+  registerUser, unregisterUser,
+  registerSpecialist, unregisterSpecialist,
+} from '../ws/notifyRegistry.js';
 
 function getCookieValue(cookieHeader: string | undefined, name: string): string | undefined {
   if (!cookieHeader) return undefined;
@@ -54,5 +58,44 @@ export default async function wsRoutes(app: FastifyInstance) {
       clearInterval(pingInterval);
       unregister(ticketId, socket);
     });
+  });
+
+  // Global notification socket — one per logged-in user/specialist
+  app.get('/v1/ws', { websocket: true }, async (socket, req) => {
+    const sessionId =
+      (req.headers['session_id'] as string | undefined) ??
+      getCookieValue(req.headers.cookie, 'session_id');
+
+    if (!sessionId) { socket.close(4001, 'Unauthorized'); return; }
+
+    let authUser: Awaited<ReturnType<typeof resolveSession>>;
+    try {
+      authUser = await resolveSession(sessionId);
+    } catch {
+      socket.close(4001, 'Unauthorized');
+      return;
+    }
+
+    if (authUser.isSpecialist) {
+      registerSpecialist(socket);
+    } else {
+      registerUser(authUser.user_id, socket);
+    }
+
+    const pingInterval = setInterval(() => {
+      if (socket.readyState === 1) socket.ping();
+    }, 30_000);
+
+    const cleanup = () => {
+      clearInterval(pingInterval);
+      if (authUser.isSpecialist) {
+        unregisterSpecialist(socket);
+      } else {
+        unregisterUser(authUser.user_id, socket);
+      }
+    };
+
+    socket.on('close', cleanup);
+    socket.on('error', cleanup);
   });
 }

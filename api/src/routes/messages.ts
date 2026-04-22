@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { requireAuth } from '../middleware/auth.js';
 import { broadcast } from '../ws/registry.js';
+import { notifyUser, notifySpecialists } from '../ws/notifyRegistry.js';
 import { randomUUID } from 'crypto';
 import path from 'path';
 
@@ -76,6 +77,13 @@ export default async function messageRoutes(app: FastifyInstance) {
     }
 
     broadcast(ticketId, { type: 'message', data: { ...message, isOwn: false } });
+
+    const notification = { type: 'new_message', ticketId, isSpecialist };
+    if (isSpecialist) {
+      notifyUser(ticket.userId, notification);
+    } else {
+      notifySpecialists(notification);
+    }
 
     return reply.status(201).send({ ...message, isOwn: true });
   });
