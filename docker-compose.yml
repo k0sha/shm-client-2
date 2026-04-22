@@ -27,6 +27,8 @@ services:
       MINIO_SECRET_KEY: "${MINIO_SECRET_KEY}"
       MINIO_BUCKET: "support"
       CORS_ORIGIN: "${CORS_ORIGIN}"
+      SHM_ADMIN_LOGIN: "${SHM_ADMIN_LOGIN}"
+      SHM_ADMIN_PASSWORD: "${SHM_ADMIN_PASSWORD}"
     depends_on:
       postgres:
         condition: service_healthy
