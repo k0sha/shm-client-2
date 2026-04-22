@@ -92,6 +92,7 @@ export function TicketCreateModal({ opened, onClose, onCreated }: Props) {
           onChange={(e) => setMessage(e.target.value)}
           minRows={4}
           autosize
+          withAsterisk
         />
         {selectedFiles.length > 0 && (
           <Pill.Group>
