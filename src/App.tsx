@@ -462,32 +462,30 @@ function AppContent() {
   useEffect(() => {
     const checkAuth = async () => {
       const token = getCookie();
-
       if (!token) {
         setIsLoading(false);
         return;
       }
-
       try {
         const response = await auth.getCurrentUser();
         const responseData = response.data.data;
         const userData: any = Array.isArray(responseData) ? responseData[0] : responseData;
         setUser(userData);
-        try {
-          const storageRes = await storageApi.get('support_role');
-          setIsSupportUser(storageRes.data === 'specialist');
-        } catch {
-          setIsSupportUser(false);
-        }
       } catch {
         removeCookie();
       } finally {
         setIsLoading(false);
       }
     };
-
     checkAuth();
   }, [setUser, setIsLoading]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    storageApi.get('support_role')
+      .then((res) => setIsSupportUser(!!res.data))
+      .catch(() => setIsSupportUser(false));
+  }, [isAuthenticated, setIsSupportUser]);
 
   useHotkeys([
     ['shift + V', () => setVersionOpen(true)],
