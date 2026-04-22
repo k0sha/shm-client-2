@@ -715,7 +715,7 @@ function AppContent() {
           {emailRequiredModal}
           {verifyRequiredModal}
           {versionModal}
-          <Box style={{ position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column' }}>
+          <Box style={{ position: 'fixed', inset: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
             <WebAppHeader onShowVersion={showVersion} />
             <Box
               px="md"

@@ -3,7 +3,7 @@ import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useMediaQuery } from '@mantine/hooks';
 import {
   Stack, Group, Text, ActionIcon, Textarea, Button,
-  Paper, Box, Select, Badge, ScrollArea, Divider, Collapse, Table, Pill, Loader, Center,
+  Paper, Box, Select, Badge, Divider, Collapse, Table, Pill, Loader, Center,
 } from '@mantine/core';
 import { IconArrowLeft, IconSend, IconChevronDown, IconChevronUp, IconPaperclip, IconFile } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
@@ -420,7 +420,7 @@ export default function SupportTicket() {
       )}
 
       {/* Chat */}
-      <ScrollArea flex={1} viewportRef={scrollRef} style={{ minHeight: 0 }}>
+      <Box ref={scrollRef} style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
         <Stack gap="sm" p="xs">
           {ticket.messages.map((msg) => (
             <MessageBubble
@@ -442,7 +442,7 @@ export default function SupportTicket() {
             </Stack>
           )}
         </Stack>
-      </ScrollArea>
+      </Box>
 
       {/* Reply */}
       {!isClosed && (
