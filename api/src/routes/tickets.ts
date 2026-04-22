@@ -43,9 +43,10 @@ export default async function ticketRoutes(app: FastifyInstance) {
         updatedAt: true,
       },
     });
+    const isOwnView = query.own === 'true';
     return tickets.map((tk) => ({
       ...tk,
-      unread: isSpecialist ? tk.unreadForSpec > 0 : tk.unreadForUser > 0,
+      unread: (isSpecialist && !isOwnView) ? tk.unreadForSpec > 0 : tk.unreadForUser > 0,
     }));
   });
 
