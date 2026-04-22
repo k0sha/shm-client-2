@@ -90,8 +90,8 @@ export default async function ticketRoutes(app: FastifyInstance) {
       return reply.status(403).send({ error: 'Forbidden' });
     }
 
-    // сброс: если смотрит владелец тикета — читает unreadForUser, иначе — unreadForSpec
     const isTicketOwner = ticket.userId === user_id;
+    const wasUnread = isTicketOwner ? ticket.unreadForUser > 0 : ticket.unreadForSpec > 0;
     if (isTicketOwner) {
       if (ticket.unreadForUser > 0) {
         await app.prisma.ticket.update({ where: { id }, data: { unreadForUser: 0 } });
@@ -104,7 +104,7 @@ export default async function ticketRoutes(app: FastifyInstance) {
 
     attachFileUrls(ticket.messages);
     const messagesWithOwn = ticket.messages.map((msg) => ({ ...msg, isOwn: msg.authorId === user_id }));
-    return { ...ticket, unreadForUser: 0, unreadForSpec: 0, messages: messagesWithOwn };
+    return { ...ticket, unreadForUser: 0, unreadForSpec: 0, unread: wasUnread, messages: messagesWithOwn };
   });
 
   // PATCH /v1/tickets/:id

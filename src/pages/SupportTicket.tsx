@@ -337,7 +337,16 @@ export default function SupportTicket() {
     setSending(true);
     try {
       const newMsg = await supportApi.sendMessage(ticket.id, replyText, selectedFiles);
-      setTicket((prev) => prev ? { ...prev, messages: [...prev.messages, newMsg], updatedAt: newMsg.createdAt } : prev);
+      setTicket((prev) => {
+        if (!prev) return prev;
+        const idx = prev.messages.findIndex((m) => m.id === newMsg.id);
+        if (idx !== -1) {
+          const msgs = [...prev.messages];
+          msgs[idx] = newMsg;
+          return { ...prev, messages: msgs, updatedAt: newMsg.createdAt };
+        }
+        return { ...prev, messages: [...prev.messages, newMsg], updatedAt: newMsg.createdAt };
+      });
       setReplyText('');
       setSelectedFiles([]);
     } catch {
