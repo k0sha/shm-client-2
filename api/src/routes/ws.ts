@@ -6,6 +6,23 @@ import {
   registerSpecialist, unregisterSpecialist,
 } from '../ws/notifyRegistry.js';
 
+interface RawWs {
+  readyState: number;
+  send(data: string): void;
+  close(code?: number, reason?: string): void;
+  ping(): void;
+  on(event: string, listener: (...args: unknown[]) => void): unknown;
+}
+
+// @fastify/websocket <=v8 wraps WebSocket in a SocketStream — the real WebSocket is at .socket
+// @fastify/websocket v9+ passes the WebSocket directly
+function extractRawWs(socket: unknown): RawWs {
+  const s = socket as Record<string, unknown>;
+  const inner = s.socket as Record<string, unknown> | undefined;
+  if (inner && typeof inner.readyState === 'number') return inner as unknown as RawWs;
+  return socket as RawWs;
+}
+
 function getCookieValue(cookieHeader: string | undefined, name: string): string | undefined {
   if (!cookieHeader) return undefined;
   for (const part of cookieHeader.split(';')) {
@@ -20,78 +37,78 @@ function getCookieValue(cookieHeader: string | undefined, name: string): string 
 
 export default async function wsRoutes(app: FastifyInstance) {
   app.get('/v1/tickets/:id/ws', { websocket: true }, async (socket, req) => {
+    const raw = extractRawWs(socket);
     const { id: ticketId } = req.params as { id: string };
 
     const sessionId =
-      (req.headers['session_id'] as string | undefined) ??
+      (req.headers['session_id'] as string | undefined) ||
       getCookieValue(req.headers.cookie, 'session_id');
 
-    if (!sessionId) { socket.close(4001, 'Unauthorized'); return; }
+    if (!sessionId) { raw.close(4001, 'Unauthorized'); return; }
 
     let authUser: Awaited<ReturnType<typeof resolveSession>>;
     try {
       authUser = await resolveSession(sessionId);
     } catch {
-      socket.close(4001, 'Unauthorized');
+      raw.close(4001, 'Unauthorized');
       return;
     }
 
     const ticket = await app.prisma.ticket.findUnique({ where: { id: ticketId } });
-    if (!ticket) { socket.close(4004, 'Not found'); return; }
+    if (!ticket) { raw.close(4004, 'Not found'); return; }
     if (!authUser.isSpecialist && ticket.userId !== authUser.user_id) {
-      socket.close(4003, 'Forbidden');
+      raw.close(4003, 'Forbidden');
       return;
     }
 
-    register(ticketId, socket);
+    register(ticketId, raw);
 
     const pingInterval = setInterval(() => {
-      if (socket.readyState === 1) socket.ping();
+      if (raw.readyState === 1) raw.ping();
     }, 30_000);
 
-    socket.on('close', () => {
+    const cleanup = () => {
       clearInterval(pingInterval);
-      unregister(ticketId, socket);
-    });
+      unregister(ticketId, raw);
+    };
 
-    socket.on('error', () => {
-      clearInterval(pingInterval);
-      unregister(ticketId, socket);
-    });
+    socket.on('close', cleanup);
+    socket.on('error', cleanup);
   });
 
-  // Global notification socket — one per logged-in user/specialist
   app.get('/v1/ws', { websocket: true }, async (socket, req) => {
+    const raw = extractRawWs(socket);
+
     const sessionId =
-      (req.headers['session_id'] as string | undefined) ??
+      (req.headers['session_id'] as string | undefined) ||
       getCookieValue(req.headers.cookie, 'session_id');
 
-    if (!sessionId) { socket.close(4001, 'Unauthorized'); return; }
+    if (!sessionId) { raw.close(4001, 'Unauthorized'); return; }
 
     let authUser: Awaited<ReturnType<typeof resolveSession>>;
     try {
       authUser = await resolveSession(sessionId);
     } catch {
-      socket.close(4001, 'Unauthorized');
+      raw.close(4001, 'Unauthorized');
       return;
     }
 
     if (authUser.isSpecialist) {
-      registerSpecialist(socket);
+      registerSpecialist(raw);
     } else {
-      registerUser(authUser.user_id, socket);
+      registerUser(authUser.user_id, raw);
     }
 
     const pingInterval = setInterval(() => {
-      if (socket.readyState === 1) socket.ping();
+      if (raw.readyState === 1) raw.ping();
     }, 30_000);
 
     const cleanup = () => {
       clearInterval(pingInterval);
       if (authUser.isSpecialist) {
-        unregisterSpecialist(socket);
+        unregisterSpecialist(raw);
       } else {
-        unregisterUser(authUser.user_id, socket);
+        unregisterUser(authUser.user_id, raw);
       }
     };
 
