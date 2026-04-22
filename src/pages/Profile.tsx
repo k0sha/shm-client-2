@@ -1,12 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Card, Text, Stack, Group, Divider, Grid, Button, TextInput, Tooltip, ActionIcon, Avatar, Title, Modal, Loader, Center, Collapse, Alert, Skeleton, useMantineColorScheme } from '@mantine/core';
-import { IconUser, IconPhone, IconCopy, IconCheck, IconBrandTelegram, IconCreditCard, IconChevronDown, IconChevronUp, IconMail, IconAlertCircle } from '@tabler/icons-react';
+import { IconUser, IconPhone, IconCopy, IconCheck, IconBrandTelegram, IconCreditCard, IconReceipt, IconChevronDown, IconChevronUp, IconMail, IconAlertCircle } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { useClipboard } from '@mantine/hooks';
 import { useTranslation } from 'react-i18next';
 import { userApi, telegramApi, userEmailApi } from '../api/client';
 import PayModal from '../components/PayModal';
 import PromoModal from '../components/PromoModal';
+import PayHistoryModal from '../components/PayHistoryModal';
+import WithdrawHistoryModal from '../components/WithdrawHistoryModal';
 import SecuritySettings from '../components/security/SecuritySettings';
 import { useStore } from '../store/useStore';
 import { config } from '../config';
@@ -86,6 +88,8 @@ export default function Profile() {
   const [payModalOpen, setPayModalOpen] = useState(false);
   const [payModalAmount, setPayModalAmount] = useState<number | undefined>(undefined);
   const [promoModalOpen, setPromoModalOpen] = useState(false);
+  const [payHistoryOpen, setPayHistoryOpen] = useState(false);
+  const [withdrawHistoryOpen, setWithdrawHistoryOpen] = useState(false);
   const [telegramModalOpen, setTelegramModalOpen] = useState(false);
   const [telegramInput, setTelegramInput] = useState('');
   const [telegramSaving, setTelegramSaving] = useState(false);
@@ -696,9 +700,31 @@ export default function Profile() {
       </>
     )}
 
+      <Card withBorder radius="md" p="lg">
+        <Text fw={500} mb="md">{t('nav.payments')} / {t('nav.withdrawals')}</Text>
+        <Group gap="sm">
+          <Button
+            variant="light"
+            leftSection={<IconCreditCard size={16} />}
+            onClick={() => setPayHistoryOpen(true)}
+          >
+            {t('nav.payments')}
+          </Button>
+          <Button
+            variant="light"
+            leftSection={<IconReceipt size={16} />}
+            onClick={() => setWithdrawHistoryOpen(true)}
+          >
+            {t('nav.withdrawals')}
+          </Button>
+        </Group>
+      </Card>
+
       <SecuritySettings />
 
       <PayModal opened={payModalOpen} onClose={() => setPayModalOpen(false)} initialAmount={payModalAmount} />
+      <PayHistoryModal opened={payHistoryOpen} onClose={() => setPayHistoryOpen(false)} />
+      <WithdrawHistoryModal opened={withdrawHistoryOpen} onClose={() => setWithdrawHistoryOpen(false)} />
 
       <PromoModal
         opened={promoModalOpen}

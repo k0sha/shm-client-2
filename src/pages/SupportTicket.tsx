@@ -388,7 +388,7 @@ export default function SupportTicket() {
       width: '100%',
       alignSelf: 'center',
       display: 'flex', flexDirection: 'column', overflow: 'hidden',
-      paddingBottom: isMobile ? 'calc(92px + env(safe-area-inset-bottom, 0px))' : 'var(--mantine-spacing-md)',
+      paddingBottom: isMobile ? 'calc(112px + env(safe-area-inset-bottom, 0px))' : 'var(--mantine-spacing-md)',
     }}>
       {/* Header */}
       <Group gap="sm" wrap="nowrap">
