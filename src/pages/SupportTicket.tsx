@@ -370,7 +370,7 @@ export default function SupportTicket() {
       position: 'fixed', inset: 0, zIndex: 200,
       display: 'flex', flexDirection: 'column', overflow: 'hidden',
       background: 'var(--mantine-color-body)',
-      paddingBottom: 'calc(var(--mantine-spacing-md) + env(safe-area-inset-bottom, 0px))',
+      paddingBottom: 'calc(92px + env(safe-area-inset-bottom, 0px))',
     }}>
       {/* Header */}
       <Group gap="sm" wrap="nowrap">

@@ -288,7 +288,7 @@ function BottomNavigation({ onPayments, onWithdrawals }: { onPayments: () => voi
         left: 16,
         right: 16,
         paddingBottom: 'env(safe-area-inset-bottom, 0px)',
-        zIndex: 100,
+        zIndex: 300,
       }}
     >
       <Box
