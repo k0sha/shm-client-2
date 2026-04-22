@@ -10,7 +10,7 @@ import { notifications } from '@mantine/notifications';
 import { useComputedColorScheme } from '@mantine/core';
 import { TicketStatusBadge } from '../components/support/TicketStatusBadge';
 import { supportApi } from '../api/supportApi';
-import type { Ticket, TicketMessage, TicketStatus, TicketAttachment, TicketUserInfo } from '../data/mockTickets';
+import type { Ticket, TicketMessage, TicketAttachment, TicketUserInfo } from '../data/mockTickets';
 
 function formatTime(iso: string): string {
   const d = new Date(iso);
