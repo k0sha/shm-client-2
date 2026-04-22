@@ -43,10 +43,9 @@ export default async function ticketRoutes(app: FastifyInstance) {
         updatedAt: true,
       },
     });
-    const isOwnView = query.own === 'true';
     return tickets.map((tk) => ({
       ...tk,
-      unread: (isSpecialist && !isOwnView) ? tk.unreadForSpec > 0 : tk.unreadForUser > 0,
+      unread: tk.userId === user_id ? tk.unreadForUser > 0 : tk.unreadForSpec > 0,
     }));
   });
 
@@ -75,8 +74,6 @@ export default async function ticketRoutes(app: FastifyInstance) {
   app.get('/v1/tickets/:id', { preHandler: requireAuth }, async (req, reply) => {
     const { id } = req.params as { id: string };
     const { user_id, isSpecialist } = req.authUser;
-    const query = req.query as { own?: string };
-    const isOwnView = query.own === 'true';
 
     const ticket = await app.prisma.ticket.findUnique({
       where: { id },
@@ -93,8 +90,9 @@ export default async function ticketRoutes(app: FastifyInstance) {
       return reply.status(403).send({ error: 'Forbidden' });
     }
 
-    // сброс счётчика: own=true → user view, иначе specialist view
-    if (!isSpecialist || isOwnView) {
+    // сброс: если смотрит владелец тикета — читает unreadForUser, иначе — unreadForSpec
+    const isTicketOwner = ticket.userId === user_id;
+    if (isTicketOwner) {
       if (ticket.unreadForUser > 0) {
         await app.prisma.ticket.update({ where: { id }, data: { unreadForUser: 0 } });
       }

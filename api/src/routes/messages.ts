@@ -58,12 +58,15 @@ export default async function messageRoutes(app: FastifyInstance) {
       include: { attachments: true },
     });
 
+    const isTicketOwner = ticket.userId === user_id;
     await app.prisma.ticket.update({
       where: { id: ticketId },
       data: {
         updatedAt: new Date(),
         lastMessage: text.trim() || undefined,
-        ...(isSpecialist ? { unreadForUser: { increment: 1 } } : { unreadForSpec: { increment: 1 } }),
+        ...(isTicketOwner
+          ? { unreadForSpec: { increment: 1 }, unreadForUser: 0 }
+          : { unreadForUser: { increment: 1 }, unreadForSpec: 0 }),
       },
     });
 
