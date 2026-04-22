@@ -765,7 +765,6 @@ function AppContent() {
   }
 
   const appShellMaxWidth = 1200;
-  const appShellOffset = `max(0px, calc(50% - ${appShellMaxWidth / 2}px))`;
 
   return (
     <>
@@ -777,18 +776,12 @@ function AppContent() {
         padding="md"
         styles={{
           header: {
-            left: appShellOffset,
-            right: appShellOffset,
             borderBottom: 0,
-            opacity: 100,
-          },
-          main: {
-            paddingLeft: `calc(var(--app-shell-padding) + var(--app-shell-navbar-offset, 0px) + ${appShellOffset})`,
-            paddingRight: `calc(var(--app-shell-padding) + ${appShellOffset})`,
           },
         }}
       >
         <AppShell.Header>
+          <Box style={{ maxWidth: appShellMaxWidth, margin: '0 auto', height: '100%' }}>
           <Group h="100%" px="md" justify="space-between" wrap="nowrap">
             <Group gap="xs" onClick={() => navigate('/')} style={{ cursor: 'pointer' }} {...longPressProps}>
               {config.LOGO_URL && (
@@ -862,18 +855,21 @@ function AppContent() {
             )}
             </Group>
           </Group>
+          </Box>
         </AppShell.Header>
 
         <AppShell.Main>
-          <Routes>
-            <Route path="/" element={<Services />} />
-            <Route path="/profile" element={<Profile />} />
-            {isSupportUser && <Route path="/support" element={<Support />} />}
-            {isSupportUser && <Route path="/support/:ticketId" element={<SupportTicket />} />}
-            {isSupportUser && <Route path="/tickets" element={<Tickets />} />}
-            {isSupportUser && <Route path="/tickets/:ticketId" element={<SupportTicket />} />}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <Box style={{ maxWidth: appShellMaxWidth, margin: '0 auto' }}>
+            <Routes>
+              <Route path="/" element={<Services />} />
+              <Route path="/profile" element={<Profile />} />
+              {isSupportUser && <Route path="/support" element={<Support />} />}
+              {isSupportUser && <Route path="/support/:ticketId" element={<SupportTicket />} />}
+              {isSupportUser && <Route path="/tickets" element={<Tickets />} />}
+              {isSupportUser && <Route path="/tickets/:ticketId" element={<SupportTicket />} />}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Box>
         </AppShell.Main>
       </AppShell>
       <PayHistoryModal opened={payHistoryOpen} onClose={() => setPayHistoryOpen(false)} />

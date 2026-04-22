@@ -368,15 +368,26 @@ export default function SupportTicket() {
   ];
 
   return (
-    <Stack gap="md" p="md" style={{
+    <Box style={{
       position: 'fixed',
       top: isMobile ? 0 : 60,
-      left: isMobile ? 0 : 'max(0px, calc(50% - 600px))',
-      right: isMobile ? 0 : 'max(0px, calc(50% - 600px))',
+      left: 0,
+      right: 0,
       bottom: 0,
       zIndex: 200,
-      display: 'flex', flexDirection: 'column', overflow: 'hidden',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'stretch',
+      overflow: 'hidden',
       background: 'var(--mantine-color-body)',
+    }}>
+    <Stack gap="md" p="md" style={{
+      flex: 1,
+      minHeight: 0,
+      maxWidth: isMobile ? undefined : 1200,
+      width: '100%',
+      alignSelf: 'center',
+      display: 'flex', flexDirection: 'column', overflow: 'hidden',
       paddingBottom: isMobile ? 'calc(92px + env(safe-area-inset-bottom, 0px))' : 'var(--mantine-spacing-md)',
     }}>
       {/* Header */}
@@ -501,5 +512,6 @@ export default function SupportTicket() {
         </Paper>
       )}
     </Stack>
+    </Box>
   );
 }
