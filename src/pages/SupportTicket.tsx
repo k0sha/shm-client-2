@@ -493,20 +493,19 @@ export default function SupportTicket() {
           />
           <input ref={fileInputRef} type="file" multiple style={{ display: 'none' }} onChange={handleFileSelect} />
           <Group justify="space-between" mt="xs">
-            <ActionIcon size="sm" variant="default" onClick={() => fileInputRef.current?.click()}>
-              <IconPaperclip size={14} />
+            <ActionIcon size="lg" variant="subtle" color="gray" onClick={() => fileInputRef.current?.click()}>
+              <IconPaperclip size={20} />
             </ActionIcon>
-            <Group gap="xs">
-              <Text size="xs" c="dimmed">{t('tickets.enterToSend')}</Text>
-              <ActionIcon
-                size="sm" variant="filled"
-                onClick={handleSend}
-                loading={sending}
-                disabled={!replyText.trim() && selectedFiles.length === 0}
-              >
-                <IconSend size={14} />
-              </ActionIcon>
-            </Group>
+            <Button
+              variant="filled"
+              size="sm"
+              leftSection={<IconSend size={15} />}
+              onClick={handleSend}
+              loading={sending}
+              disabled={!replyText.trim() && selectedFiles.length === 0}
+            >
+              {t('tickets.send')}
+            </Button>
           </Group>
         </Paper>
       )}
