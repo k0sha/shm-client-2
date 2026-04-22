@@ -16,7 +16,7 @@ async function resolveSession(sessionId: string): Promise<AuthUser> {
   const cached = cache.get(sessionId);
   if (cached && cached.expiresAt > Date.now()) return cached.user;
 
-  const headers = { session_id: sessionId };
+  const headers = { Cookie: `session_id=${sessionId}` };
   const timeout = 4000;
 
   const [userRes, roleRes] = await Promise.allSettled([
