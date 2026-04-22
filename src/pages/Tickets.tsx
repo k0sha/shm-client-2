@@ -92,7 +92,7 @@ export default function Tickets() {
   }, []);
 
   useEffect(() => {
-    const handler = (e: Event) => {
+    const onNew = (e: Event) => {
       const { ticketId, isSpecialist } = (e as CustomEvent<{ ticketId: string; isSpecialist: boolean }>).detail;
       if (isSpecialist) return;
       setAllTickets((prev) => {
@@ -102,8 +102,16 @@ export default function Tickets() {
         return [ticket, ...prev.filter((_, i) => i !== idx)];
       });
     };
-    window.addEventListener('ticket:new_message', handler);
-    return () => window.removeEventListener('ticket:new_message', handler);
+    const onOpened = (e: Event) => {
+      const { ticketId } = (e as CustomEvent<{ ticketId: string }>).detail;
+      setAllTickets((prev) => prev.map((t) => t.id === ticketId ? { ...t, unread: false } : t));
+    };
+    window.addEventListener('ticket:new_message', onNew);
+    window.addEventListener('ticket:opened', onOpened);
+    return () => {
+      window.removeEventListener('ticket:new_message', onNew);
+      window.removeEventListener('ticket:opened', onOpened);
+    };
   }, []);
 
   function filter(statuses?: TicketStatus[]): Ticket[] {

@@ -41,6 +41,8 @@ interface AppState {
   setTicketsUnreadCount: (n: number) => void;
   incrementSupportUnread: () => void;
   incrementTicketsUnread: () => void;
+  decrementSupportUnread: () => void;
+  decrementTicketsUnread: () => void;
   openVerifyModal: boolean;
   setOpenVerifyModal: (open: boolean) => void;
   logout: () => void;
@@ -87,6 +89,8 @@ export const useStore = create<AppState>((set) => ({
   setTicketsUnreadCount: (n: number) => set({ ticketsUnreadCount: n }),
   incrementSupportUnread: () => set((s) => ({ supportUnreadCount: s.supportUnreadCount + 1 })),
   incrementTicketsUnread: () => set((s) => ({ ticketsUnreadCount: s.ticketsUnreadCount + 1 })),
+  decrementSupportUnread: () => set((s) => ({ supportUnreadCount: Math.max(0, s.supportUnreadCount - 1) })),
+  decrementTicketsUnread: () => set((s) => ({ ticketsUnreadCount: Math.max(0, s.ticketsUnreadCount - 1) })),
   setOpenVerifyModal: (open) => set({ openVerifyModal: open }),
   logout: () => {
     removeCookie();

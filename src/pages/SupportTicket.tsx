@@ -12,6 +12,7 @@ import { useComputedColorScheme } from '@mantine/core';
 import { TicketStatusBadge } from '../components/support/TicketStatusBadge';
 import { supportApi } from '../api/supportApi';
 import { useTicketWebSocket } from '../hooks/useTicketWebSocket';
+import { useStore } from '../store/useStore';
 import type { Ticket, TicketMessage, TicketAttachment, TicketUserInfo } from '../data/mockTickets';
 
 function formatTime(iso: string): string {
@@ -259,6 +260,8 @@ export default function SupportTicket() {
   const isSpecialistView = location.pathname.startsWith('/tickets/');
   const isMobile = useMediaQuery('(max-width: 768px)') ?? true;
 
+  const { decrementSupportUnread, decrementTicketsUnread } = useStore();
+
   const [ticket, setTicket] = useState<Ticket | undefined>();
   const [loading, setLoading] = useState(true);
   const [replyText, setReplyText] = useState('');
@@ -266,6 +269,7 @@ export default function SupportTicket() {
   const [sending, setSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const markedReadRef = useRef(false);
 
   const handleWsMessage = useCallback((msg: TicketMessage) => {
     setTicket((prev) => {
@@ -279,11 +283,25 @@ export default function SupportTicket() {
 
   useEffect(() => {
     if (!ticketId) return;
+    markedReadRef.current = false;
     supportApi.getTicket(ticketId, !isSpecialistView)
       .then(setTicket)
       .catch(() => setTicket(undefined))
       .finally(() => setLoading(false));
   }, [ticketId]);
+
+  useEffect(() => {
+    if (!ticket || markedReadRef.current) return;
+    markedReadRef.current = true;
+    if (ticket.unread) {
+      if (isSpecialistView) {
+        decrementTicketsUnread();
+      } else {
+        decrementSupportUnread();
+      }
+    }
+    window.dispatchEvent(new CustomEvent('ticket:opened', { detail: { ticketId: ticket.id } }));
+  }, [ticket?.id]);
 
   useEffect(() => {
     if (scrollRef.current) {

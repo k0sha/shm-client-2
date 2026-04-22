@@ -57,8 +57,10 @@ export function useTicketWebSocket(
 
     ws.onclose = (e) => {
       if (destroyedRef.current) return;
-      if (e.code === 4001 || e.code === 4003 || e.code === 4004) return;
-      const delay = Math.min(1000 * 2 ** attemptsRef.current, 30_000);
+      if (e.code === 4004) return;
+      const delay = (e.code === 4001 || e.code === 4003)
+        ? 60_000
+        : Math.min(1000 * 2 ** attemptsRef.current, 30_000);
       attemptsRef.current += 1;
       reconnectTimer.current = setTimeout(connect, delay);
     };

@@ -60,8 +60,9 @@ export function useGlobalWebSocket(enabled: boolean) {
 
     ws.onclose = (e) => {
       if (destroyedRef.current) return;
-      if (e.code === 4001 || e.code === 4003) return;
-      const delay = Math.min(1000 * 2 ** attemptsRef.current, 30_000);
+      const delay = (e.code === 4001 || e.code === 4003)
+        ? 60_000
+        : Math.min(1000 * 2 ** attemptsRef.current, 30_000);
       attemptsRef.current += 1;
       reconnectTimer.current = setTimeout(connect, delay);
     };
