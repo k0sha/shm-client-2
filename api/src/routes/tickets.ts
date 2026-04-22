@@ -17,10 +17,10 @@ export default async function ticketRoutes(app: FastifyInstance) {
   // GET /v1/tickets
   app.get('/v1/tickets', { preHandler: requireAuth }, async (req) => {
     const { user_id, isSpecialist } = req.authUser;
-    const query = req.query as { status?: string };
+    const query = req.query as { status?: string; own?: string };
 
     const where: Record<string, unknown> = {};
-    if (!isSpecialist) where.userId = user_id;
+    if (!isSpecialist || query.own === 'true') where.userId = user_id;
     if (query.status) where.status = query.status;
 
     return app.prisma.ticket.findMany({

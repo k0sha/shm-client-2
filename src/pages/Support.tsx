@@ -65,7 +65,7 @@ export default function Support() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supportApi.listTickets()
+    supportApi.listTickets({ own: true })
       .then(setTickets)
       .finally(() => setLoading(false));
   }, []);

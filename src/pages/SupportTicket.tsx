@@ -316,11 +316,14 @@ export default function SupportTicket() {
     }
   };
 
+  const applyTicketUpdate = (updated: Ticket) => {
+    setTicket((prev) => prev ? { ...prev, ...updated, messages: prev.messages } : prev);
+  };
+
   const handleStatusChange = async (newStatus: string | null) => {
     if (!newStatus) return;
     try {
-      const updated = await supportApi.updateTicket(ticket.id, { status: newStatus });
-      setTicket(updated);
+      applyTicketUpdate(await supportApi.updateTicket(ticket.id, { status: newStatus }));
       notifications.show({ color: 'green', message: t('tickets.statusChanged') });
     } catch {
       notifications.show({ color: 'red', message: t('common.error') });
@@ -329,8 +332,7 @@ export default function SupportTicket() {
 
   const handleTakeTicket = async () => {
     try {
-      const updated = await supportApi.updateTicket(ticket.id, { take: true });
-      setTicket(updated);
+      applyTicketUpdate(await supportApi.updateTicket(ticket.id, { take: true }));
       notifications.show({ color: 'green', message: t('tickets.takenIntoWork') });
     } catch {
       notifications.show({ color: 'red', message: t('common.error') });
@@ -339,8 +341,7 @@ export default function SupportTicket() {
 
   const handleCloseTicket = async () => {
     try {
-      const updated = await supportApi.updateTicket(ticket.id, { status: 'closed' });
-      setTicket(updated);
+      applyTicketUpdate(await supportApi.updateTicket(ticket.id, { status: 'closed' }));
       notifications.show({ color: 'green', message: t('tickets.ticketClosed') });
     } catch {
       notifications.show({ color: 'red', message: t('common.error') });
@@ -349,8 +350,7 @@ export default function SupportTicket() {
 
   const handleReopenTicket = async () => {
     try {
-      const updated = await supportApi.updateTicket(ticket.id, { status: 'open' });
-      setTicket(updated);
+      applyTicketUpdate(await supportApi.updateTicket(ticket.id, { status: 'open' }));
       notifications.show({ color: 'blue', message: t('tickets.ticketReopened') });
     } catch {
       notifications.show({ color: 'red', message: t('common.error') });

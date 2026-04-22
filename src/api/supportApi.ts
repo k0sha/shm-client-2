@@ -56,7 +56,7 @@ function transformTicket(t: Record<string, unknown>): Ticket {
 // --- API ---
 
 export const supportApi = {
-  listTickets: async (params?: { status?: string }): Promise<Ticket[]> => {
+  listTickets: async (params?: { status?: string; own?: boolean }): Promise<Ticket[]> => {
     const res = await client.get('/tickets', { params });
     return (res.data as Record<string, unknown>[]).map(transformTicket);
   },
