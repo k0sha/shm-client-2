@@ -709,8 +709,15 @@ function AppContent() {
         {emailRequiredModal}
         {verifyRequiredModal}
         {versionModal}
-        <Box style={{ minHeight: '100vh', paddingBottom: 100 }}>
+        <Box style={{
+          position: 'fixed', top: 0, left: 0, right: 0,
+          zIndex: 300,
+          background: 'var(--mantine-color-body)',
+          borderBottom: '1px solid var(--mantine-color-default-border)',
+        }}>
           <WebAppHeader onShowVersion={showVersion} />
+        </Box>
+        <Box style={{ minHeight: '100vh', paddingTop: 60, paddingBottom: 110 }}>
           <Box px="md">
             <Routes>
               <Route path="/" element={<Services />} />
@@ -722,8 +729,8 @@ function AppContent() {
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Box>
-          <BottomNavigation />
         </Box>
+        <BottomNavigation />
       </>
     );
   }

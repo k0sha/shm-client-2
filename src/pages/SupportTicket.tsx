@@ -370,7 +370,7 @@ export default function SupportTicket() {
   return (
     <Box style={{
       position: 'fixed',
-      top: isMobile ? 0 : 60,
+      top: 60,
       left: 0,
       right: 0,
       bottom: 0,
@@ -483,6 +483,7 @@ export default function SupportTicket() {
             minRows={1}
             autosize
             maxRows={6}
+            styles={{ input: { fontSize: 16 } }}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
