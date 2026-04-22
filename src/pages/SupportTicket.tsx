@@ -371,7 +371,9 @@ export default function SupportTicket() {
     <Stack gap="md" p="md" style={{
       position: 'fixed',
       top: isMobile ? 0 : 60,
-      left: 0, right: 0, bottom: 0,
+      left: isMobile ? 0 : 'max(0px, calc(50% - 600px))',
+      right: isMobile ? 0 : 'max(0px, calc(50% - 600px))',
+      bottom: 0,
       zIndex: 200,
       display: 'flex', flexDirection: 'column', overflow: 'hidden',
       background: 'var(--mantine-color-body)',
