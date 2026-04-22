@@ -63,8 +63,8 @@ export const supportApi = {
     return (res.data as Record<string, unknown>[]).map(transformTicket);
   },
 
-  getTicket: async (id: string): Promise<Ticket> => {
-    const res = await client.get(`/tickets/${id}`);
+  getTicket: async (id: string, own?: boolean): Promise<Ticket> => {
+    const res = await client.get(`/tickets/${id}`, { params: own ? { own: 'true' } : undefined });
     return transformTicket(res.data as Record<string, unknown>);
   },
 

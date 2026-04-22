@@ -266,7 +266,7 @@ export default function SupportTicket() {
 
   useEffect(() => {
     if (!ticketId) return;
-    supportApi.getTicket(ticketId)
+    supportApi.getTicket(ticketId, !isSpecialistView)
       .then(setTicket)
       .catch(() => setTicket(undefined))
       .finally(() => setLoading(false));

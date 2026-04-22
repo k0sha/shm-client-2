@@ -75,6 +75,8 @@ export default async function ticketRoutes(app: FastifyInstance) {
   app.get('/v1/tickets/:id', { preHandler: requireAuth }, async (req, reply) => {
     const { id } = req.params as { id: string };
     const { user_id, isSpecialist } = req.authUser;
+    const query = req.query as { own?: string };
+    const isOwnView = query.own === 'true';
 
     const ticket = await app.prisma.ticket.findUnique({
       where: { id },
@@ -91,11 +93,15 @@ export default async function ticketRoutes(app: FastifyInstance) {
       return reply.status(403).send({ error: 'Forbidden' });
     }
 
-    // сброс счётчика непрочитанных для текущего зрителя
-    if (isSpecialist && ticket.unreadForSpec > 0) {
-      await app.prisma.ticket.update({ where: { id }, data: { unreadForSpec: 0 } });
-    } else if (!isSpecialist && ticket.unreadForUser > 0) {
-      await app.prisma.ticket.update({ where: { id }, data: { unreadForUser: 0 } });
+    // сброс счётчика: own=true → user view, иначе specialist view
+    if (!isSpecialist || isOwnView) {
+      if (ticket.unreadForUser > 0) {
+        await app.prisma.ticket.update({ where: { id }, data: { unreadForUser: 0 } });
+      }
+    } else {
+      if (ticket.unreadForSpec > 0) {
+        await app.prisma.ticket.update({ where: { id }, data: { unreadForSpec: 0 } });
+      }
     }
 
     attachFileUrls(ticket.messages);
