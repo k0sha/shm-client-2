@@ -22,6 +22,7 @@ function displayUser(ticket: Ticket): string {
   if (email && tg) return `${tg} · ${email}`;
   if (email) return email;
   if (tg) return tg;
+  if (ticket.userLogin) return ticket.userLogin;
   return `#${ticket.userId}`;
 }
 

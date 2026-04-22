@@ -72,6 +72,7 @@ function resolveAuthorLabel(msg: TicketMessage, ticket: Ticket): string {
   if (tg && email) return `${tg} · ${email}`;
   if (tg) return tg;
   if (email) return email;
+  if (ticket.userLogin) return ticket.userLogin;
   return msg.authorName;
 }
 
