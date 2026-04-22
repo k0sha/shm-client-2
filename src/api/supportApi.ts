@@ -50,6 +50,7 @@ function transformTicket(t: Record<string, unknown>): Ticket {
     userFullName: t.userFullName as string | undefined,
     assignedTo: t.assignedTo as string | undefined,
     lastMessage: t.lastMessage as string | undefined,
+    unread: t.unread as boolean | undefined,
     messages: (t.messages as Record<string, unknown>[])?.map(transformMessage) ?? [],
   };
 }
