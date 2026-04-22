@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useMediaQuery } from '@mantine/hooks';
 import {
   Stack, Group, Text, ActionIcon, Textarea, Button,
   Paper, Box, Select, Badge, Divider, Collapse, Table, Pill, Loader, Center,
@@ -255,6 +256,7 @@ export default function SupportTicket() {
   const location = useLocation();
   const { t } = useTranslation();
   const isSpecialistView = location.pathname.startsWith('/tickets/');
+  const isMobile = useMediaQuery('(max-width: 768px)') ?? true;
 
   const [ticket, setTicket] = useState<Ticket | undefined>();
   const [loading, setLoading] = useState(true);
@@ -367,10 +369,13 @@ export default function SupportTicket() {
 
   return (
     <Stack gap="md" p="md" style={{
-      position: 'fixed', inset: 0, zIndex: 200,
+      position: 'fixed',
+      top: isMobile ? 0 : 60,
+      left: 0, right: 0, bottom: 0,
+      zIndex: 200,
       display: 'flex', flexDirection: 'column', overflow: 'hidden',
       background: 'var(--mantine-color-body)',
-      paddingBottom: 'calc(92px + env(safe-area-inset-bottom, 0px))',
+      paddingBottom: isMobile ? 'calc(92px + env(safe-area-inset-bottom, 0px))' : 'var(--mantine-spacing-md)',
     }}>
       {/* Header */}
       <Group gap="sm" wrap="nowrap">
