@@ -1,6 +1,12 @@
 export type TicketStatus = 'open' | 'in_progress' | 'waiting' | 'resolved' | 'closed';
 export type TicketType = 'vpn' | 'setup' | 'payment' | 'account' | 'other';
 
+export interface ShmListResponse<T> {
+  data: T[];
+  items: number;
+  status: number;
+}
+
 export interface ShmUser {
   user_id: number;
   login: string;

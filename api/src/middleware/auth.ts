@@ -1,6 +1,6 @@
 import type { FastifyRequest, FastifyReply } from 'fastify';
 import axios from 'axios';
-import type { AuthUser, ShmUser } from '../types/index.js';
+import type { AuthUser, ShmListResponse, ShmUser } from '../types/index.js';
 
 const SHM_INTERNAL_URL = process.env.SHM_INTERNAL_URL ?? 'http://host.docker.internal:8082';
 const CACHE_TTL_MS = 30_000;
@@ -20,7 +20,7 @@ async function resolveSession(sessionId: string): Promise<AuthUser> {
   const timeout = 4000;
 
   const [userRes, roleRes] = await Promise.allSettled([
-    axios.get<ShmUser>(`${SHM_INTERNAL_URL}/shm/v1/user`, { headers, timeout }),
+    axios.get<ShmListResponse<ShmUser>>(`${SHM_INTERNAL_URL}/shm/v1/user`, { headers, timeout }),
     axios.get(`${SHM_INTERNAL_URL}/shm/v1/storage/manage/support_role`, { headers, timeout }),
   ]);
 
@@ -33,8 +33,8 @@ async function resolveSession(sessionId: string): Promise<AuthUser> {
     throw new Error('unauthorized');
   }
 
-  const shmUser = userRes.value.data;
-  console.log('[auth] SHM user response:', JSON.stringify(shmUser));
+  const shmUser = userRes.value.data.data[0];
+  if (!shmUser) throw new Error('unauthorized');
   const isSpecialist = roleRes.status === 'fulfilled' && !!roleRes.value.data;
 
   const user: AuthUser = {
