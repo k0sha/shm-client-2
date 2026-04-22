@@ -53,7 +53,7 @@ export function useGlobalWebSocket(enabled: boolean) {
         }
 
         window.dispatchEvent(
-          new CustomEvent('ticket:new_message', { detail: { ticketId: msg.ticketId, isSpecialist: msg.isSpecialist } })
+          new CustomEvent('ticket:new_message', { detail: { ticketId: msg.ticketId, isSpecialist: msg.isSpecialist, target: msg.target } })
         );
       } catch { /* ignore */ }
     };

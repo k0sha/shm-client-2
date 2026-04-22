@@ -97,8 +97,9 @@ export default function Tickets() {
 
   useEffect(() => {
     const onNew = (e: Event) => {
-      const { ticketId, isSpecialist } = (e as CustomEvent<{ ticketId: string; isSpecialist: boolean }>).detail;
-      if (isSpecialist) return;
+      const { ticketId, target, isSpecialist } = (e as CustomEvent<{ ticketId: string; isSpecialist: boolean; target?: string }>).detail;
+      const forSpecialist = target === 'specialist' || (target == null && !isSpecialist);
+      if (!forSpecialist) return;
       setAllTickets((prev) => {
         const idx = prev.findIndex((t) => t.id === ticketId);
         if (idx === -1) return prev;
