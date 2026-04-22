@@ -37,6 +37,7 @@ function TicketCard({ ticket }: { ticket: Ticket }) {
             {ticket.unread && (
               <Box style={{ width: 8, height: 8, borderRadius: '50%', flexShrink: 0, background: 'var(--mantine-color-blue-6)' }} />
             )}
+            {ticket.number && <Text size="xs" c="dimmed" style={{ flexShrink: 0 }}>#{ticket.number}</Text>}
             <Text fw={ticket.unread ? 700 : 500} size="sm" truncate>
               {t(`tickets.ticketType.${ticket.type}`)}
             </Text>
@@ -77,6 +78,7 @@ export default function Support() {
 
   const activeTickets = tickets.filter((tk) => ACTIVE_STATUSES.has(tk.status));
   const closedTickets = tickets.filter((tk) => CLOSED_STATUSES.has(tk.status));
+  const openCount = tickets.filter((tk) => tk.status === 'open').length;
 
   if (loading) {
     return <Center py="xl"><Loader /></Center>;
@@ -95,8 +97,8 @@ export default function Support() {
         <Tabs.List>
           <Tabs.Tab
             value="active"
-            rightSection={activeTickets.length > 0
-              ? <Badge size="xs" variant="filled" color="blue" circle>{activeTickets.length}</Badge>
+            rightSection={openCount > 0
+              ? <Badge size="xs" variant="filled" color="blue" circle>{openCount}</Badge>
               : undefined}
           >
             {t('tickets.tabActive')}

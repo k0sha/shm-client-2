@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
+import { useMediaQuery } from '@mantine/hooks';
 import {
   Stack, Group, Text, ActionIcon, Textarea, Button,
   Paper, Box, Select, Badge, ScrollArea, Divider, Collapse, Table, Pill, Loader, Center,
@@ -255,6 +256,7 @@ export default function SupportTicket() {
   const location = useLocation();
   const { t } = useTranslation();
   const isSpecialistView = location.pathname.startsWith('/tickets/');
+  const isMobile = useMediaQuery('(max-width: 768px)') ?? false;
 
   const [ticket, setTicket] = useState<Ticket | undefined>();
   const [loading, setLoading] = useState(true);
@@ -373,21 +375,18 @@ export default function SupportTicket() {
           <IconArrowLeft size={18} />
         </ActionIcon>
         <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
-          <Group gap="xs" wrap="nowrap">
+          <Group gap="xs" wrap="nowrap" align="center">
+            <Text size="xs" c="dimmed" style={{ flexShrink: 0 }}>
+              #{ticket.number ?? ticket.id.slice(0, 8)}
+            </Text>
             <Text fw={700} size="lg" truncate style={{ minWidth: 0 }}>
               {t(`tickets.ticketType.${ticket.type}`)}
             </Text>
             <TicketStatusBadge status={ticket.status} />
           </Group>
-          <Group gap="xs">
-            <Text size="xs" c="dimmed">#{ticket.number ?? ticket.id.slice(0, 8)}</Text>
-            {ticket.assignedTo && (
-              <>
-                <Text size="xs" c="dimmed">·</Text>
-                <Text size="xs" c="dimmed">🛡 {ticket.assignedTo}</Text>
-              </>
-            )}
-          </Group>
+          {ticket.assignedTo && (
+            <Text size="xs" c="dimmed">🛡 {ticket.assignedTo}</Text>
+          )}
         </Stack>
         {!isSpecialistView && !isClosed && (
           <Button size="xs" variant="light" color="red" onClick={handleCloseTicket} style={{ flexShrink: 0 }}>
@@ -447,7 +446,7 @@ export default function SupportTicket() {
 
       {/* Reply */}
       {!isClosed && (
-        <Paper withBorder radius="md" p="sm">
+        <Paper withBorder radius="md" p="sm" style={{ marginBottom: isMobile ? 92 : 0 }}>
           {selectedFiles.length > 0 && (
             <Pill.Group mb="xs">
               {selectedFiles.map((file, i) => (

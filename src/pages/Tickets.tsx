@@ -39,6 +39,7 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
             {ticket.unread && (
               <Badge size="xs" variant="filled" color="blue" circle style={{ flexShrink: 0 }}>·</Badge>
             )}
+            {ticket.number && <Text size="xs" c="dimmed" style={{ flexShrink: 0 }}>#{ticket.number}</Text>}
             <Text fw={500} size="sm" truncate>{t(`tickets.ticketType.${ticket.type}`)}</Text>
           </Group>
           <Group gap="xs" wrap="wrap">
@@ -102,7 +103,7 @@ export default function Tickets() {
     });
   }
 
-  const newCount = allTickets.filter((tk) => tk.status === 'open' && !tk.assignedTo).length;
+  const newCount = allTickets.filter((tk) => tk.status === 'open').length;
 
   if (loading) return <Center py="xl"><Loader /></Center>;
 

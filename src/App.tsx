@@ -707,14 +707,26 @@ function AppContent() {
   );
 
   if (isTelegramWebAppRuntime || isMobile) {
+    const isChatPage = isSupportUser && /\/(support|tickets)\/.+/.test(location.pathname);
     return (
       <>
         {emailRequiredModal}
         {verifyRequiredModal}
         {versionModal}
-        <Box style={{ minHeight: '100vh', paddingBottom: 100 }}>
+        <Box style={{
+          height: isChatPage ? '100dvh' : undefined,
+          minHeight: isChatPage ? undefined : '100vh',
+          paddingBottom: isChatPage ? 0 : 100,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: isChatPage ? 'hidden' : undefined,
+        }}>
           <WebAppHeader onShowVersion={showVersion} />
-          <Box px="md">
+          <Box px="md" style={{
+            flex: 1,
+            minHeight: 0,
+            overflow: isChatPage ? 'hidden' : undefined,
+          }}>
             <Routes>
               <Route path="/" element={<Services />} />
               <Route path="/profile" element={<Profile />} />
