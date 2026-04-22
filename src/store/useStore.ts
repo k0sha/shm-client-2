@@ -27,6 +27,7 @@ interface AppState {
   isSupportUser: boolean;
   supportUnreadCount: number;
   ticketsUnreadCount: number;
+  openedTicketIds: Set<string>;
 
   setUser: (user: User | null) => void;
   setUserEmail: (email: string | null) => void;
@@ -43,6 +44,8 @@ interface AppState {
   incrementTicketsUnread: () => void;
   decrementSupportUnread: () => void;
   decrementTicketsUnread: () => void;
+  markTicketOpened: (ticketId: string) => void;
+  clearOpenedTickets: () => void;
   openVerifyModal: boolean;
   setOpenVerifyModal: (open: boolean) => void;
   logout: () => void;
@@ -61,6 +64,7 @@ export const useStore = create<AppState>((set) => ({
   isSupportUser: false,
   supportUnreadCount: 0,
   ticketsUnreadCount: 0,
+  openedTicketIds: new Set<string>(),
   openVerifyModal: false,
 
   setUser: (user) => set({
@@ -91,6 +95,8 @@ export const useStore = create<AppState>((set) => ({
   incrementTicketsUnread: () => set((s) => ({ ticketsUnreadCount: s.ticketsUnreadCount + 1 })),
   decrementSupportUnread: () => set((s) => ({ supportUnreadCount: Math.max(0, s.supportUnreadCount - 1) })),
   decrementTicketsUnread: () => set((s) => ({ ticketsUnreadCount: Math.max(0, s.ticketsUnreadCount - 1) })),
+  markTicketOpened: (ticketId: string) => set((s) => ({ openedTicketIds: new Set([...s.openedTicketIds, ticketId]) })),
+  clearOpenedTickets: () => set({ openedTicketIds: new Set<string>() }),
   setOpenVerifyModal: (open) => set({ openVerifyModal: open }),
   logout: () => {
     removeCookie();

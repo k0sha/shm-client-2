@@ -14,8 +14,8 @@ interface RawWs {
   on(event: string, listener: (...args: unknown[]) => void): unknown;
 }
 
-// @fastify/websocket <=v8 wraps WebSocket in a SocketStream — the real WebSocket is at .socket
-// @fastify/websocket v9+ passes the WebSocket directly
+// @fastify/websocket <=v8 wraps WebSocket in SocketStream (.socket = actual WebSocket)
+// @fastify/websocket v9+ passes WebSocket directly
 function extractRawWs(socket: unknown): RawWs {
   const s = socket as Record<string, unknown>;
   const inner = s.socket as Record<string, unknown> | undefined;
@@ -67,13 +67,17 @@ export default async function wsRoutes(app: FastifyInstance) {
       if (raw.readyState === 1) raw.ping();
     }, 30_000);
 
-    const cleanup = () => {
-      clearInterval(pingInterval);
-      unregister(ticketId, raw);
-    };
-
-    socket.on('close', cleanup);
-    socket.on('error', cleanup);
+    // Держим промис живым до закрытия сокета.
+    // Без этого async-хендлер завершается и @fastify/websocket закрывает соединение.
+    await new Promise<void>((resolve) => {
+      const cleanup = () => {
+        clearInterval(pingInterval);
+        unregister(ticketId, raw);
+        resolve();
+      };
+      socket.on('close', cleanup);
+      socket.on('error', cleanup);
+    });
   });
 
   app.get('/v1/ws', { websocket: true }, async (socket, req) => {
@@ -103,16 +107,18 @@ export default async function wsRoutes(app: FastifyInstance) {
       if (raw.readyState === 1) raw.ping();
     }, 30_000);
 
-    const cleanup = () => {
-      clearInterval(pingInterval);
-      if (authUser.isSpecialist) {
-        unregisterSpecialist(raw);
-      } else {
-        unregisterUser(authUser.user_id, raw);
-      }
-    };
-
-    socket.on('close', cleanup);
-    socket.on('error', cleanup);
+    await new Promise<void>((resolve) => {
+      const cleanup = () => {
+        clearInterval(pingInterval);
+        if (authUser.isSpecialist) {
+          unregisterSpecialist(raw);
+        } else {
+          unregisterUser(authUser.user_id, raw);
+        }
+        resolve();
+      };
+      socket.on('close', cleanup);
+      socket.on('error', cleanup);
+    });
   });
 }

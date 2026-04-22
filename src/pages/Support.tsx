@@ -62,7 +62,7 @@ function TicketCard({ ticket }: { ticket: Ticket }) {
 
 export default function Support() {
   const { t } = useTranslation();
-  const { setSupportUnreadCount } = useStore();
+  const { setSupportUnreadCount, openedTicketIds, clearOpenedTickets } = useStore();
   const [createOpen, setCreateOpen] = useState(false);
   const [tickets, setTickets] = useState<Ticket[]>([]);
   const [loading, setLoading] = useState(true);
@@ -70,8 +70,12 @@ export default function Support() {
   useEffect(() => {
     supportApi.listTickets({ own: true })
       .then((data) => {
-        setTickets(data);
-        setSupportUnreadCount(data.filter((tk) => tk.unread).length);
+        const resolved = openedTicketIds.size > 0
+          ? data.map((tk) => openedTicketIds.has(tk.id) ? { ...tk, unread: false } : tk)
+          : data;
+        setTickets(resolved);
+        setSupportUnreadCount(resolved.filter((tk) => tk.unread).length);
+        clearOpenedTickets();
       })
       .finally(() => setLoading(false));
   }, []);
@@ -87,15 +91,9 @@ export default function Support() {
         return [ticket, ...prev.filter((_, i) => i !== idx)];
       });
     };
-    const onOpened = (e: Event) => {
-      const { ticketId } = (e as CustomEvent<{ ticketId: string }>).detail;
-      setTickets((prev) => prev.map((t) => t.id === ticketId ? { ...t, unread: false } : t));
-    };
     window.addEventListener('ticket:new_message', onNew);
-    window.addEventListener('ticket:opened', onOpened);
     return () => {
       window.removeEventListener('ticket:new_message', onNew);
-      window.removeEventListener('ticket:opened', onOpened);
     };
   }, []);
 

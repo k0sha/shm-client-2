@@ -260,7 +260,7 @@ export default function SupportTicket() {
   const isSpecialistView = location.pathname.startsWith('/tickets/');
   const isMobile = useMediaQuery('(max-width: 768px)') ?? true;
 
-  const { decrementSupportUnread, decrementTicketsUnread } = useStore();
+  const { decrementSupportUnread, decrementTicketsUnread, markTicketOpened } = useStore();
 
   const [ticket, setTicket] = useState<Ticket | undefined>();
   const [loading, setLoading] = useState(true);
@@ -300,7 +300,7 @@ export default function SupportTicket() {
         decrementSupportUnread();
       }
     }
-    window.dispatchEvent(new CustomEvent('ticket:opened', { detail: { ticketId: ticket.id } }));
+    markTicketOpened(ticket.id);
   }, [ticket?.id]);
 
   useEffect(() => {
