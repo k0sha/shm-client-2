@@ -153,7 +153,7 @@ function UserInfoPanel({ ticket }: { ticket: Ticket }) {
           <Text size="sm" fw={600} style={{ flexShrink: 0 }}>{t('tickets.userInfo')}</Text>
           <Text size="sm" c="dimmed" truncate>
             #{ticket.userId}
-            {(info?.fullName ?? ticket.userLogin2) ? ` · ${info?.fullName ?? ''}` : ''}
+            {(info?.fullName ?? ticket.userFullName) ? ` · ${info?.fullName ?? ticket.userFullName}` : ''}
             {tgLogin ? ` · ${tgLogin}` : ''}
             {emailLogin ? ` · ${emailLogin}` : ''}
           </Text>
