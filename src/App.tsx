@@ -495,6 +495,7 @@ function AppContent() {
 
   useEffect(() => {
     if (!isAuthenticated) { setRoleChecked(true); return; }
+    setRoleChecked(false);
     storageApi.get('support_role')
       .then((res) => setIsSupportUser(!!res.data))
       .catch(() => setIsSupportUser(false))
