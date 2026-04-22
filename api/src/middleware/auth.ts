@@ -12,7 +12,7 @@ interface CacheEntry {
 
 const cache = new Map<string, CacheEntry>();
 
-async function resolveSession(sessionId: string): Promise<AuthUser> {
+export async function resolveSession(sessionId: string): Promise<AuthUser> {
   const cached = cache.get(sessionId);
   if (cached && cached.expiresAt > Date.now()) return cached.user;
 

@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { requireAuth } from '../middleware/auth.js';
+import { broadcast } from '../ws/registry.js';
 import { randomUUID } from 'crypto';
 import path from 'path';
 
@@ -73,6 +74,8 @@ export default async function messageRoutes(app: FastifyInstance) {
     for (const att of message.attachments) {
       (att as Record<string, unknown>).url = `${FILES_PATH}/${att.minioKey}`;
     }
+
+    broadcast(ticketId, { type: 'message', data: { ...message, isOwn: false } });
 
     return reply.status(201).send({ ...message, isOwn: true });
   });

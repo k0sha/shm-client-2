@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useMediaQuery } from '@mantine/hooks';
 import {
@@ -11,6 +11,7 @@ import { notifications } from '@mantine/notifications';
 import { useComputedColorScheme } from '@mantine/core';
 import { TicketStatusBadge } from '../components/support/TicketStatusBadge';
 import { supportApi } from '../api/supportApi';
+import { useTicketWebSocket } from '../hooks/useTicketWebSocket';
 import type { Ticket, TicketMessage, TicketAttachment, TicketUserInfo } from '../data/mockTickets';
 
 function formatTime(iso: string): string {
@@ -265,6 +266,16 @@ export default function SupportTicket() {
   const [sending, setSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleWsMessage = useCallback((msg: TicketMessage) => {
+    setTicket((prev) => {
+      if (!prev) return prev;
+      if (prev.messages.some((m) => m.id === msg.id)) return prev;
+      return { ...prev, messages: [...prev.messages, msg] };
+    });
+  }, []);
+
+  useTicketWebSocket(ticketId, handleWsMessage);
 
   useEffect(() => {
     if (!ticketId) return;
