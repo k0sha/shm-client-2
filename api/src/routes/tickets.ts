@@ -1,60 +1,74 @@
 import type { FastifyInstance } from 'fastify';
 import { requireAuth, requireSpecialist } from '../middleware/auth.js';
 
+const PRESIGNED_EXPIRY_SEC = 60 * 60;
+
+async function attachPresignedUrls(
+  app: FastifyInstance,
+  messages: Array<{ attachments: Array<{ id: string; minioKey: string; filename: string; mimeType: string; size: number; createdAt: Date }> } & Record<string, unknown>>,
+) {
+  for (const msg of messages) {
+    for (const att of msg.attachments) {
+      (att as Record<string, unknown>).url = await app.minio.presignedGetObject(
+        app.minioBucket,
+        att.minioKey,
+        PRESIGNED_EXPIRY_SEC,
+      );
+    }
+  }
+}
+
 export default async function ticketRoutes(app: FastifyInstance) {
-  // GET /v1/tickets — user sees own, specialist sees all
-  app.get('/v1/tickets', { preHandler: requireAuth }, async (req, reply) => {
+  // GET /v1/tickets
+  app.get('/v1/tickets', { preHandler: requireAuth }, async (req) => {
     const { user_id, isSpecialist } = req.authUser;
-    const query = req.query as { status?: string; search?: string };
+    const query = req.query as { status?: string };
 
     const where: Record<string, unknown> = {};
     if (!isSpecialist) where.userId = user_id;
     if (query.status) where.status = query.status;
 
-    const tickets = await app.prisma.ticket.findMany({
+    return app.prisma.ticket.findMany({
       where,
       orderBy: { updatedAt: 'desc' },
-      include: {
-        messages: {
-          orderBy: { createdAt: 'desc' },
-          take: 1,
-          select: { text: true, createdAt: true },
-        },
+      select: {
+        id: true,
+        userId: true,
+        userLogin: true,
+        userLogin2: true,
+        userFullName: true,
+        type: true,
+        status: true,
+        assignedTo: true,
+        lastMessage: true,
+        createdAt: true,
+        updatedAt: true,
       },
     });
-
-    return tickets;
   });
 
-  // POST /v1/tickets — create
+  // POST /v1/tickets
   app.post('/v1/tickets', { preHandler: requireAuth }, async (req, reply) => {
-    const { user_id } = req.authUser;
-    const body = req.body as { type: string; message?: string };
+    const { user_id, login, login2, full_name } = req.authUser;
+    const body = req.body as { type?: string };
 
     if (!body.type) return reply.status(400).send({ error: 'type required' });
 
     const ticket = await app.prisma.ticket.create({
       data: {
         userId: user_id,
+        userLogin: login,
+        userLogin2: login2 ?? null,
+        userFullName: full_name ?? null,
         type: body.type,
         status: 'open',
-        messages: body.message?.trim()
-          ? {
-              create: {
-                authorId: user_id,
-                isSpecialist: false,
-                text: body.message.trim(),
-              },
-            }
-          : undefined,
       },
-      include: { messages: true },
     });
 
     return reply.status(201).send(ticket);
   });
 
-  // GET /v1/tickets/:id — get with all messages + attachments
+  // GET /v1/tickets/:id
   app.get('/v1/tickets/:id', { preHandler: requireAuth }, async (req, reply) => {
     const { id } = req.params as { id: string };
     const { user_id, isSpecialist } = req.authUser;
@@ -74,14 +88,15 @@ export default async function ticketRoutes(app: FastifyInstance) {
       return reply.status(403).send({ error: 'Forbidden' });
     }
 
+    await attachPresignedUrls(app, ticket.messages);
     return ticket;
   });
 
-  // PATCH /v1/tickets/:id — update status or assignedTo
+  // PATCH /v1/tickets/:id
   app.patch('/v1/tickets/:id', { preHandler: requireAuth }, async (req, reply) => {
     const { id } = req.params as { id: string };
     const { user_id, isSpecialist, full_name, login } = req.authUser;
-    const body = req.body as { status?: string; assignedTo?: string };
+    const body = req.body as { status?: string; take?: boolean };
 
     const ticket = await app.prisma.ticket.findUnique({ where: { id } });
     if (!ticket) return reply.status(404).send({ error: 'Not found' });
@@ -91,18 +106,15 @@ export default async function ticketRoutes(app: FastifyInstance) {
 
     const data: Record<string, unknown> = {};
     if (body.status) data.status = body.status;
-
-    // Specialist taking ticket into work
-    if (isSpecialist && body.assignedTo === 'me') {
+    if (isSpecialist && body.take) {
       data.assignedTo = full_name ?? login;
       data.status = 'in_progress';
     }
 
-    const updated = await app.prisma.ticket.update({ where: { id }, data });
-    return updated;
+    return app.prisma.ticket.update({ where: { id }, data });
   });
 
-  // DELETE /v1/tickets/:id — specialist only
+  // DELETE /v1/tickets/:id
   app.delete('/v1/tickets/:id', { preHandler: requireSpecialist }, async (req, reply) => {
     const { id } = req.params as { id: string };
     await app.prisma.ticket.delete({ where: { id } });

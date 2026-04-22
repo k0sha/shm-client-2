@@ -8,15 +8,18 @@ datasource db {
 }
 
 model Ticket {
-  id          String    @id @default(cuid())
-  userId      Int
-  type        String
-  status      String    @default("open")
-  assignedTo  String?
-  lastMessage String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  messages    Message[]
+  id           String    @id @default(cuid())
+  userId       Int
+  userLogin    String
+  userLogin2   String?
+  userFullName String?
+  type         String
+  status       String    @default("open")
+  assignedTo   String?
+  lastMessage  String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  messages     Message[]
 }
 
 model Message {
@@ -24,6 +27,7 @@ model Message {
   ticketId     String
   ticket       Ticket       @relation(fields: [ticketId], references: [id], onDelete: Cascade)
   authorId     Int
+  authorName   String
   isSpecialist Boolean      @default(false)
   text         String?
   createdAt    DateTime     @default(now())

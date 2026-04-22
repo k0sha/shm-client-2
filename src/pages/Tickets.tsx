@@ -1,12 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Stack, Group, Title, Tabs, Text, Paper, Badge, ActionIcon, TextInput,
+  Stack, Group, Title, Tabs, Text, Paper, Badge, ActionIcon, TextInput, Loader, Center,
 } from '@mantine/core';
 import { IconChevronRight, IconSearch } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { TicketStatusBadge } from '../components/support/TicketStatusBadge';
-import { MOCK_ALL_TICKETS } from '../data/mockTickets';
+import { supportApi } from '../api/supportApi';
 import type { Ticket, TicketStatus } from '../data/mockTickets';
 
 function formatDate(iso: string): string {
@@ -22,7 +22,7 @@ function displayUser(ticket: Ticket): string {
   if (email && tg) return `${tg} · ${email}`;
   if (email) return email;
   if (tg) return tg;
-  return `#${ticket.userInfo?.user_id ?? ticket.userId}`;
+  return `#${ticket.userId}`;
 }
 
 function TicketRow({ ticket }: { ticket: Ticket }) {
@@ -30,13 +30,7 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
   const { t } = useTranslation();
 
   return (
-    <Paper
-      withBorder
-      p="md"
-      radius="md"
-      style={{ cursor: 'pointer' }}
-      onClick={() => navigate(`/tickets/${ticket.id}`)}
-    >
+    <Paper withBorder p="md" radius="md" style={{ cursor: 'pointer' }} onClick={() => navigate(`/tickets/${ticket.id}`)}>
       <Group justify="space-between" wrap="nowrap" gap="xs">
         <Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
           <Group gap="xs" wrap="nowrap">
@@ -48,7 +42,7 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
           <Group gap="xs" wrap="wrap">
             <TicketStatusBadge status={ticket.status} />
             <Text size="xs" c="dimmed">
-              #{ticket.userInfo?.user_id ?? ticket.userId} · {displayUser(ticket)}
+              #{ticket.userId} · {displayUser(ticket)}
             </Text>
             {ticket.assignedTo && (
               <Text size="xs" c="dimmed">🛡 {ticket.assignedTo}</Text>
@@ -74,33 +68,36 @@ function TicketList({ tickets }: { tickets: Ticket[] }) {
   if (tickets.length === 0) {
     return <Text c="dimmed" ta="center" py="xl">{t('tickets.noActiveTickets')}</Text>;
   }
-  return (
-    <Stack gap="sm">
-      {tickets.map((tk) => <TicketRow key={tk.id} ticket={tk} />)}
-    </Stack>
-  );
+  return <Stack gap="sm">{tickets.map((tk) => <TicketRow key={tk.id} ticket={tk} />)}</Stack>;
 }
 
 export default function Tickets() {
   const { t } = useTranslation();
-  const [allTickets] = useState<Ticket[]>([...MOCK_ALL_TICKETS]);
+  const [allTickets, setAllTickets] = useState<Ticket[]>([]);
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+
+  useEffect(() => {
+    supportApi.listTickets()
+      .then(setAllTickets)
+      .finally(() => setLoading(false));
+  }, []);
 
   function filter(statuses?: TicketStatus[]): Ticket[] {
     return allTickets.filter((tk) => {
       const matchesStatus = !statuses || statuses.includes(tk.status);
       const q = search.toLowerCase();
       const matchesSearch = !q
-        || (tk.subject ?? '').toLowerCase().includes(q)
         || tk.userLogin.toLowerCase().includes(q)
         || (tk.userLogin2 ?? '').toLowerCase().includes(q)
-        || (tk.userInfo?.fullName ?? '').toLowerCase().includes(q)
         || String(tk.userId).includes(q);
       return matchesStatus && matchesSearch;
     });
   }
 
   const newCount = allTickets.filter((tk) => tk.status === 'open' && !tk.assignedTo).length;
+
+  if (loading) return <Center py="xl"><Loader /></Center>;
 
   return (
     <Stack gap="lg">
@@ -115,13 +112,9 @@ export default function Tickets() {
 
       <Tabs defaultValue="all">
         <Tabs.List>
-          <Tabs.Tab
-            value="all"
-            rightSection={
-              newCount > 0 ? (
-                <Badge size="xs" variant="filled" color="red" circle>{newCount}</Badge>
-              ) : undefined
-            }
+          <Tabs.Tab value="all" rightSection={newCount > 0
+            ? <Badge size="xs" variant="filled" color="red" circle>{newCount}</Badge>
+            : undefined}
           >
             {t('tickets.tabAll')}
           </Tabs.Tab>
@@ -130,18 +123,10 @@ export default function Tickets() {
           <Tabs.Tab value="closed">{t('tickets.status.closed')}</Tabs.Tab>
         </Tabs.List>
 
-        <Tabs.Panel value="all" pt="md">
-          <TicketList tickets={filter()} />
-        </Tabs.Panel>
-        <Tabs.Panel value="in_progress" pt="md">
-          <TicketList tickets={filter(['in_progress', 'waiting'])} />
-        </Tabs.Panel>
-        <Tabs.Panel value="resolved" pt="md">
-          <TicketList tickets={filter(['resolved'])} />
-        </Tabs.Panel>
-        <Tabs.Panel value="closed" pt="md">
-          <TicketList tickets={filter(['closed'])} />
-        </Tabs.Panel>
+        <Tabs.Panel value="all" pt="md"><TicketList tickets={filter()} /></Tabs.Panel>
+        <Tabs.Panel value="in_progress" pt="md"><TicketList tickets={filter(['in_progress', 'waiting'])} /></Tabs.Panel>
+        <Tabs.Panel value="resolved" pt="md"><TicketList tickets={filter(['resolved'])} /></Tabs.Panel>
+        <Tabs.Panel value="closed" pt="md"><TicketList tickets={filter(['closed'])} /></Tabs.Panel>
       </Tabs>
     </Stack>
   );

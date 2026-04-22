@@ -8,6 +8,7 @@ import minioPlugin from './plugins/minio.js';
 import ticketRoutes from './routes/tickets.js';
 import messageRoutes from './routes/messages.js';
 import attachmentRoutes from './routes/attachments.js';
+import userInfoRoutes from './routes/userInfo.js';
 
 const app = Fastify({ logger: true });
 
@@ -20,6 +21,7 @@ await app.register(minioPlugin);
 await app.register(ticketRoutes);
 await app.register(messageRoutes);
 await app.register(attachmentRoutes);
+await app.register(userInfoRoutes);
 
 app.get('/health', async () => ({ ok: true }));
 

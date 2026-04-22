@@ -3,8 +3,8 @@ import { Modal, Stack, Textarea, Select, Button, Group, ActionIcon, Pill } from 
 import { IconPaperclip } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { notifications } from '@mantine/notifications';
-import type { Ticket, TicketType, TicketAttachment } from '../../data/mockTickets';
-import { MOCK_MY_TICKETS } from '../../data/mockTickets';
+import { supportApi } from '../../api/supportApi';
+import type { Ticket, TicketType } from '../../data/mockTickets';
 
 interface Props {
   opened: boolean;
@@ -21,6 +21,7 @@ export function TicketCreateModal({ opened, onClose, onCreated }: Props) {
   const [message, setMessage] = useState('');
   const [type, setType] = useState<TicketType | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [loading, setLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,51 +41,29 @@ export function TicketCreateModal({ opened, onClose, onCreated }: Props) {
     onClose();
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if ((!message.trim() && selectedFiles.length === 0) || !type) {
       notifications.show({ color: 'red', message: t('tickets.fillRequired') });
       return;
     }
 
-    const attachments: TicketAttachment[] = selectedFiles.map((file) => ({
-      id: `a${Date.now()}-${Math.random().toString(36).slice(2)}`,
-      name: file.name,
-      size: file.size,
-      mimeType: file.type || 'application/octet-stream',
-      url: URL.createObjectURL(file),
-    }));
-
-    const now = new Date().toISOString();
-    const newTicket: Ticket = {
-      id: String(Date.now()),
-      status: 'open',
-      type,
-      createdAt: now,
-      updatedAt: now,
-      userId: 1,
-      userLogin: 'me',
-      messages: [
-        {
-          id: `m${Date.now()}`,
-          authorId: 1,
-          authorName: 'me',
-          isSpecialist: false,
-          text: message.trim(),
-          createdAt: now,
-          ...(attachments.length > 0 && { attachments }),
-        },
-      ],
-      lastMessage: message.trim() || undefined,
-      unread: false,
-    };
-
-    MOCK_MY_TICKETS.unshift(newTicket);
-    notifications.show({ color: 'green', message: t('tickets.ticketCreated') });
-    onCreated(newTicket);
-    setMessage('');
-    setType(null);
-    setSelectedFiles([]);
-    onClose();
+    setLoading(true);
+    try {
+      const ticket = await supportApi.createTicket(type);
+      if (message.trim() || selectedFiles.length > 0) {
+        await supportApi.sendMessage(ticket.id, message, selectedFiles);
+      }
+      notifications.show({ color: 'green', message: t('tickets.ticketCreated') });
+      onCreated(ticket);
+      setMessage('');
+      setType(null);
+      setSelectedFiles([]);
+      onClose();
+    } catch {
+      notifications.show({ color: 'red', message: t('common.error') });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const typeOptions = [
@@ -123,20 +102,14 @@ export function TicketCreateModal({ opened, onClose, onCreated }: Props) {
             ))}
           </Pill.Group>
         )}
-        <input
-          ref={fileInputRef}
-          type="file"
-          multiple
-          style={{ display: 'none' }}
-          onChange={handleFileSelect}
-        />
+        <input ref={fileInputRef} type="file" multiple style={{ display: 'none' }} onChange={handleFileSelect} />
         <Group justify="space-between">
           <ActionIcon variant="default" size="md" onClick={() => fileInputRef.current?.click()}>
             <IconPaperclip size={16} />
           </ActionIcon>
           <Group gap="xs">
             <Button variant="light" onClick={handleClose}>{t('common.cancel')}</Button>
-            <Button onClick={handleSubmit}>{t('tickets.send')}</Button>
+            <Button onClick={handleSubmit} loading={loading}>{t('tickets.send')}</Button>
           </Group>
         </Group>
       </Stack>

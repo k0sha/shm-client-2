@@ -2,16 +2,15 @@ import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   Stack, Group, Text, ActionIcon, Textarea, Button,
-  Paper, Box, Select, Badge, ScrollArea, Divider, Collapse, Table, Pill,
+  Paper, Box, Select, Badge, ScrollArea, Divider, Collapse, Table, Pill, Loader, Center,
 } from '@mantine/core';
 import { IconArrowLeft, IconSend, IconChevronDown, IconChevronUp, IconPaperclip, IconFile } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { notifications } from '@mantine/notifications';
 import { useComputedColorScheme } from '@mantine/core';
 import { TicketStatusBadge } from '../components/support/TicketStatusBadge';
-import { MOCK_ALL_TICKETS } from '../data/mockTickets';
-import type { Ticket, TicketMessage, TicketStatus, TicketAttachment } from '../data/mockTickets';
-import { useStore } from '../store/useStore';
+import { supportApi } from '../api/supportApi';
+import type { Ticket, TicketMessage, TicketStatus, TicketAttachment, TicketUserInfo } from '../data/mockTickets';
 
 function formatTime(iso: string): string {
   const d = new Date(iso);
@@ -40,41 +39,23 @@ function truncateName(name: string, max = 28): string {
 function AttachmentItem({ att, isOwn, scheme }: { att: TicketAttachment; isOwn: boolean; scheme: string }) {
   if (att.mimeType.startsWith('image/')) {
     return (
-      <Box
-        component="a"
-        href={att.url}
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{ display: 'block' }}
-      >
-        <img
-          src={att.url}
-          alt={att.name}
-          style={{ maxWidth: '100%', maxHeight: 200, borderRadius: 6, display: 'block' }}
-        />
+      <Box component="a" href={att.url} target="_blank" rel="noopener noreferrer" style={{ display: 'block' }}>
+        <img src={att.url} alt={att.name} style={{ maxWidth: '100%', maxHeight: 200, borderRadius: 6, display: 'block' }} />
       </Box>
     );
   }
-
   return (
     <Box
-      component="a"
-      href={att.url}
-      target="_blank"
-      rel="noopener noreferrer"
+      component="a" href={att.url} target="_blank" rel="noopener noreferrer"
       style={{
         display: 'flex', alignItems: 'center', gap: 8,
         padding: '6px 8px', borderRadius: 6, textDecoration: 'none',
-        background: isOwn
-          ? 'rgba(255,255,255,0.15)'
-          : scheme === 'dark' ? 'rgba(0,0,0,0.25)' : 'rgba(0,0,0,0.06)',
+        background: isOwn ? 'rgba(255,255,255,0.15)' : scheme === 'dark' ? 'rgba(0,0,0,0.25)' : 'rgba(0,0,0,0.06)',
       }}
     >
       <IconFile size={16} style={{ color: isOwn ? 'white' : 'inherit', flexShrink: 0 }} />
       <Stack gap={0} style={{ minWidth: 0 }}>
-        <Text size="xs" fw={500} style={{ color: isOwn ? 'white' : 'inherit' }} truncate>
-          {att.name}
-        </Text>
+        <Text size="xs" fw={500} style={{ color: isOwn ? 'white' : 'inherit' }} truncate>{att.name}</Text>
         <Text size="xs" style={{ color: isOwn ? 'rgba(255,255,255,0.65)' : 'var(--mantine-color-dimmed)' }}>
           {formatFileSize(att.size)}
         </Text>
@@ -86,19 +67,17 @@ function AttachmentItem({ att, isOwn, scheme }: { att: TicketAttachment; isOwn: 
 function resolveAuthorLabel(msg: TicketMessage, ticket: Ticket): string {
   if (msg.isSpecialist) return msg.authorName;
   const info = ticket.userInfo;
-  if (!info) return msg.authorName;
-  if (info.fullName) return info.fullName;
-  const tg = info.login.startsWith('@') ? info.login : null;
-  const email = info.login2 && !info.login2.startsWith('@') ? info.login2 : null;
+  if (info?.fullName) return info.fullName;
+  const tg = ticket.userLogin.startsWith('@') ? ticket.userLogin : null;
+  const email = ticket.userLogin2 && !ticket.userLogin2.startsWith('@') ? ticket.userLogin2 : null;
   if (tg && email) return `${tg} · ${email}`;
   if (tg) return tg;
   if (email) return email;
-  return `#${info.user_id}`;
+  return msg.authorName;
 }
 
 function MessageBubble({ msg, isOwn, ticket }: { msg: TicketMessage; isOwn: boolean; ticket: Ticket }) {
   const scheme = useComputedColorScheme('light');
-
   return (
     <Box style={{ display: 'flex', justifyContent: isOwn ? 'flex-end' : 'flex-start' }}>
       <Box style={{ maxWidth: '72%' }}>
@@ -108,23 +87,17 @@ function MessageBubble({ msg, isOwn, ticket }: { msg: TicketMessage; isOwn: bool
           </Text>
         )}
         <Paper
-          p="sm"
-          radius="lg"
+          p="sm" radius="lg"
           style={{
             background: isOwn
               ? 'var(--mantine-color-blue-6)'
-              : scheme === 'dark'
-                ? 'var(--mantine-color-dark-5)'
-                : 'var(--mantine-color-gray-1)',
+              : scheme === 'dark' ? 'var(--mantine-color-dark-5)' : 'var(--mantine-color-gray-1)',
             borderBottomRightRadius: isOwn ? 4 : undefined,
             borderBottomLeftRadius: !isOwn ? 4 : undefined,
           }}
         >
           {msg.text ? (
-            <Text
-              size="sm"
-              style={{ color: isOwn ? 'white' : 'inherit', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}
-            >
+            <Text size="sm" style={{ color: isOwn ? 'white' : 'inherit', whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
               {msg.text}
             </Text>
           ) : null}
@@ -147,122 +120,130 @@ function MessageBubble({ msg, isOwn, ticket }: { msg: TicketMessage; isOwn: bool
 function UserInfoPanel({ ticket }: { ticket: Ticket }) {
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
-  const info = ticket.userInfo;
-  if (!info) return null;
+  const [info, setInfo] = useState<TicketUserInfo | null>(ticket.userInfo ?? null);
+  const [loadingInfo, setLoadingInfo] = useState(false);
 
-  const statusColors: Record<string, string> = {
-    ACTIVE: 'green',
-    BLOCK: 'red',
-    'NOT PAID': 'orange',
-    PROGRESS: 'yellow',
-    ERROR: 'red',
+  const handleToggle = async () => {
+    if (!open && !info) {
+      setLoadingInfo(true);
+      try {
+        const data = await supportApi.getUserInfo(ticket.userId);
+        setInfo(data);
+      } catch {
+        // показываем то что есть из ticket
+      } finally {
+        setLoadingInfo(false);
+      }
+    }
+    setOpen((v) => !v);
   };
 
-  const tgLogin = info.login.startsWith('@') ? info.login : null;
-  const emailLogin = info.login2 && !info.login2.startsWith('@') ? info.login2 : null;
+  const tgLogin = ticket.userLogin.startsWith('@') ? ticket.userLogin : null;
+  const emailLogin = ticket.userLogin2 && !ticket.userLogin2.startsWith('@') ? ticket.userLogin2 : null;
+
+  const statusColors: Record<string, string> = {
+    ACTIVE: 'green', BLOCK: 'red', 'NOT PAID': 'orange', PROGRESS: 'yellow', ERROR: 'red',
+  };
 
   return (
     <Paper withBorder radius="md" p="sm">
-      <Group
-        justify="space-between"
-        style={{ cursor: 'pointer' }}
-        onClick={() => setOpen((v) => !v)}
-      >
+      <Group justify="space-between" style={{ cursor: 'pointer' }} onClick={handleToggle}>
         <Group gap="xs" wrap="nowrap" style={{ minWidth: 0 }}>
           <Text size="sm" fw={600} style={{ flexShrink: 0 }}>{t('tickets.userInfo')}</Text>
           <Text size="sm" c="dimmed" truncate>
-            #{info.user_id}{info.fullName ? ` · ${info.fullName}` : ''}{tgLogin ? ` · ${tgLogin}` : ''}{emailLogin ? ` · ${emailLogin}` : ''}
+            #{ticket.userId}
+            {(info?.fullName ?? ticket.userLogin2) ? ` · ${info?.fullName ?? ''}` : ''}
+            {tgLogin ? ` · ${tgLogin}` : ''}
+            {emailLogin ? ` · ${emailLogin}` : ''}
           </Text>
         </Group>
-        <ActionIcon variant="subtle" size="sm" style={{ flexShrink: 0 }}>
+        <ActionIcon variant="subtle" size="sm" style={{ flexShrink: 0 }} loading={loadingInfo}>
           {open ? <IconChevronUp size={14} /> : <IconChevronDown size={14} />}
         </ActionIcon>
       </Group>
 
       <Collapse in={open}>
         <Divider my="xs" />
-        <Stack gap="sm">
-          {/* Identity */}
-          <Group gap="lg" wrap="wrap">
-            <Stack gap={2}>
-              <Text size="xs" c="dimmed">{t('tickets.userShmId')}</Text>
-              <Text size="sm" fw={500}>#{info.user_id}</Text>
-            </Stack>
-            {info.fullName && (
+        {info ? (
+          <Stack gap="sm">
+            <Group gap="lg" wrap="wrap">
               <Stack gap={2}>
-                <Text size="xs" c="dimmed">{t('tickets.userFullName')}</Text>
-                <Text size="sm" fw={500}>{info.fullName}</Text>
+                <Text size="xs" c="dimmed">{t('tickets.userShmId')}</Text>
+                <Text size="sm" fw={500}>#{info.user_id}</Text>
               </Stack>
-            )}
-            {tgLogin && (
+              {info.fullName && (
+                <Stack gap={2}>
+                  <Text size="xs" c="dimmed">{t('tickets.userFullName')}</Text>
+                  <Text size="sm" fw={500}>{info.fullName}</Text>
+                </Stack>
+              )}
+              {tgLogin && (
+                <Stack gap={2}>
+                  <Text size="xs" c="dimmed">{t('tickets.userTgLogin')}</Text>
+                  <Text size="sm" fw={500}>{tgLogin}</Text>
+                </Stack>
+              )}
+              {emailLogin && (
+                <Stack gap={2}>
+                  <Text size="xs" c="dimmed">{t('tickets.userEmailLogin')}</Text>
+                  <Text size="sm" fw={500}>{emailLogin}</Text>
+                </Stack>
+              )}
+            </Group>
+            <Divider />
+            <Group gap="lg" wrap="wrap">
               <Stack gap={2}>
-                <Text size="xs" c="dimmed">{t('tickets.userTgLogin')}</Text>
-                <Text size="sm" fw={500}>{tgLogin}</Text>
+                <Text size="xs" c="dimmed">{t('tickets.userBalance')}</Text>
+                <Text size="sm" fw={500}>{info.balance} ₽</Text>
               </Stack>
-            )}
-            {emailLogin && (
+              {info.bonuses !== undefined && (
+                <Stack gap={2}>
+                  <Text size="xs" c="dimmed">{t('tickets.userBonuses')}</Text>
+                  <Text size="sm" fw={500}>{info.bonuses} ₽</Text>
+                </Stack>
+              )}
               <Stack gap={2}>
-                <Text size="xs" c="dimmed">{t('tickets.userEmailLogin')}</Text>
-                <Text size="sm" fw={500}>{emailLogin}</Text>
+                <Text size="xs" c="dimmed">{t('tickets.userDiscount')}</Text>
+                <Text size="sm" fw={500}>{info.discount}%</Text>
               </Stack>
-            )}
-          </Group>
-
-          <Divider />
-
-          {/* Financials */}
-          <Group gap="lg" wrap="wrap">
-            <Stack gap={2}>
-              <Text size="xs" c="dimmed">{t('tickets.userBalance')}</Text>
-              <Text size="sm" fw={500}>{info.balance} ₽</Text>
-            </Stack>
-            {info.bonuses !== undefined && (
-              <Stack gap={2}>
-                <Text size="xs" c="dimmed">{t('tickets.userBonuses')}</Text>
-                <Text size="sm" fw={500}>{info.bonuses} ₽</Text>
-              </Stack>
-            )}
-            <Stack gap={2}>
-              <Text size="xs" c="dimmed">{t('tickets.userDiscount')}</Text>
-              <Text size="sm" fw={500}>{info.discount}%</Text>
-            </Stack>
-            <Stack gap={2}>
-              <Text size="xs" c="dimmed">{t('tickets.userCreated')}</Text>
-              <Text size="sm" fw={500}>{formatDate(info.created)}</Text>
-            </Stack>
-          </Group>
-
-          {/* Services */}
-          {info.services.length > 0 && (
-            <>
-              <Text size="xs" c="dimmed" mt={2}>{t('tickets.userServices')}</Text>
-              <Table fz="xs" withRowBorders={false} verticalSpacing={4}>
-                <Table.Thead>
-                  <Table.Tr>
-                    <Table.Th>{t('services.title').replace('Мои ', '')}</Table.Th>
-                    <Table.Th>{t('services.status')}</Table.Th>
-                    <Table.Th>{t('services.validUntil')}</Table.Th>
-                  </Table.Tr>
-                </Table.Thead>
-                <Table.Tbody>
-                  {info.services.map((svc) => (
-                    <Table.Tr key={svc.user_service_id}>
-                      <Table.Td>{svc.name}</Table.Td>
-                      <Table.Td>
-                        <Badge size="xs" color={statusColors[svc.status] ?? 'gray'} variant="light">
-                          {t(`status.${svc.status}`, { defaultValue: svc.status })}
-                        </Badge>
-                      </Table.Td>
-                      <Table.Td c="dimmed">
-                        {svc.expire ? formatDate(svc.expire) : '—'}
-                      </Table.Td>
+              {info.created && (
+                <Stack gap={2}>
+                  <Text size="xs" c="dimmed">{t('tickets.userCreated')}</Text>
+                  <Text size="sm" fw={500}>{formatDate(info.created)}</Text>
+                </Stack>
+              )}
+            </Group>
+            {info.services.length > 0 && (
+              <>
+                <Text size="xs" c="dimmed" mt={2}>{t('tickets.userServices')}</Text>
+                <Table fz="xs" withRowBorders={false} verticalSpacing={4}>
+                  <Table.Thead>
+                    <Table.Tr>
+                      <Table.Th>{t('services.title').replace('Мои ', '')}</Table.Th>
+                      <Table.Th>{t('services.status')}</Table.Th>
+                      <Table.Th>{t('services.validUntil')}</Table.Th>
                     </Table.Tr>
-                  ))}
-                </Table.Tbody>
-              </Table>
-            </>
-          )}
-        </Stack>
+                  </Table.Thead>
+                  <Table.Tbody>
+                    {info.services.map((svc) => (
+                      <Table.Tr key={svc.user_service_id}>
+                        <Table.Td>{svc.name}</Table.Td>
+                        <Table.Td>
+                          <Badge size="xs" color={statusColors[svc.status] ?? 'gray'} variant="light">
+                            {t(`status.${svc.status}`, { defaultValue: svc.status })}
+                          </Badge>
+                        </Table.Td>
+                        <Table.Td c="dimmed">{svc.expire ? formatDate(svc.expire) : '—'}</Table.Td>
+                      </Table.Tr>
+                    ))}
+                  </Table.Tbody>
+                </Table>
+              </>
+            )}
+          </Stack>
+        ) : (
+          <Text size="xs" c="dimmed">{t('common.loading')}</Text>
+        )}
       </Collapse>
     </Paper>
   );
@@ -273,12 +254,10 @@ export default function SupportTicket() {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
-  const { user } = useStore();
   const isSpecialistView = location.pathname.startsWith('/tickets/');
 
-  const [ticket, setTicket] = useState<Ticket | undefined>(
-    MOCK_ALL_TICKETS.find((tk) => tk.id === ticketId)
-  );
+  const [ticket, setTicket] = useState<Ticket | undefined>();
+  const [loading, setLoading] = useState(true);
   const [replyText, setReplyText] = useState('');
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [sending, setSending] = useState(false);
@@ -286,16 +265,28 @@ export default function SupportTicket() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
+    if (!ticketId) return;
+    supportApi.getTicket(ticketId)
+      .then(setTicket)
+      .catch(() => setTicket(undefined))
+      .finally(() => setLoading(false));
+  }, [ticketId]);
+
+  useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
     }
   }, [ticket?.messages.length]);
 
+  if (loading) return <Center py="xl"><Loader /></Center>;
+
+  const backPath = isSpecialistView ? '/tickets' : '/support';
+
   if (!ticket) {
     return (
       <Stack align="center" py="xl">
         <Text c="dimmed">{t('tickets.ticketNotFound')}</Text>
-        <Button variant="light" onClick={() => navigate('/support')}>{t('tickets.backToList')}</Button>
+        <Button variant="light" onClick={() => navigate(backPath)}>{t('tickets.backToList')}</Button>
       </Stack>
     );
   }
@@ -308,68 +299,62 @@ export default function SupportTicket() {
     e.target.value = '';
   };
 
-  const removeFile = (index: number) => {
-    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
-  };
+  const removeFile = (index: number) => setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (!replyText.trim() && selectedFiles.length === 0) return;
     setSending(true);
-
-    const attachments: TicketAttachment[] = selectedFiles.map((file) => ({
-      id: `a${Date.now()}-${Math.random().toString(36).slice(2)}`,
-      name: file.name,
-      size: file.size,
-      mimeType: file.type || 'application/octet-stream',
-      url: URL.createObjectURL(file),
-    }));
-
-    const newMsg: TicketMessage = {
-      id: `m${Date.now()}`,
-      authorId: user?.user_id ?? 1,
-      authorName: user?.login ?? 'user',
-      isSpecialist: isSpecialistView,
-      text: replyText.trim(),
-      createdAt: new Date().toISOString(),
-      ...(attachments.length > 0 && { attachments }),
-    };
-
-    const updated: Ticket = {
-      ...ticket,
-      messages: [...ticket.messages, newMsg],
-      lastMessage: newMsg.text || undefined,
-      updatedAt: newMsg.createdAt,
-    };
-
-    const idx = MOCK_ALL_TICKETS.findIndex((tk) => tk.id === ticket.id);
-    if (idx !== -1) MOCK_ALL_TICKETS[idx] = updated;
-
-    setTicket(updated);
-    setReplyText('');
-    setSelectedFiles([]);
-    setSending(false);
+    try {
+      const newMsg = await supportApi.sendMessage(ticket.id, replyText, selectedFiles);
+      setTicket((prev) => prev ? { ...prev, messages: [...prev.messages, newMsg], updatedAt: newMsg.createdAt } : prev);
+      setReplyText('');
+      setSelectedFiles([]);
+    } catch {
+      notifications.show({ color: 'red', message: t('common.error') });
+    } finally {
+      setSending(false);
+    }
   };
 
-  const handleStatusChange = (newStatus: string | null) => {
+  const handleStatusChange = async (newStatus: string | null) => {
     if (!newStatus) return;
-    const updated: Ticket = { ...ticket, status: newStatus as TicketStatus, updatedAt: new Date().toISOString() };
-    const idx = MOCK_ALL_TICKETS.findIndex((tk) => tk.id === ticket.id);
-    if (idx !== -1) MOCK_ALL_TICKETS[idx] = updated;
-    setTicket(updated);
-    notifications.show({ color: 'green', message: t('tickets.statusChanged') });
+    try {
+      const updated = await supportApi.updateTicket(ticket.id, { status: newStatus });
+      setTicket(updated);
+      notifications.show({ color: 'green', message: t('tickets.statusChanged') });
+    } catch {
+      notifications.show({ color: 'red', message: t('common.error') });
+    }
   };
 
-  const handleTakeTicket = () => {
-    const updated: Ticket = {
-      ...ticket,
-      status: 'in_progress',
-      assignedTo: user?.full_name ?? user?.login ?? 'Специалист',
-      updatedAt: new Date().toISOString(),
-    };
-    const idx = MOCK_ALL_TICKETS.findIndex((tk) => tk.id === ticket.id);
-    if (idx !== -1) MOCK_ALL_TICKETS[idx] = updated;
-    setTicket(updated);
-    notifications.show({ color: 'green', message: t('tickets.takenIntoWork') });
+  const handleTakeTicket = async () => {
+    try {
+      const updated = await supportApi.updateTicket(ticket.id, { take: true });
+      setTicket(updated);
+      notifications.show({ color: 'green', message: t('tickets.takenIntoWork') });
+    } catch {
+      notifications.show({ color: 'red', message: t('common.error') });
+    }
+  };
+
+  const handleCloseTicket = async () => {
+    try {
+      const updated = await supportApi.updateTicket(ticket.id, { status: 'closed' });
+      setTicket(updated);
+      notifications.show({ color: 'green', message: t('tickets.ticketClosed') });
+    } catch {
+      notifications.show({ color: 'red', message: t('common.error') });
+    }
+  };
+
+  const handleReopenTicket = async () => {
+    try {
+      const updated = await supportApi.updateTicket(ticket.id, { status: 'open' });
+      setTicket(updated);
+      notifications.show({ color: 'blue', message: t('tickets.ticketReopened') });
+    } catch {
+      notifications.show({ color: 'red', message: t('common.error') });
+    }
   };
 
   const statusOptions = [
@@ -379,16 +364,6 @@ export default function SupportTicket() {
     { value: 'resolved', label: t('tickets.status.resolved') },
     { value: 'closed', label: t('tickets.status.closed') },
   ];
-
-  const backPath = isSpecialistView ? '/tickets' : '/support';
-
-  const handleCloseTicket = () => {
-    const updated: Ticket = { ...ticket, status: 'closed', updatedAt: new Date().toISOString() };
-    const idx = MOCK_ALL_TICKETS.findIndex((tk) => tk.id === ticket.id);
-    if (idx !== -1) MOCK_ALL_TICKETS[idx] = updated;
-    setTicket(updated);
-    notifications.show({ color: 'green', message: t('tickets.ticketClosed') });
-  };
 
   return (
     <Stack gap="md" h="100%" style={{ display: 'flex', flexDirection: 'column' }}>
@@ -421,10 +396,8 @@ export default function SupportTicket() {
         )}
       </Group>
 
-      {/* User info panel — specialists only */}
       {isSpecialistView && <UserInfoPanel ticket={ticket} />}
 
-      {/* Specialist actions */}
       {isSpecialistView && (
         <>
           <Divider />
@@ -462,13 +435,7 @@ export default function SupportTicket() {
             <Stack align="center" gap="xs" py="xs">
               <Text size="xs" c="dimmed" ta="center">{t('tickets.ticketClosedInfo')}</Text>
               {!isSpecialistView && (
-                <Button size="xs" variant="light" onClick={() => {
-                  const updated: Ticket = { ...ticket, status: 'open', updatedAt: new Date().toISOString() };
-                  const idx = MOCK_ALL_TICKETS.findIndex((tk) => tk.id === ticket.id);
-                  if (idx !== -1) MOCK_ALL_TICKETS[idx] = updated;
-                  setTicket(updated);
-                  notifications.show({ color: 'blue', message: t('tickets.ticketReopened') });
-                }}>
+                <Button size="xs" variant="light" onClick={handleReopenTicket}>
                   {t('tickets.reopenTicket')}
                 </Button>
               )}
@@ -504,13 +471,7 @@ export default function SupportTicket() {
               }
             }}
           />
-          <input
-            ref={fileInputRef}
-            type="file"
-            multiple
-            style={{ display: 'none' }}
-            onChange={handleFileSelect}
-          />
+          <input ref={fileInputRef} type="file" multiple style={{ display: 'none' }} onChange={handleFileSelect} />
           <Group justify="space-between" mt="xs">
             <ActionIcon size="sm" variant="default" onClick={() => fileInputRef.current?.click()}>
               <IconPaperclip size={14} />
@@ -518,8 +479,7 @@ export default function SupportTicket() {
             <Group gap="xs">
               <Text size="xs" c="dimmed">{t('tickets.enterToSend')}</Text>
               <ActionIcon
-                size="sm"
-                variant="filled"
+                size="sm" variant="filled"
                 onClick={handleSend}
                 loading={sending}
                 disabled={!replyText.trim() && selectedFiles.length === 0}
