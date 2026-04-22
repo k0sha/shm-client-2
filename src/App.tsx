@@ -307,7 +307,8 @@ function BottomNavigation() {
       >
         <Group justify="space-around" gap={4}>
           {visibleItems.map((item) => {
-            const isActive = location.pathname === item.path;
+            const isActive = location.pathname === item.path ||
+              (item.path !== '/' && location.pathname.startsWith(item.path + '/'));
             const Icon = item.icon;
             return (
               <Box
@@ -776,7 +777,8 @@ function AppContent() {
             <Group gap="xs" visibleFrom="sm" wrap="nowrap">
               {visibleNavItems.map((item) => {
                 const Icon = item.icon;
-                const isActive = location.pathname === item.path;
+                const isActive = location.pathname === item.path ||
+                  (item.path !== '/' && location.pathname.startsWith(item.path + '/'));
                 const unread = item.path === '/support' ? supportUnreadCount
                   : item.path === '/tickets' ? ticketsUnreadCount : 0;
                 return (
