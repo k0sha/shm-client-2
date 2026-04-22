@@ -34,6 +34,7 @@ async function resolveSession(sessionId: string): Promise<AuthUser> {
   }
 
   const shmUser = userRes.value.data;
+  console.log('[auth] SHM user response:', JSON.stringify(shmUser));
   const isSpecialist = roleRes.status === 'fulfilled' && !!roleRes.value.data;
 
   const user: AuthUser = {
