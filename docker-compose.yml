@@ -32,9 +32,10 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+    networks:
+      - default
+      - shm_default
     restart: unless-stopped
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
 
   postgres:
     image: postgres:17-alpine
@@ -71,3 +72,7 @@ services:
 volumes:
   postgres-data:
   minio-data:
+
+networks:
+  shm_default:
+    external: true
