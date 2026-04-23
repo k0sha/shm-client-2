@@ -80,7 +80,7 @@ export default function Tickets() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
-  const { setTicketsUnreadCount, openedTicketIds, clearOpenedTickets } = useStore();
+  const { setTicketsUnreadCount, incrementTicketsUnread, openedTicketIds, clearOpenedTickets } = useStore();
 
   useEffect(() => {
     supportApi.listTickets()
@@ -110,6 +110,22 @@ export default function Tickets() {
     window.addEventListener('ticket:new_message', onNew);
     return () => {
       window.removeEventListener('ticket:new_message', onNew);
+    };
+  }, []);
+
+  useEffect(() => {
+    const onNewTicket = (e: Event) => {
+      const { ticket } = (e as CustomEvent<{ ticket: Ticket }>).detail;
+      if (!ticket) return;
+      setAllTickets((prev) => {
+        if (prev.some((t) => t.id === ticket.id)) return prev;
+        return [ticket, ...prev];
+      });
+      incrementTicketsUnread();
+    };
+    window.addEventListener('ticket:new_ticket', onNewTicket);
+    return () => {
+      window.removeEventListener('ticket:new_ticket', onNewTicket);
     };
   }, []);
 

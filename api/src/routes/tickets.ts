@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { requireAuth, requireSpecialist } from '../middleware/auth.js';
 import { notifyWebhook } from '../lib/webhook.js';
+import { notifySpecialists } from '../ws/notifyRegistry.js';
 
 const FILES_PATH = process.env.FILES_PUBLIC_PATH ?? '/shm_support/v1/files';
 
@@ -67,6 +68,8 @@ export default async function ticketRoutes(app: FastifyInstance) {
         status: 'open',
       },
     });
+
+    notifySpecialists({ type: 'new_ticket', ticket: { ...ticket, unread: true } });
 
     notifyWebhook({
       event: 'support_new_ticket',

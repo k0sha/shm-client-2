@@ -38,6 +38,12 @@ export function useGlobalWebSocket(enabled: boolean) {
           lastMessage?: string | null;
         };
 
+        if (msg.type === 'new_ticket') {
+          incrementTicketsRef.current();
+          window.dispatchEvent(new CustomEvent('ticket:new_ticket', { detail: { ticket: (msg as Record<string, unknown>).ticket } }));
+          return;
+        }
+
         if (msg.type !== 'new_message') return;
 
         const currentPath = window.location.pathname;
