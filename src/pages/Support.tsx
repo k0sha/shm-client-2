@@ -93,9 +93,18 @@ export default function Support() {
       });
     };
     window.addEventListener('ticket:new_message', onNew);
-    return () => {
-      window.removeEventListener('ticket:new_message', onNew);
+    return () => { window.removeEventListener('ticket:new_message', onNew); };
+  }, []);
+
+  useEffect(() => {
+    const onUpdated = (e: Event) => {
+      const { ticketId, status, assignedTo } = (e as CustomEvent<{ ticketId: string; status: string; assignedTo: string | null }>).detail;
+      setTickets((prev) => prev.map((tk) =>
+        tk.id === ticketId ? { ...tk, status: status as Ticket['status'], assignedTo: assignedTo ?? undefined } : tk
+      ));
     };
+    window.addEventListener('ticket:updated', onUpdated);
+    return () => { window.removeEventListener('ticket:updated', onUpdated); };
   }, []);
 
   const activeTickets = tickets.filter((tk) => ACTIVE_STATUSES.has(tk.status));

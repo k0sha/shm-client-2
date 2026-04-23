@@ -114,6 +114,17 @@ export default function Tickets() {
   }, []);
 
   useEffect(() => {
+    const onUpdated = (e: Event) => {
+      const { ticketId, status, assignedTo } = (e as CustomEvent<{ ticketId: string; status: string; assignedTo: string | null }>).detail;
+      setAllTickets((prev) => prev.map((tk) =>
+        tk.id === ticketId ? { ...tk, status: status as TicketStatus, assignedTo: assignedTo ?? undefined } : tk
+      ));
+    };
+    window.addEventListener('ticket:updated', onUpdated);
+    return () => { window.removeEventListener('ticket:updated', onUpdated); };
+  }, []);
+
+  useEffect(() => {
     const onNewTicket = (e: Event) => {
       const { ticket } = (e as CustomEvent<{ ticket: Ticket }>).detail;
       if (!ticket) return;
