@@ -332,12 +332,12 @@ function BottomNavigation() {
               >
                 <Icon size={20} />
                 {item.path === '/support' && supportUnreadCount > 0 && (
-                  <Badge size="xs" variant="filled" color="red" circle style={{ position: 'absolute', top: 4, right: 4, minWidth: 16, height: 16, fontSize: 9, padding: '0 3px' }}>
+                  <Badge size="xs" variant="filled" color="red" circle style={{ position: 'absolute', top: -6, right: -6, minWidth: 16, height: 16, fontSize: 9, padding: '0 3px' }}>
                     {supportUnreadCount}
                   </Badge>
                 )}
                 {item.path === '/tickets' && ticketsUnreadCount > 0 && (
-                  <Badge size="xs" variant="filled" color="red" circle style={{ position: 'absolute', top: 4, right: 4, minWidth: 16, height: 16, fontSize: 9, padding: '0 3px' }}>
+                  <Badge size="xs" variant="filled" color="red" circle style={{ position: 'absolute', top: -6, right: -6, minWidth: 16, height: 16, fontSize: 9, padding: '0 3px' }}>
                     {ticketsUnreadCount}
                   </Badge>
                 )}
@@ -793,7 +793,7 @@ function AppContent() {
                       {t(item.labelKey)}
                     </Button>
                     {unread > 0 && (
-                      <Badge size="xs" variant="filled" color="red" circle style={{ position: 'absolute', top: 3, right: 3, minWidth: 16, height: 16, fontSize: 9, padding: '0 3px' }}>
+                      <Badge size="xs" variant="filled" color="red" circle style={{ position: 'absolute', top: -5, right: -5, minWidth: 16, height: 16, fontSize: 9, padding: '0 3px' }}>
                         {unread}
                       </Badge>
                     )}
