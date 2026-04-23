@@ -97,13 +97,13 @@ export default function Tickets() {
 
   useEffect(() => {
     const onNew = (e: Event) => {
-      const { ticketId, target, isSpecialist } = (e as CustomEvent<{ ticketId: string; isSpecialist: boolean; target?: string }>).detail;
+      const { ticketId, target, isSpecialist, lastMessage } = (e as CustomEvent<{ ticketId: string; isSpecialist: boolean; target?: string; lastMessage?: string | null }>).detail;
       const forSpecialist = target === 'specialist' || (target == null && !isSpecialist);
       if (!forSpecialist) return;
       setAllTickets((prev) => {
         const idx = prev.findIndex((t) => t.id === ticketId);
         if (idx === -1) return prev;
-        const ticket = { ...prev[idx], unread: true };
+        const ticket = { ...prev[idx], unread: true, updatedAt: new Date().toISOString(), ...(lastMessage != null ? { lastMessage } : {}) };
         return [ticket, ...prev.filter((_, i) => i !== idx)];
       });
     };

@@ -35,6 +35,7 @@ export function useGlobalWebSocket(enabled: boolean) {
           ticketId: string;
           isSpecialist: boolean;
           target?: 'user' | 'specialist';
+          lastMessage?: string | null;
         };
 
         if (msg.type !== 'new_message') return;
@@ -53,7 +54,7 @@ export function useGlobalWebSocket(enabled: boolean) {
         }
 
         window.dispatchEvent(
-          new CustomEvent('ticket:new_message', { detail: { ticketId: msg.ticketId, isSpecialist: msg.isSpecialist, target: msg.target } })
+          new CustomEvent('ticket:new_message', { detail: { ticketId: msg.ticketId, isSpecialist: msg.isSpecialist, target: msg.target, lastMessage: msg.lastMessage } })
         );
       } catch { /* ignore */ }
     };
