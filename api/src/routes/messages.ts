@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import { requireAuth } from '../middleware/auth.js';
 import { broadcast } from '../ws/registry.js';
 import { notifyUser, notifySpecialists } from '../ws/notifyRegistry.js';
+import { notifyWebhook, notifySpecialistsWebhook } from '../lib/webhook.js';
 import { randomUUID } from 'crypto';
 import path from 'path';
 
@@ -79,10 +80,19 @@ export default async function messageRoutes(app: FastifyInstance) {
     broadcast(ticketId, { type: 'message', data: { ...message, isOwn: false } });
 
     const lastMessage = text.trim() || null;
+    const webhookBase = {
+      event: 'support_new_message',
+      ticket_id: ticketId,
+      ticket_number: ticket.number,
+      ticket_type: ticket.type,
+      message: lastMessage?.slice(0, 200),
+    };
     if (isTicketOwner) {
       notifySpecialists({ type: 'new_message', ticketId, isSpecialist, target: 'specialist', lastMessage });
+      notifySpecialistsWebhook(webhookBase);
     } else {
       notifyUser(ticket.userId, { type: 'new_message', ticketId, isSpecialist, target: 'user', lastMessage });
+      notifyWebhook({ ...webhookBase, user_id: ticket.userId });
     }
 
     return reply.status(201).send({ ...message, isOwn: true });

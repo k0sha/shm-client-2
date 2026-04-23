@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { requireAuth, requireSpecialist } from '../middleware/auth.js';
+import { notifyWebhook, notifySpecialistsWebhook } from '../lib/webhook.js';
 
 const FILES_PATH = process.env.FILES_PUBLIC_PATH ?? '/shm_support/v1/files';
 
@@ -67,6 +68,14 @@ export default async function ticketRoutes(app: FastifyInstance) {
       },
     });
 
+    notifySpecialistsWebhook({
+      event: 'support_new_ticket',
+      ticket_id: ticket.id,
+      ticket_number: ticket.number,
+      ticket_type: ticket.type,
+      user_id: ticket.userId,
+    });
+
     return reply.status(201).send(ticket);
   });
 
@@ -126,7 +135,20 @@ export default async function ticketRoutes(app: FastifyInstance) {
       data.status = 'in_progress';
     }
 
-    return app.prisma.ticket.update({ where: { id }, data });
+    const updated = await app.prisma.ticket.update({ where: { id }, data });
+
+    if (data.status) {
+      notifyWebhook({
+        event: 'support_status_changed',
+        ticket_id: ticket.id,
+        ticket_number: ticket.number,
+        ticket_type: ticket.type,
+        status: updated.status,
+        user_id: ticket.userId,
+      });
+    }
+
+    return updated;
   });
 
   // DELETE /v1/tickets/:id
