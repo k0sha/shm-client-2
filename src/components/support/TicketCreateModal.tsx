@@ -103,7 +103,7 @@ export function TicketCreateModal({ opened, onClose, onCreated }: Props) {
             ))}
           </Pill.Group>
         )}
-        <input ref={fileInputRef} type="file" multiple style={{ display: 'none' }} onChange={handleFileSelect} />
+        <input ref={fileInputRef} type="file" multiple onChange={handleFileSelect} style={{ opacity: 0, position: 'absolute', width: '1px', height: '1px', pointerEvents: 'none' }} />
         <Group justify="space-between">
           <ActionIcon variant="default" size="md" onClick={() => fileInputRef.current?.click()}>
             <IconPaperclip size={16} />
