@@ -16,12 +16,10 @@ export async function notifyWebhook(payload: WebhookPayload): Promise<void> {
   ).toString();
 
   const signature = createHmac('sha256', WEBHOOK_SECRET).update(body).digest('hex');
+  const url = `${WEBHOOK_URL}?_sig=${signature}`;
 
-  await axios.post(WEBHOOK_URL, body, {
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'X-Support-Signature': signature,
-    },
+  await axios.post(url, body, {
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     timeout: 5000,
   }).catch(() => {});
 }
