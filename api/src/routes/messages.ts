@@ -9,6 +9,31 @@ import path from 'path';
 const MAX_FILE_SIZE = 20 * 1024 * 1024;
 const FILES_PATH = process.env.FILES_PUBLIC_PATH ?? '/shm_support/v1/files';
 
+const ALLOWED_MIME_TYPES = new Set([
+  // Images
+  'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+  // Documents
+  'application/pdf',
+  'application/msword',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'text/plain',
+  // Archives
+  'application/zip', 'application/x-zip-compressed',
+  // macOS installers
+  'application/x-apple-diskimage',
+  'application/x-newton-compatible-pkg',
+  // Windows installers
+  'application/vnd.microsoft.portable-executable',
+  'application/x-msdownload',
+  'application/x-msi',
+  // Linux installers
+  'application/vnd.debian.binary-package',
+  'application/x-rpm',
+  'application/x-executable',
+  // Android
+  'application/vnd.android.package-archive',
+]);
+
 export default async function messageRoutes(app: FastifyInstance) {
   app.post('/v1/tickets/:id/messages', { preHandler: requireAuth }, async (req, reply) => {
     const { id: ticketId } = req.params as { id: string };
@@ -31,6 +56,9 @@ export default async function messageRoutes(app: FastifyInstance) {
       if (part.type === 'field' && part.fieldname === 'text') {
         text = String(part.value);
       } else if (part.type === 'file') {
+        if (!ALLOWED_MIME_TYPES.has(part.mimetype)) {
+          return reply.status(400).send({ error: `File type not allowed: ${part.mimetype}` });
+        }
         const ext = path.extname(part.filename || '');
         const minioKey = `tickets/${ticketId}/${randomUUID()}${ext}`;
         const chunks: Buffer[] = [];

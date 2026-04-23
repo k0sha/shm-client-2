@@ -25,8 +25,10 @@ export default async function fileRoutes(app: FastifyInstance) {
     }
 
     const stream = await app.minio.getObject(app.minioBucket, key);
+    const filename = key.split('/').pop() ?? 'file';
     reply.header('Content-Type', stat.metaData?.['content-type'] ?? 'application/octet-stream');
     reply.header('Content-Length', stat.size);
+    reply.header('Content-Disposition', `attachment; filename="${encodeURIComponent(filename)}"`);
     reply.header('Cache-Control', 'private, max-age=3600');
     return reply.send(stream);
   });

@@ -40,6 +40,7 @@ export async function fetchShmUser(userId: number): Promise<ShmUserInfo | null> 
     const res = await axios.get(`${SHM_INTERNAL_URL}/shm/v1/admin/user`, {
       headers: adminHeaders(),
       params: { user_id: userId },
+      timeout: 10_000,
     });
     return extractList<ShmUserInfo>(res.data)[0] ?? null;
   } catch {
@@ -52,6 +53,7 @@ export async function fetchShmUserServices(userId: number): Promise<ShmUserServi
     const res = await axios.get(`${SHM_INTERNAL_URL}/shm/v1/admin/user/service`, {
       headers: adminHeaders(),
       params: { user_id: userId },
+      timeout: 10_000,
     });
     return extractList<ShmUserService>(res.data);
   } catch {
