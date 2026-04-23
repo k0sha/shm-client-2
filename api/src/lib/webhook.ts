@@ -1,13 +1,14 @@
 import axios from 'axios';
 import { createHmac } from 'crypto';
 
-const WEBHOOK_URL = process.env.SHM_WEBHOOK_URL ?? '';
+const SHM_INTERNAL_URL = (process.env.SHM_INTERNAL_URL ?? '').replace(/\/$/, '');
 const WEBHOOK_SECRET = process.env.SHM_WEBHOOK_SECRET ?? '';
+const WEBHOOK_PATH = '/shm/v1/public/webhook_support';
 
 type WebhookPayload = Record<string, string | number | null | undefined>;
 
 export async function notifyWebhook(payload: WebhookPayload): Promise<void> {
-  if (!WEBHOOK_URL || !WEBHOOK_SECRET) return;
+  if (!SHM_INTERNAL_URL || !WEBHOOK_SECRET) return;
 
   const body = new URLSearchParams(
     Object.entries(payload)
@@ -16,10 +17,12 @@ export async function notifyWebhook(payload: WebhookPayload): Promise<void> {
   ).toString();
 
   const signature = createHmac('sha256', WEBHOOK_SECRET).update(body).digest('hex');
-  const url = `${WEBHOOK_URL}?_sig=${signature}`;
 
-  await axios.post(url, body, {
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+  await axios.post(`${SHM_INTERNAL_URL}${WEBHOOK_PATH}`, body, {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'X-Support-Signature': signature,
+    },
     timeout: 5000,
   }).catch(() => {});
 }
