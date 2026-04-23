@@ -129,7 +129,11 @@ export default async function ticketRoutes(app: FastifyInstance) {
       return reply.status(403).send({ error: 'Forbidden' });
     }
 
-    const data: Record<string, unknown> = {};
+    const data: {
+      status?: string;
+      assignedTo?: string;
+      assignedToId?: number;
+    } = {};
     if (body.status) data.status = body.status;
     if (isSpecialist && body.take) {
       data.assignedTo = full_name ?? login;
