@@ -32,6 +32,13 @@ const ALLOWED_MIME_TYPES = new Set([
   'application/x-executable',
   // Android
   'application/vnd.android.package-archive',
+  // Browsers often send this for installer files
+  'application/octet-stream',
+]);
+
+// Allowed extensions when MIME is application/octet-stream
+const ALLOWED_OCTET_EXTENSIONS = new Set([
+  '.dmg', '.pkg', '.exe', '.msi', '.deb', '.rpm', '.appimage', '.apk',
 ]);
 
 export default async function messageRoutes(app: FastifyInstance) {
@@ -56,10 +63,13 @@ export default async function messageRoutes(app: FastifyInstance) {
       if (part.type === 'field' && part.fieldname === 'text') {
         text = String(part.value);
       } else if (part.type === 'file') {
+        const ext = path.extname(part.filename || '').toLowerCase();
         if (!ALLOWED_MIME_TYPES.has(part.mimetype)) {
           return reply.status(400).send({ error: `File type not allowed: ${part.mimetype}` });
         }
-        const ext = path.extname(part.filename || '');
+        if (part.mimetype === 'application/octet-stream' && !ALLOWED_OCTET_EXTENSIONS.has(ext)) {
+          return reply.status(400).send({ error: `File type not allowed: ${ext}` });
+        }
         const minioKey = `tickets/${ticketId}/${randomUUID()}${ext}`;
         const chunks: Buffer[] = [];
         for await (const chunk of part.file) chunks.push(chunk);
