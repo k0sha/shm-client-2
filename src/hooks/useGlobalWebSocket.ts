@@ -36,6 +36,8 @@ export function useGlobalWebSocket(enabled: boolean) {
           isSpecialist: boolean;
           target?: 'user' | 'specialist';
           lastMessage?: string | null;
+          status?: string;
+          assignedTo?: string | null;
         };
 
         if (msg.type === 'ticket_updated') {
