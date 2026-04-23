@@ -12,6 +12,7 @@ const FILES_PATH = process.env.FILES_PUBLIC_PATH ?? '/shm_support/v1/files';
 const ALLOWED_MIME_TYPES = new Set([
   // Images
   'image/jpeg', 'image/png', 'image/gif', 'image/webp',
+  'image/heic', 'image/heif',
   // Documents
   'application/pdf',
   'application/msword',
@@ -32,12 +33,15 @@ const ALLOWED_MIME_TYPES = new Set([
   'application/x-executable',
   // Android
   'application/vnd.android.package-archive',
-  // Browsers often send this for installer files
+  // Mobile browsers often send this for any file type
   'application/octet-stream',
 ]);
 
-// Allowed extensions when MIME is application/octet-stream
+// All allowed extensions — used as fallback when MIME is application/octet-stream
 const ALLOWED_OCTET_EXTENSIONS = new Set([
+  '.jpg', '.jpeg', '.png', '.gif', '.webp', '.heic', '.heif',
+  '.pdf', '.doc', '.docx', '.txt',
+  '.zip',
   '.dmg', '.pkg', '.exe', '.msi', '.deb', '.rpm', '.appimage', '.apk',
 ]);
 
