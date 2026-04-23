@@ -10,7 +10,7 @@ import { useStore } from '../store/useStore';
 import { TicketStatusBadge } from '../components/support/TicketStatusBadge';
 import { TicketCreateModal } from '../components/support/TicketCreateModal';
 import { supportApi } from '../api/supportApi';
-import type { Ticket } from '../data/mockTickets';
+import type { Ticket } from '../types/tickets';
 
 const ACTIVE_STATUSES = new Set(['open', 'in_progress', 'waiting']);
 const CLOSED_STATUSES = new Set(['resolved', 'closed']);

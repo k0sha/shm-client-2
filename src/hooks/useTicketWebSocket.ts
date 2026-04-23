@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
-import type { TicketMessage } from '../data/mockTickets';
+import type { TicketMessage } from '../types/tickets';
 
 function transformMessage(m: Record<string, unknown>): TicketMessage {
   const attachments = (m.attachments as Record<string, unknown>[] | undefined)?.map((a) => ({

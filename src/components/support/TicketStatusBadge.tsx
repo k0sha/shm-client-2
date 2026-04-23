@@ -1,6 +1,6 @@
 import { Badge } from '@mantine/core';
 import { useTranslation } from 'react-i18next';
-import type { TicketStatus } from '../../data/mockTickets';
+import type { TicketStatus } from '../../types/tickets';
 
 const STATUS_COLORS: Record<TicketStatus, string> = {
   open: 'blue',

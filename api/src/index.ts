@@ -16,7 +16,7 @@ import wsRoutes from './routes/ws.js';
 const app = Fastify({ logger: true });
 
 await app.register(cookie);
-await app.register(cors, { origin: process.env.CORS_ORIGIN ?? true, credentials: true });
+await app.register(cors, { origin: process.env.CORS_ORIGIN || false, credentials: true });
 await app.register(multipart);
 await app.register(websocket);
 await app.register(prismaPlugin);

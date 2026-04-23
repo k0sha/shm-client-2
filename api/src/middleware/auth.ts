@@ -12,6 +12,13 @@ interface CacheEntry {
 
 const cache = new Map<string, CacheEntry>();
 
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, entry] of cache) {
+    if (entry.expiresAt <= now) cache.delete(key);
+  }
+}, 60_000);
+
 export async function resolveSession(sessionId: string): Promise<AuthUser> {
   const cached = cache.get(sessionId);
   if (cached && cached.expiresAt > Date.now()) return cached.user;

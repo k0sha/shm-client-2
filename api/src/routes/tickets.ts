@@ -4,6 +4,8 @@ import { notifyWebhook } from '../lib/webhook.js';
 import { notifySpecialists } from '../ws/notifyRegistry.js';
 
 const FILES_PATH = process.env.FILES_PUBLIC_PATH ?? '/shm_support/v1/files';
+const VALID_TICKET_TYPES = new Set(['vpn', 'setup', 'payment', 'account', 'other']);
+const MAX_TICKETS = 500;
 
 function attachFileUrls(
   messages: Array<{ attachments: Array<{ minioKey: string }> } & Record<string, unknown>>,
@@ -19,15 +21,18 @@ export default async function ticketRoutes(app: FastifyInstance) {
   // GET /v1/tickets
   app.get('/v1/tickets', { preHandler: requireAuth }, async (req) => {
     const { user_id, isSpecialist } = req.authUser;
-    const query = req.query as { status?: string; own?: string };
+    const query = req.query as { status?: string; own?: string; limit?: string };
 
     const where: Record<string, unknown> = {};
     if (!isSpecialist || query.own === 'true') where.userId = user_id;
     if (query.status) where.status = query.status;
 
+    const limit = Math.min(Number(query.limit) || MAX_TICKETS, MAX_TICKETS);
+
     const tickets = await app.prisma.ticket.findMany({
       where,
       orderBy: { updatedAt: 'desc' },
+      take: limit,
       select: {
         id: true,
         number: true,
@@ -56,7 +61,9 @@ export default async function ticketRoutes(app: FastifyInstance) {
     const { user_id, login, login2, full_name } = req.authUser;
     const body = req.body as { type?: string };
 
-    if (!body.type) return reply.status(400).send({ error: 'type required' });
+    if (!body.type || !VALID_TICKET_TYPES.has(body.type)) {
+      return reply.status(400).send({ error: 'invalid ticket type' });
+    }
 
     const ticket = await app.prisma.ticket.create({
       data: {

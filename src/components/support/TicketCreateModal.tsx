@@ -4,7 +4,7 @@ import { IconPaperclip } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { notifications } from '@mantine/notifications';
 import { supportApi } from '../../api/supportApi';
-import type { Ticket, TicketType } from '../../data/mockTickets';
+import type { Ticket, TicketType } from '../../types/tickets';
 
 interface Props {
   opened: boolean;

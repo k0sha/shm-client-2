@@ -13,7 +13,7 @@ import { TicketStatusBadge } from '../components/support/TicketStatusBadge';
 import { supportApi } from '../api/supportApi';
 import { useTicketWebSocket } from '../hooks/useTicketWebSocket';
 import { useStore } from '../store/useStore';
-import type { Ticket, TicketMessage, TicketAttachment, TicketUserInfo } from '../data/mockTickets';
+import type { Ticket, TicketMessage, TicketAttachment, TicketUserInfo } from '../types/tickets';
 
 function formatTime(iso: string): string {
   const d = new Date(iso);

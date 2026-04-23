@@ -1,7 +1,7 @@
 import type { InternalAxiosRequestConfig } from 'axios';
 import axios from 'axios';
 import { getCookie } from './cookie';
-import type { Ticket, TicketMessage, TicketAttachment, TicketUserInfo, TicketType } from '../data/mockTickets';
+import type { Ticket, TicketMessage, TicketAttachment, TicketUserInfo, TicketType } from '../types/tickets';
 
 const client = axios.create({ baseURL: '/shm_support/v1', withCredentials: true });
 

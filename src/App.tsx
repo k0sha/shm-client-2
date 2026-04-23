@@ -13,6 +13,7 @@ import { auth, storageApi } from './api/client';
 import { clearInviteTelegramFlow, clearInviteWebsiteFlow, clearPendingInviteChoice, getCookie, getInviteStart, hasInviteTelegramFlow, hasPendingInviteChoice, markInviteTelegramFlow, markInviteWebsiteFlow, parseAndSaveInviteStart, removeCookie, removeInviteStart, parseAndSavePartnerId, parseAndSaveSessionId } from './api/cookie';
 import { config } from './config';
 import LanguageSwitcher from './components/LanguageSwitcher';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { useTelegramWebApp } from './hooks/useTelegramWebApp';
 import { useEmailRequired } from './hooks/useEmailRequired';
 import { useGlobalWebSocket } from './hooks/useGlobalWebSocket';
@@ -873,9 +874,11 @@ function App() {
   return (
     <MantineProvider theme={theme} defaultColorScheme="auto">
       <Notifications position="top-right" />
-      <BrowserRouter basename={basePath}>
-        <AppContent />
-      </BrowserRouter>
+      <ErrorBoundary>
+        <BrowserRouter basename={basePath}>
+          <AppContent />
+        </BrowserRouter>
+      </ErrorBoundary>
     </MantineProvider>
   );
 }
