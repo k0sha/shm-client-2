@@ -351,6 +351,12 @@ function BottomNavigation() {
   );
 }
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
+  return null;
+}
+
 function AppContent() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -709,6 +715,7 @@ function AppContent() {
   if (isTelegramWebAppRuntime || isMobile) {
     return (
       <>
+        <ScrollToTop />
         {emailRequiredModal}
         {verifyRequiredModal}
         {versionModal}
@@ -742,6 +749,7 @@ function AppContent() {
 
   return (
     <>
+      <ScrollToTop />
       {emailRequiredModal}
       {verifyRequiredModal}
       {versionModal}
