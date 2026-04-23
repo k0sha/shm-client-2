@@ -8,11 +8,7 @@ const WEBHOOK_PATH = '/shm/v1/public/webhook_support';
 type WebhookPayload = Record<string, string | number | null | undefined>;
 
 export async function notifyWebhook(payload: WebhookPayload): Promise<void> {
-  console.log('[webhook] called, url:', SHM_INTERNAL_URL, 'secret set:', !!WEBHOOK_SECRET, 'payload:', payload);
-  if (!SHM_INTERNAL_URL || !WEBHOOK_SECRET) {
-    console.log('[webhook] skipped: missing url or secret');
-    return;
-  }
+  if (!SHM_INTERNAL_URL || !WEBHOOK_SECRET) return;
 
   const body = new URLSearchParams(
     Object.entries(payload)
@@ -22,11 +18,8 @@ export async function notifyWebhook(payload: WebhookPayload): Promise<void> {
 
   const signature = createHmac('sha256', WEBHOOK_SECRET).update(body).digest('hex');
 
-  await axios.post(`${SHM_INTERNAL_URL}${WEBHOOK_PATH}`, body, {
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'X-Support-Signature': signature,
-    },
+  await axios.post(`${SHM_INTERNAL_URL}${WEBHOOK_PATH}?_sig=${signature}`, body, {
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
     timeout: 5000,
   }).catch((err) => {
     console.error('[webhook] error:', err?.message, err?.response?.status, err?.response?.data);
