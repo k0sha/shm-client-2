@@ -484,7 +484,7 @@ function AppContent() {
       try {
         const response = await auth.getCurrentUser();
         const responseData = response.data.data;
-        const userData: any = Array.isArray(responseData) ? responseData[0] : responseData;
+        const userData = Array.isArray(responseData) ? responseData[0] : responseData;
         setUser(userData);
       } catch {
         removeCookie();

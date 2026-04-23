@@ -8,13 +8,15 @@ function buildUrlWithoutSearchParam(paramName: string): string {
 function replaceUrlWithoutSearchParam(paramName: string): void {
   window.history.replaceState({}, '', buildUrlWithoutSearchParam(paramName));
 }
+const SECURE = window.location.protocol === 'https:' ? ';Secure' : '';
+
 const COOKIE_NAME = 'session_id';
 const COOKIE_DAYS = 3;
 
 export function setCookie(value: string): void {
   const expires = new Date();
   expires.setTime(expires.getTime() + COOKIE_DAYS * 24 * 60 * 60 * 1000);
-  document.cookie = `${COOKIE_NAME}=${value};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+  document.cookie = `${COOKIE_NAME}=${value};expires=${expires.toUTCString()};path=/;SameSite=Lax${SECURE}`;
 }
 
 export function getCookie(): string | null {
@@ -31,7 +33,7 @@ export function getCookie(): string | null {
 }
 
 export function removeCookie(): void {
-  document.cookie = `${COOKIE_NAME}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=Lax`;
+  document.cookie = `${COOKIE_NAME}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=Lax${SECURE}`;
 }
 
 export function extendCookie(): void {
@@ -47,7 +49,7 @@ const PARTNER_COOKIE_DAYS = 30;
 export function setPartnerCookie(value: string): void {
   const expires = new Date();
   expires.setTime(expires.getTime() + PARTNER_COOKIE_DAYS * 24 * 60 * 60 * 1000);
-  document.cookie = `${PARTNER_COOKIE_NAME}=${value};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+  document.cookie = `${PARTNER_COOKIE_NAME}=${value};expires=${expires.toUTCString()};path=/;SameSite=Lax${SECURE}`;
 }
 
 export function getPartnerCookie(): string | null {
@@ -64,7 +66,7 @@ export function getPartnerCookie(): string | null {
 }
 
 export function removePartnerCookie(): void {
-  document.cookie = `${PARTNER_COOKIE_NAME}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=Lax`;
+  document.cookie = `${PARTNER_COOKIE_NAME}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=Lax${SECURE}`;
 }
 
 const INVITE_START_STORAGE_KEY = 'invite_start';
@@ -221,7 +223,7 @@ const RESET_TOKEN_COOKIE_MINUTES = 60;
 export function setResetTokenCookie(value: string): void {
   const expires = new Date();
   expires.setTime(expires.getTime() + RESET_TOKEN_COOKIE_MINUTES * 60 * 1000);
-  document.cookie = `${RESET_TOKEN_COOKIE_NAME}=${value};expires=${expires.toUTCString()};path=/;SameSite=Lax`;
+  document.cookie = `${RESET_TOKEN_COOKIE_NAME}=${value};expires=${expires.toUTCString()};path=/;SameSite=Lax${SECURE}`;
 }
 
 export function getResetTokenCookie(): string | null {
@@ -238,7 +240,7 @@ export function getResetTokenCookie(): string | null {
 }
 
 export function removeResetTokenCookie(): void {
-  document.cookie = `${RESET_TOKEN_COOKIE_NAME}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=Lax`;
+  document.cookie = `${RESET_TOKEN_COOKIE_NAME}=;expires=Thu, 01 Jan 1970 00:00:00 UTC;path=/;SameSite=Lax${SECURE}`;
 }
 
 export function parseAndSaveResetToken(): string | null {
