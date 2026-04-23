@@ -23,19 +23,13 @@ a:hover {
 }
 
 html {
-  overflow-y: scroll;
+  overflow-y: scroll !important;
 }
 
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
-}
-
-/* предотвращает прыжок контента при появлении/исчезновении скроллбара */
-[data-mantine-component="AppShellMain"],
-.mantine-AppShell-main {
-  scrollbar-gutter: stable;
 }
 
 h1 {
