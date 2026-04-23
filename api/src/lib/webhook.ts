@@ -4,9 +4,6 @@ import { createHmac } from 'crypto';
 const WEBHOOK_URL = process.env.SHM_WEBHOOK_URL ?? '';
 const WEBHOOK_SECRET = process.env.SHM_WEBHOOK_SECRET ?? '';
 
-export const SPECIALIST_USER_IDS: number[] = (process.env.SPECIALIST_USER_IDS ?? '')
-  .split(',').map(Number).filter(Boolean);
-
 type WebhookPayload = Record<string, string | number | null | undefined>;
 
 export async function notifyWebhook(payload: WebhookPayload): Promise<void> {
@@ -27,11 +24,4 @@ export async function notifyWebhook(payload: WebhookPayload): Promise<void> {
     },
     timeout: 5000,
   }).catch(() => {});
-}
-
-export async function notifySpecialistsWebhook(payload: WebhookPayload): Promise<void> {
-  if (SPECIALIST_USER_IDS.length === 0) return;
-  await Promise.all(
-    SPECIALIST_USER_IDS.map((userId) => notifyWebhook({ ...payload, user_id: userId }))
-  );
 }

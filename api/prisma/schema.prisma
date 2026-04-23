@@ -17,6 +17,7 @@ model Ticket {
   type         String
   status       String    @default("open")
   assignedTo   String?
+  assignedToId Int?
   lastMessage    String?
   unreadForUser  Int       @default(0)
   unreadForSpec  Int       @default(0)

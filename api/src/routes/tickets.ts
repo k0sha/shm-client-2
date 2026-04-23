@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { requireAuth, requireSpecialist } from '../middleware/auth.js';
-import { notifyWebhook, notifySpecialistsWebhook } from '../lib/webhook.js';
+import { notifyWebhook } from '../lib/webhook.js';
 
 const FILES_PATH = process.env.FILES_PUBLIC_PATH ?? '/shm_support/v1/files';
 
@@ -68,11 +68,12 @@ export default async function ticketRoutes(app: FastifyInstance) {
       },
     });
 
-    notifySpecialistsWebhook({
+    notifyWebhook({
       event: 'support_new_ticket',
       ticket_id: ticket.id,
       ticket_number: ticket.number,
       ticket_type: ticket.type,
+      user_login: ticket.userLogin,
       user_id: ticket.userId,
     });
 
@@ -132,6 +133,7 @@ export default async function ticketRoutes(app: FastifyInstance) {
     if (body.status) data.status = body.status;
     if (isSpecialist && body.take) {
       data.assignedTo = full_name ?? login;
+      data.assignedToId = user_id;
       data.status = 'in_progress';
     }
 

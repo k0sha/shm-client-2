@@ -31,7 +31,6 @@ services:
       SHM_ADMIN_PASSWORD: "${SHM_ADMIN_PASSWORD}"
       SHM_WEBHOOK_URL: "${SHM_WEBHOOK_URL}"
       SHM_WEBHOOK_SECRET: "${SHM_WEBHOOK_SECRET}"
-      SPECIALIST_USER_IDS: "${SPECIALIST_USER_IDS}"
     depends_on:
       postgres:
         condition: service_healthy
