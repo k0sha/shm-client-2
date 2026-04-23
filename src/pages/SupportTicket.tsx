@@ -532,9 +532,9 @@ export default function SupportTicket() {
               }
             }}
           />
-          <input id="ticket-file-input" type="file" multiple style={{ display: 'none' }} onChange={handleFileSelect} accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.txt,.zip,.dmg,.pkg,.exe,.msi,.deb,.rpm,.AppImage,.apk" />
           <Group justify="space-between" mt="xs">
-            <label htmlFor="ticket-file-input" style={{ cursor: 'pointer', display: 'flex' }}>
+            <label style={{ cursor: 'pointer', display: 'flex', position: 'relative' }}>
+              <input type="file" multiple onChange={handleFileSelect} accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.txt,.zip,.dmg,.pkg,.exe,.msi,.deb,.rpm,.AppImage,.apk" style={{ position: 'absolute', inset: 0, opacity: 0, width: '100%', height: '100%', cursor: 'pointer' }} />
               <ActionIcon size="lg" variant="subtle" color="gray" component="span">
                 <IconPaperclip size={20} />
               </ActionIcon>

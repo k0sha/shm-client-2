@@ -103,9 +103,9 @@ export function TicketCreateModal({ opened, onClose, onCreated }: Props) {
             ))}
           </Pill.Group>
         )}
-        <input id="create-ticket-file-input" type="file" multiple style={{ display: 'none' }} onChange={handleFileSelect} accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.txt,.zip,.dmg,.pkg,.exe,.msi,.deb,.rpm,.AppImage,.apk" />
         <Group justify="space-between">
-          <label htmlFor="create-ticket-file-input" style={{ cursor: 'pointer', display: 'flex' }}>
+          <label style={{ cursor: 'pointer', display: 'flex', position: 'relative' }}>
+            <input type="file" multiple onChange={handleFileSelect} accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.txt,.zip,.dmg,.pkg,.exe,.msi,.deb,.rpm,.AppImage,.apk" style={{ position: 'absolute', inset: 0, opacity: 0, width: '100%', height: '100%', cursor: 'pointer' }} />
             <ActionIcon variant="default" size="md" component="span">
               <IconPaperclip size={16} />
             </ActionIcon>
