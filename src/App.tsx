@@ -315,6 +315,7 @@ function BottomNavigation() {
                 key={item.path}
                 onClick={() => handleClick(item.path)}
                 style={{
+                  position: 'relative',
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
@@ -329,19 +330,17 @@ function BottomNavigation() {
                   transition: 'all 0.2s ease',
                 }}
               >
-                <Box style={{ position: 'relative', display: 'inline-flex' }}>
-                  <Icon size={20} />
-                  {item.path === '/support' && supportUnreadCount > 0 && (
-                    <Badge size="xs" variant="filled" color="red" circle style={{ position: 'absolute', top: -6, right: -8, minWidth: 16, height: 16, fontSize: 9, padding: '0 3px' }}>
-                      {supportUnreadCount}
-                    </Badge>
-                  )}
-                  {item.path === '/tickets' && ticketsUnreadCount > 0 && (
-                    <Badge size="xs" variant="filled" color="red" circle style={{ position: 'absolute', top: -6, right: -8, minWidth: 16, height: 16, fontSize: 9, padding: '0 3px' }}>
-                      {ticketsUnreadCount}
-                    </Badge>
-                  )}
-                </Box>
+                <Icon size={20} />
+                {item.path === '/support' && supportUnreadCount > 0 && (
+                  <Badge size="xs" variant="filled" color="red" circle style={{ position: 'absolute', top: 4, right: 4, minWidth: 16, height: 16, fontSize: 9, padding: '0 3px' }}>
+                    {supportUnreadCount}
+                  </Badge>
+                )}
+                {item.path === '/tickets' && ticketsUnreadCount > 0 && (
+                  <Badge size="xs" variant="filled" color="red" circle style={{ position: 'absolute', top: 4, right: 4, minWidth: 16, height: 16, fontSize: 9, padding: '0 3px' }}>
+                    {ticketsUnreadCount}
+                  </Badge>
+                )}
                 <Text size="xs" mt={4} fw={isActive ? 600 : 400}>{t(item.labelKey)}</Text>
               </Box>
             );
@@ -782,26 +781,23 @@ function AppContent() {
                 const unread = item.path === '/support' ? supportUnreadCount
                   : item.path === '/tickets' ? ticketsUnreadCount : 0;
                 return (
-                  <Button
-                    key={item.path}
-                    component={Link}
-                    to={item.path}
-                    leftSection={
-                      <Box style={{ position: 'relative', display: 'inline-flex' }}>
-                        <Icon size={16} />
-                        {unread > 0 && (
-                          <Badge size="xs" variant="filled" color="red" circle style={{ position: 'absolute', top: -6, right: -8, minWidth: 16, height: 16, fontSize: 9, padding: '0 3px' }}>
-                            {unread}
-                          </Badge>
-                        )}
-                      </Box>
-                    }
-                    variant={isActive ? 'light' : 'subtle'}
-                    size="xs"
-                    radius="md"
-                  >
-                    {t(item.labelKey)}
-                  </Button>
+                  <Box key={item.path} style={{ position: 'relative', display: 'inline-flex' }}>
+                    <Button
+                      component={Link}
+                      to={item.path}
+                      leftSection={<Icon size={16} />}
+                      variant={isActive ? 'light' : 'subtle'}
+                      size="xs"
+                      radius="md"
+                    >
+                      {t(item.labelKey)}
+                    </Button>
+                    {unread > 0 && (
+                      <Badge size="xs" variant="filled" color="red" circle style={{ position: 'absolute', top: 3, right: 3, minWidth: 16, height: 16, fontSize: 9, padding: '0 3px' }}>
+                        {unread}
+                      </Badge>
+                    )}
+                  </Box>
                 );
               })}
             </Group>
