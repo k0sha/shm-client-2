@@ -11,7 +11,7 @@ import { notifications } from '@mantine/notifications';
 import { useComputedColorScheme } from '@mantine/core';
 import { TicketStatusBadge } from '../components/support/TicketStatusBadge';
 import { supportApi } from '../api/supportApi';
-import { useTicketWebSocket } from '../hooks/useTicketWebSocket';
+import { useTicketWebSocket, type TicketUpdate } from '../hooks/useTicketWebSocket';
 import { useStore } from '../store/useStore';
 import type { Ticket, TicketMessage, TicketAttachment, TicketUserInfo } from '../types/tickets';
 
@@ -279,7 +279,11 @@ export default function SupportTicket() {
     });
   }, []);
 
-  useTicketWebSocket(ticketId, handleWsMessage);
+  const handleWsTicketUpdate = useCallback((update: TicketUpdate) => {
+    setTicket((prev) => prev ? { ...prev, status: update.status as Ticket['status'], assignedTo: update.assignedTo ?? undefined } : prev);
+  }, []);
+
+  useTicketWebSocket(ticketId, handleWsMessage, handleWsTicketUpdate);
 
   useEffect(() => {
     if (!ticketId) return;

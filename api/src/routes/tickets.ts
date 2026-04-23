@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import { requireAuth, requireSpecialist } from '../middleware/auth.js';
 import { notifyWebhook } from '../lib/webhook.js';
 import { notifySpecialists } from '../ws/notifyRegistry.js';
+import { broadcast } from '../ws/registry.js';
 
 const FILES_PATH = process.env.FILES_PUBLIC_PATH ?? '/shm_support/v1/files';
 const VALID_TICKET_TYPES = new Set(['vpn', 'setup', 'payment', 'account', 'other']);
@@ -152,6 +153,12 @@ export default async function ticketRoutes(app: FastifyInstance) {
     }
 
     const updated = await app.prisma.ticket.update({ where: { id }, data });
+
+    broadcast(id, {
+      type: 'ticket_updated',
+      status: updated.status,
+      assignedTo: updated.assignedTo ?? null,
+    });
 
     if (data.status) {
       notifyWebhook({

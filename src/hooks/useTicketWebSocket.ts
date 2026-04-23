@@ -27,9 +27,15 @@ function buildWsUrl(ticketId: string): string {
   return `${proto}://${window.location.host}/shm_support/v1/tickets/${ticketId}/ws`;
 }
 
+export interface TicketUpdate {
+  status: string;
+  assignedTo: string | null;
+}
+
 export function useTicketWebSocket(
   ticketId: string | undefined,
   onMessage: (msg: TicketMessage) => void,
+  onTicketUpdate?: (update: TicketUpdate) => void,
 ) {
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -37,6 +43,8 @@ export function useTicketWebSocket(
   const destroyedRef = useRef(false);
   const onMessageRef = useRef(onMessage);
   onMessageRef.current = onMessage;
+  const onTicketUpdateRef = useRef(onTicketUpdate);
+  onTicketUpdateRef.current = onTicketUpdate;
 
   const connect = useCallback(() => {
     if (!ticketId || destroyedRef.current) return;
@@ -48,9 +56,11 @@ export function useTicketWebSocket(
 
     ws.onmessage = (event) => {
       try {
-        const envelope = JSON.parse(event.data as string) as { type: string; data: Record<string, unknown> };
-        if (envelope.type === 'message') {
+        const envelope = JSON.parse(event.data as string) as { type: string; data?: Record<string, unknown>; status?: string; assignedTo?: string | null };
+        if (envelope.type === 'message' && envelope.data) {
           onMessageRef.current(transformMessage(envelope.data));
+        } else if (envelope.type === 'ticket_updated') {
+          onTicketUpdateRef.current?.({ status: envelope.status!, assignedTo: envelope.assignedTo ?? null });
         }
       } catch { /* ignore malformed */ }
     };
