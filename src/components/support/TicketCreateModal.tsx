@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal, Stack, Textarea, Select, Button, Group, ActionIcon, Pill } from '@mantine/core';
+import { Modal, Stack, Textarea, Select, Button, Group, ActionIcon, Pill, Box } from '@mantine/core';
 import { IconPaperclip } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { notifications } from '@mantine/notifications';
@@ -104,12 +104,12 @@ export function TicketCreateModal({ opened, onClose, onCreated }: Props) {
           </Pill.Group>
         )}
         <Group justify="space-between">
-          <label style={{ cursor: 'pointer', display: 'flex', position: 'relative' }}>
-            <input type="file" multiple onChange={handleFileSelect} accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.txt,.zip,.dmg,.pkg,.exe,.msi,.deb,.rpm,.AppImage,.apk" style={{ position: 'absolute', inset: 0, opacity: 0, width: '100%', height: '100%', cursor: 'pointer' }} />
-            <ActionIcon variant="default" size="md" component="span">
+          <Box style={{ position: 'relative', display: 'inline-flex' }}>
+            <ActionIcon variant="default" size="md" tabIndex={-1} aria-hidden>
               <IconPaperclip size={16} />
             </ActionIcon>
-          </label>
+            <input type="file" multiple onChange={handleFileSelect} accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.txt,.zip,.dmg,.pkg,.exe,.msi,.deb,.rpm,.AppImage,.apk" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }} />
+          </Box>
           <Group gap="xs">
             <Button variant="light" onClick={handleClose}>{t('common.cancel')}</Button>
             <Button onClick={handleSubmit} loading={loading}>{t('tickets.send')}</Button>

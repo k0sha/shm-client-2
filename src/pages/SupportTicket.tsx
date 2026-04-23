@@ -533,12 +533,12 @@ export default function SupportTicket() {
             }}
           />
           <Group justify="space-between" mt="xs">
-            <label style={{ cursor: 'pointer', display: 'flex', position: 'relative' }}>
-              <input type="file" multiple onChange={handleFileSelect} accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.txt,.zip,.dmg,.pkg,.exe,.msi,.deb,.rpm,.AppImage,.apk" style={{ position: 'absolute', inset: 0, opacity: 0, width: '100%', height: '100%', cursor: 'pointer' }} />
-              <ActionIcon size="lg" variant="subtle" color="gray" component="span">
+            <Box style={{ position: 'relative', display: 'inline-flex' }}>
+              <ActionIcon size="lg" variant="subtle" color="gray" tabIndex={-1} aria-hidden>
                 <IconPaperclip size={20} />
               </ActionIcon>
-            </label>
+              <input type="file" multiple onChange={handleFileSelect} accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.txt,.zip,.dmg,.pkg,.exe,.msi,.deb,.rpm,.AppImage,.apk" style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', opacity: 0, cursor: 'pointer' }} />
+            </Box>
             <Button
               variant="filled"
               size="sm"
