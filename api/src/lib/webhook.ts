@@ -24,5 +24,7 @@ export async function notifyWebhook(payload: WebhookPayload): Promise<void> {
       'X-Support-Signature': signature,
     },
     timeout: 5000,
-  }).catch(() => {});
+  }).catch((err) => {
+    console.error('[webhook] error:', err?.message, err?.response?.status, err?.response?.data);
+  });
 }
