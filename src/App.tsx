@@ -729,7 +729,7 @@ function AppContent() {
           <WebAppHeader onShowVersion={showVersion} />
         </Box>
         <Box style={{ minHeight: '100vh', paddingTop: 60, paddingBottom: 110 }}>
-          <Box px="md">
+          <Box px="md" pt="md">
             <Routes>
               <Route path="/" element={<Services />} />
               <Route path="/profile" element={<Profile />} />

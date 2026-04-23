@@ -1,7 +1,7 @@
 {
   "name": "shm-client",
   "private": true,
-  "version": "2.5.3.80",
+  "version": "2.5.3.81",
   "type": "module",
   "scripts": {
     "dev": "vite",
