@@ -268,7 +268,6 @@ export default function SupportTicket() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [sending, setSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const markedReadRef = useRef(false);
 
   const handleWsMessage = useCallback((msg: TicketMessage) => {
@@ -533,11 +532,13 @@ export default function SupportTicket() {
               }
             }}
           />
-          <input ref={fileInputRef} type="file" multiple style={{ display: 'none' }} onChange={handleFileSelect} accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.txt,.zip,.dmg,.pkg,.exe,.msi,.deb,.rpm,.AppImage,.apk" />
+          <input id="ticket-file-input" type="file" multiple style={{ display: 'none' }} onChange={handleFileSelect} accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.txt,.zip,.dmg,.pkg,.exe,.msi,.deb,.rpm,.AppImage,.apk" />
           <Group justify="space-between" mt="xs">
-            <ActionIcon size="lg" variant="subtle" color="gray" onClick={() => fileInputRef.current?.click()}>
-              <IconPaperclip size={20} />
-            </ActionIcon>
+            <label htmlFor="ticket-file-input" style={{ cursor: 'pointer', display: 'flex' }}>
+              <ActionIcon size="lg" variant="subtle" color="gray" component="span">
+                <IconPaperclip size={20} />
+              </ActionIcon>
+            </label>
             <Button
               variant="filled"
               size="sm"

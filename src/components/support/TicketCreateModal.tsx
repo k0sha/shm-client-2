@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState } from 'react';
 import { Modal, Stack, Textarea, Select, Button, Group, ActionIcon, Pill } from '@mantine/core';
 import { IconPaperclip } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
@@ -22,7 +22,7 @@ export function TicketCreateModal({ opened, onClose, onCreated }: Props) {
   const [type, setType] = useState<TicketType | null>(null);
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
@@ -103,11 +103,13 @@ export function TicketCreateModal({ opened, onClose, onCreated }: Props) {
             ))}
           </Pill.Group>
         )}
-        <input ref={fileInputRef} type="file" multiple style={{ display: 'none' }} onChange={handleFileSelect} accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.txt,.zip,.dmg,.pkg,.exe,.msi,.deb,.rpm,.AppImage,.apk" />
+        <input id="create-ticket-file-input" type="file" multiple style={{ display: 'none' }} onChange={handleFileSelect} accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.txt,.zip,.dmg,.pkg,.exe,.msi,.deb,.rpm,.AppImage,.apk" />
         <Group justify="space-between">
-          <ActionIcon variant="default" size="md" onClick={() => fileInputRef.current?.click()}>
-            <IconPaperclip size={16} />
-          </ActionIcon>
+          <label htmlFor="create-ticket-file-input" style={{ cursor: 'pointer', display: 'flex' }}>
+            <ActionIcon variant="default" size="md" component="span">
+              <IconPaperclip size={16} />
+            </ActionIcon>
+          </label>
           <Group gap="xs">
             <Button variant="light" onClick={handleClose}>{t('common.cancel')}</Button>
             <Button onClick={handleSubmit} loading={loading}>{t('tickets.send')}</Button>
