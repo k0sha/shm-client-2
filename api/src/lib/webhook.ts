@@ -8,7 +8,11 @@ const WEBHOOK_PATH = '/shm/v1/public/webhook_support';
 type WebhookPayload = Record<string, string | number | null | undefined>;
 
 export async function notifyWebhook(payload: WebhookPayload): Promise<void> {
-  if (!SHM_INTERNAL_URL || !WEBHOOK_SECRET) return;
+  console.log('[webhook] called, url:', SHM_INTERNAL_URL, 'secret set:', !!WEBHOOK_SECRET, 'payload:', payload);
+  if (!SHM_INTERNAL_URL || !WEBHOOK_SECRET) {
+    console.log('[webhook] skipped: missing url or secret');
+    return;
+  }
 
   const body = new URLSearchParams(
     Object.entries(payload)
