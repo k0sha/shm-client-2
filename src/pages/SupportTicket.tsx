@@ -308,11 +308,28 @@ export default function SupportTicket() {
     markTicketOpened(ticket.id);
   }, [ticket?.id]);
 
-  useEffect(() => {
+  const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
     if (scrollRef.current) {
-      scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
+      scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior });
     }
-  }, [ticket?.messages.length]);
+  }, []);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [ticket?.messages.length, scrollToBottom]);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const observer = new ResizeObserver(() => {
+      const { scrollTop, scrollHeight, clientHeight } = el;
+      if (scrollHeight - scrollTop - clientHeight < 200) {
+        el.scrollTop = scrollHeight;
+      }
+    });
+    if (el.firstElementChild) observer.observe(el.firstElementChild);
+    return () => observer.disconnect();
+  }, []);
 
   if (loading) return <Center py="xl"><Loader /></Center>;
 
