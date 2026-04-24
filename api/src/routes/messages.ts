@@ -9,37 +9,27 @@ import path from 'path';
 const MAX_FILE_SIZE = 500 * 1024 * 1024;
 const FILES_PATH = process.env.FILES_PUBLIC_PATH ?? '/shm_support/v1/files';
 
+// Разрешённые MIME-типы
 const ALLOWED_MIME_TYPES = new Set([
-  // Images
-  'image/jpeg', 'image/png', 'image/gif', 'image/webp',
-  'image/heic', 'image/heif',
-  // Documents
+  'image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/heic', 'image/heif', 'image/bmp',
+  'video/mp4', 'video/quicktime', 'video/x-msvideo', 'video/webm',
   'application/pdf',
   'application/msword',
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'text/plain',
-  // Archives
   'application/zip', 'application/x-zip-compressed',
-  // macOS installers
-  'application/x-apple-diskimage',
+  'application/x-apple-diskimage', 'application/zlib',
   'application/x-newton-compatible-pkg',
-  // Windows installers
-  'application/vnd.microsoft.portable-executable',
-  'application/x-msdownload',
-  'application/x-msi',
-  // Linux installers
-  'application/vnd.debian.binary-package',
-  'application/x-rpm',
-  'application/x-executable',
-  // Android
+  'application/vnd.microsoft.portable-executable', 'application/x-msdownload', 'application/x-msi',
+  'application/vnd.debian.binary-package', 'application/x-rpm', 'application/x-executable',
   'application/vnd.android.package-archive',
-  // Mobile browsers often send this for any file type
   'application/octet-stream',
 ]);
 
-// All allowed extensions — used as fallback when MIME is application/octet-stream
-const ALLOWED_OCTET_EXTENSIONS = new Set([
-  '.jpg', '.jpeg', '.png', '.gif', '.webp', '.heic', '.heif',
+// Разрешённые расширения — второй рубеж если MIME неизвестен/нестандартен
+const ALLOWED_EXTENSIONS = new Set([
+  '.jpg', '.jpeg', '.png', '.gif', '.webp', '.heic', '.heif', '.bmp',
+  '.mp4', '.mov', '.avi', '.webm',
   '.pdf', '.doc', '.docx', '.txt',
   '.zip',
   '.dmg', '.pkg', '.exe', '.msi', '.deb', '.rpm', '.appimage', '.apk',
@@ -68,11 +58,10 @@ export default async function messageRoutes(app: FastifyInstance) {
         text = String(part.value);
       } else if (part.type === 'file') {
         const ext = path.extname(part.filename || '').toLowerCase();
-        if (!ALLOWED_MIME_TYPES.has(part.mimetype)) {
+        const mimeAllowed = ALLOWED_MIME_TYPES.has(part.mimetype);
+        const extAllowed = ALLOWED_EXTENSIONS.has(ext);
+        if (!mimeAllowed && !extAllowed) {
           return reply.status(400).send({ error: `File type not allowed: ${part.mimetype}` });
-        }
-        if (part.mimetype === 'application/octet-stream' && !ALLOWED_OCTET_EXTENSIONS.has(ext)) {
-          return reply.status(400).send({ error: `File type not allowed: ${ext}` });
         }
         const minioKey = `tickets/${ticketId}/${randomUUID()}${ext}`;
         const chunks: Buffer[] = [];

@@ -533,7 +533,7 @@ export default function SupportTicket() {
               }
             }}
           />
-          <input ref={fileInputRef} type="file" multiple style={{ display: 'none' }} onChange={handleFileSelect} accept="image/*,video/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain,application/zip,application/x-zip-compressed,application/x-apple-diskimage,application/x-newton-compatible-pkg,application/vnd.microsoft.portable-executable,application/x-msdownload,application/x-msi,application/vnd.debian.binary-package,application/x-rpm,application/x-executable,application/vnd.android.package-archive,application/octet-stream" />
+          <input ref={fileInputRef} type="file" multiple style={{ display: 'none' }} onChange={handleFileSelect} accept="application/*,image/*,video/*,text/plain" />
           <Group justify="space-between" mt="xs">
             <ActionIcon size="lg" variant="subtle" color="gray" onClick={() => fileInputRef.current?.click()}>
               <IconPaperclip size={20} />
