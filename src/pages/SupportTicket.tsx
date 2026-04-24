@@ -40,11 +40,11 @@ function truncateName(name: string, max = 28): string {
   return name.length > max ? name.slice(0, max - 1) + '…' : name;
 }
 
-function AttachmentItem({ att, isOwn, scheme }: { att: TicketAttachment; isOwn: boolean; scheme: string }) {
+function AttachmentItem({ att, isOwn, scheme, onImageLoad }: { att: TicketAttachment; isOwn: boolean; scheme: string; onImageLoad?: () => void }) {
   if (att.mimeType.startsWith('image/')) {
     return (
       <Box component="a" href={att.url} target="_blank" rel="noopener noreferrer" style={{ display: 'block' }}>
-        <img src={att.url} alt={att.name} style={{ maxWidth: '100%', maxHeight: 200, borderRadius: 6, display: 'block' }} />
+        <img src={att.url} alt={att.name} onLoad={onImageLoad} style={{ maxWidth: '100%', maxHeight: 200, borderRadius: 6, display: 'block' }} />
       </Box>
     );
   }
@@ -80,7 +80,7 @@ function resolveAuthorLabel(msg: TicketMessage, ticket: Ticket): string {
   return msg.authorName;
 }
 
-function MessageBubble({ msg, isOwn, ticket, showAllLabels }: { msg: TicketMessage; isOwn: boolean; ticket: Ticket; showAllLabels?: boolean }) {
+function MessageBubble({ msg, isOwn, ticket, showAllLabels, onImageLoad }: { msg: TicketMessage; isOwn: boolean; ticket: Ticket; showAllLabels?: boolean; onImageLoad?: () => void }) {
   const scheme = useComputedColorScheme('light');
   const showLabel = showAllLabels || !isOwn;
   return (
@@ -109,7 +109,7 @@ function MessageBubble({ msg, isOwn, ticket, showAllLabels }: { msg: TicketMessa
           {msg.attachments && msg.attachments.length > 0 && (
             <Stack gap="xs" mt={msg.text ? 'xs' : 0}>
               {msg.attachments.map((att) => (
-                <AttachmentItem key={att.id} att={att} isOwn={isOwn} scheme={scheme} />
+                <AttachmentItem key={att.id} att={att} isOwn={isOwn} scheme={scheme} onImageLoad={onImageLoad} />
               ))}
             </Stack>
           )}
@@ -309,26 +309,24 @@ export default function SupportTicket() {
     markTicketOpened(ticket.id);
   }, [ticket?.id]);
 
-  const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
-    chatBottomRef.current?.scrollIntoView({ behavior, block: 'end' });
-  }, []);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [ticket?.messages.length, scrollToBottom]);
-
-  useEffect(() => {
+  const scrollToBottom = useCallback(() => {
     const el = scrollRef.current;
     if (!el) return;
-    const observer = new ResizeObserver(() => {
-      const { scrollTop, scrollHeight, clientHeight } = el;
-      if (scrollHeight - scrollTop - clientHeight < 300) {
-        chatBottomRef.current?.scrollIntoView({ block: 'end' });
-      }
-    });
-    if (el.firstElementChild) observer.observe(el.firstElementChild);
-    return () => observer.disconnect();
+    el.scrollTop = el.scrollHeight;
   }, []);
+
+  const scrollToBottomIfNear = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const distanceFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    if (distanceFromBottom < 400) el.scrollTop = el.scrollHeight;
+  }, []);
+
+  useEffect(() => {
+    // requestAnimationFrame гарантирует что layout завершён до скролла
+    const raf = requestAnimationFrame(scrollToBottom);
+    return () => cancelAnimationFrame(raf);
+  }, [ticket?.messages.length, scrollToBottom]);
 
   if (loading) return <Center py="xl"><Loader /></Center>;
 
@@ -507,6 +505,7 @@ export default function SupportTicket() {
               isOwn={msg.isOwn ?? (isSpecialistView ? msg.isSpecialist : !msg.isSpecialist)}
               ticket={ticket}
               showAllLabels={isSpecialistView}
+              onImageLoad={scrollToBottomIfNear}
             />
           ))}
           {isClosed && (
