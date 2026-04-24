@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
-import { Card, Text, Stack, Button, ActionIcon, TextInput, PasswordInput, Divider, Title, Center, Modal, Group, Loader, useMantineColorScheme, useComputedColorScheme } from '@mantine/core';
+import { Card, Text, Stack, Button, ActionIcon, TextInput, PasswordInput, Divider, Title, Center, Modal, Group, Loader, useMantineColorScheme, useComputedColorScheme, Checkbox } from '@mantine/core';
 import { useForm, isEmail, hasLength } from '@mantine/form';
 import { IconLogin, IconUserPlus, IconHeadset, IconFingerprint, IconShieldLock, IconBrandTelegram, IconMailForward, IconLock, IconMoon, IconSun} from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
@@ -151,9 +151,16 @@ export default function Login() {
   const [showNewPasswordForm, setShowNewPasswordForm] = useState(false);
   const [resetToken, setResetToken] = useState<string | null>(null);
   const [newPasswordData, setNewPasswordData] = useState({ password: '', confirmPassword: '' });
+  const [acceptedLegal, setAcceptedLegal] = useState(false);
   const [verifyingToken, setVerifyingToken] = useState(false);
   const { setUser, setTelegramPhoto } = useStore();
   const { t } = useTranslation();
+  const legalLinks = [
+    { href: config.PRIVACY_POLICY_URL, label: t('common.privacyPolicy') },
+    { href: config.TERMS_OF_USE_URL, label: t('common.termsOfUse') },
+    { href: config.PUBLIC_OFFER_URL, label: t('common.publicOffer') },
+  ].filter((link) => Boolean(link.href));
+  const hasLegalLinks = legalLinks.length > 0;
   const modeRef = useRef(mode);
   modeRef.current = mode;
   const form = useForm({
@@ -203,6 +210,7 @@ export default function Login() {
   };
 
   useEffect(() => {
+    if (mode !== 'register') setAcceptedLegal(false);
     if (mode === 'register' && config.CAPTCHA_ENABLED === 'true') {
       void fetchCaptcha();
     } else {
@@ -350,6 +358,11 @@ export default function Login() {
     const { login, password } = form.values;
     if (!login || !password) {
       notifications.show({ title: t('common.error'), message: t('auth.fillAllFields'), color: 'red' });
+      return;
+    }
+
+    if (hasLegalLinks && !acceptedLegal) {
+      notifications.show({ title: t('common.error'), message: t('auth.acceptDocumentsRequired'), color: 'red' });
       return;
     }
 
@@ -689,6 +702,25 @@ export default function Login() {
                         disabled={!captcha}
                       />
                     </Group>
+                  )}
+                  {mode === 'register' && hasLegalLinks && (
+                    <Checkbox
+                      checked={acceptedLegal}
+                      onChange={(e) => setAcceptedLegal(e.currentTarget.checked)}
+                      label={
+                        <Text size="sm">
+                          {t('auth.acceptLegal')}{' '}
+                          {legalLinks.map((link, index) => (
+                            <Text key={link.href} component="span" size="sm">
+                              {index > 0 ? ', ' : ''}
+                              <Text component="a" href={link.href} target="_blank" rel="noopener noreferrer" c="blue" td="underline" size="sm">
+                                {link.label}
+                              </Text>
+                            </Text>
+                          ))}
+                        </Text>
+                      }
+                    />
                   )}
                   <Button
                     type="submit"

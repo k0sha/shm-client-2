@@ -1,7 +1,7 @@
 import '@mantine/core/styles.css';
 import '@mantine/notifications/styles.css';
 import { useEffect, useRef, useState } from 'react';
-import { MantineProvider, createTheme, AppShell, Group, Text, ActionIcon, useMantineColorScheme, useComputedColorScheme, Center, Loader, Box, Button, Modal, TextInput, Stack, Card, Badge } from '@mantine/core';
+import { MantineProvider, createTheme, AppShell, Group, Text, ActionIcon, useMantineColorScheme, useComputedColorScheme, Center, Loader, Box, Button, Modal, TextInput, Stack, Card, Badge, DirectionProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
 import { useMediaQuery, useHotkeys, useLongPress } from '@mantine/hooks';
 import { BrowserRouter, Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
@@ -147,6 +147,37 @@ import Tickets from './pages/Tickets';
 import SupportTicket from './pages/SupportTicket';
 import Login from './pages/Login';
 import NotFound from './pages/NotFound';
+
+function LegalLinks() {
+  const { t } = useTranslation();
+
+  const links = [
+    { href: config.PRIVACY_POLICY_URL, label: t('common.privacyPolicy') },
+    { href: config.TERMS_OF_USE_URL, label: t('common.termsOfUse') },
+    { href: config.PUBLIC_OFFER_URL, label: t('common.publicOffer') },
+  ].filter((link) => Boolean(link.href));
+
+  if (links.length === 0) return null;
+
+  return (
+    <Group justify="center" gap="md" wrap="wrap" py="sm">
+      {links.map((link) => (
+        <Text
+          key={link.href}
+          component="a"
+          href={link.href}
+          target="_blank"
+          rel="noopener noreferrer"
+          size="xs"
+          c="dimmed"
+          td="underline"
+        >
+          {link.label}
+        </Text>
+      ))}
+    </Group>
+  );
+}
 
 const theme = createTheme({
   primaryColor: 'blue',
@@ -740,6 +771,7 @@ function AppContent() {
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Box>
+          <LegalLinks />
         </Box>
         <BottomNavigation />
       </>
@@ -847,6 +879,7 @@ function AppContent() {
               {isSupportUser && <Route path="/tickets/:ticketId" element={<SupportTicket />} />}
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <LegalLinks />
           </Box>
         </AppShell.Main>
       </AppShell>
@@ -856,6 +889,8 @@ function AppContent() {
 
 function App() {
   const basePath = config.SHM_BASE_PATH && config.SHM_BASE_PATH !== '/' ? config.SHM_BASE_PATH : undefined;
+  const { i18n } = useTranslation();
+  const isRtl = i18n.language === 'ar';
 
   useEffect(() => {
     if (config.BITRIX_WIDGET_SCRIPT_URL) {
@@ -872,14 +907,16 @@ function App() {
   }, []);
 
   return (
-    <MantineProvider theme={theme} defaultColorScheme="auto">
-      <Notifications position="top-right" />
-      <ErrorBoundary>
-        <BrowserRouter basename={basePath}>
-          <AppContent />
-        </BrowserRouter>
-      </ErrorBoundary>
-    </MantineProvider>
+    <DirectionProvider initialDirection={isRtl ? 'rtl' : 'ltr'}>
+      <MantineProvider theme={theme} defaultColorScheme="auto">
+        <Notifications position="top-right" />
+        <ErrorBoundary>
+          <BrowserRouter basename={basePath}>
+            <AppContent />
+          </BrowserRouter>
+        </ErrorBoundary>
+      </MantineProvider>
+    </DirectionProvider>
   );
 }
 
