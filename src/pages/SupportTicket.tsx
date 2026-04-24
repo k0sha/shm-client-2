@@ -533,7 +533,7 @@ export default function SupportTicket() {
               }
             }}
           />
-          <input ref={fileInputRef} type="file" multiple onChange={handleFileSelect} style={{ opacity: 0, position: 'absolute', width: '1px', height: '1px', pointerEvents: 'none' }} />
+          <input ref={fileInputRef} type="file" multiple style={{ display: 'none' }} onChange={handleFileSelect} accept=".jpg,.jpeg,.png,.gif,.webp,.pdf,.doc,.docx,.txt,.zip,.dmg,.pkg,.exe,.msi,.deb,.rpm,.AppImage,.apk" />
           <Group justify="space-between" mt="xs">
             <ActionIcon size="lg" variant="subtle" color="gray" onClick={() => fileInputRef.current?.click()}>
               <IconPaperclip size={20} />
