@@ -13,7 +13,7 @@ import userInfoRoutes from './routes/userInfo.js';
 import fileRoutes from './routes/files.js';
 import wsRoutes from './routes/ws.js';
 
-const app = Fastify({ logger: true });
+const app = Fastify({ logger: true, bodyLimit: 600 * 1024 * 1024 });
 
 await app.register(cookie);
 await app.register(cors, { origin: process.env.CORS_ORIGIN || false, credentials: true });

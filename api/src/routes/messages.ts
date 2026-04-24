@@ -6,7 +6,7 @@ import { notifyWebhook } from '../lib/webhook.js';
 import { randomUUID } from 'crypto';
 import path from 'path';
 
-const MAX_FILE_SIZE = 20 * 1024 * 1024;
+const MAX_FILE_SIZE = 500 * 1024 * 1024;
 const FILES_PATH = process.env.FILES_PUBLIC_PATH ?? '/shm_support/v1/files';
 
 const ALLOWED_MIME_TYPES = new Set([
