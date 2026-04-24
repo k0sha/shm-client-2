@@ -14,6 +14,7 @@ import { supportApi } from '../api/supportApi';
 import { useTicketWebSocket, type TicketUpdate } from '../hooks/useTicketWebSocket';
 import { useStore } from '../store/useStore';
 import type { Ticket, TicketMessage, TicketAttachment, TicketUserInfo } from '../types/tickets';
+import { getFileAccept } from '../utils/fileAccept';
 
 function formatTime(iso: string): string {
   const d = new Date(iso);
@@ -533,7 +534,7 @@ export default function SupportTicket() {
               }
             }}
           />
-          <input ref={fileInputRef} type="file" multiple style={{ display: 'none' }} onChange={handleFileSelect} accept="application/*,image/*,video/*,text/plain" />
+          <input ref={fileInputRef} type="file" multiple style={{ display: 'none' }} onChange={handleFileSelect} accept={getFileAccept()} />
           <Group justify="space-between" mt="xs">
             <ActionIcon size="lg" variant="subtle" color="gray" onClick={() => fileInputRef.current?.click()}>
               <IconPaperclip size={20} />

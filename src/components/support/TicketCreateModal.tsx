@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { notifications } from '@mantine/notifications';
 import { supportApi } from '../../api/supportApi';
 import type { Ticket, TicketType } from '../../types/tickets';
+import { getFileAccept } from '../../utils/fileAccept';
 
 interface Props {
   opened: boolean;
@@ -103,7 +104,7 @@ export function TicketCreateModal({ opened, onClose, onCreated }: Props) {
             ))}
           </Pill.Group>
         )}
-        <input ref={fileInputRef} type="file" multiple style={{ display: 'none' }} onChange={handleFileSelect} accept="application/*,image/*,video/*,text/plain" />
+        <input ref={fileInputRef} type="file" multiple style={{ display: 'none' }} onChange={handleFileSelect} accept={getFileAccept()} />
         <Group justify="space-between">
           <ActionIcon variant="default" size="md" onClick={() => fileInputRef.current?.click()}>
             <IconPaperclip size={16} />
