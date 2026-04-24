@@ -149,7 +149,7 @@ function UserInfoPanel({ ticket }: { ticket: Ticket }) {
 
   return (
     <Paper withBorder radius="md" p="sm">
-      <Group justify="space-between" style={{ cursor: 'pointer' }} onClick={handleToggle}>
+      <Group justify="space-between" wrap="nowrap" style={{ cursor: 'pointer' }} onClick={handleToggle}>
         <Group gap="xs" wrap="nowrap" style={{ minWidth: 0 }}>
           <Text size="sm" fw={600} style={{ flexShrink: 0 }}>{t('tickets.userInfo')}</Text>
           <Text size="sm" c="dimmed" truncate>
