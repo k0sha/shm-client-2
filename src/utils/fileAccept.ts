@@ -1,8 +1,8 @@
 export function getFileAccept(): string {
   const ua = navigator.userAgent;
   if (/Android/i.test(ua)) {
-    // image/*+video/* → Camera + Photos&Videos; application/* → добавляет Files без audio/диктофона
-    return 'image/*,video/*,application/octet-stream,application/pdf,application/zip,application/vnd.android.package-archive';
+    // image/* → Camera + Photos; application/* → добавляет Files; без video/* чтобы не дублировалась камера
+    return 'image/*,application/octet-stream,application/pdf,application/zip,application/vnd.android.package-archive,text/plain';
   }
   if (/iPhone|iPad|iPod/i.test(ua)) {
     // Конкретные MIME без расширений — iOS Safari не ломается, APK выбирается

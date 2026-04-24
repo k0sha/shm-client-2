@@ -269,6 +269,7 @@ export default function SupportTicket() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [sending, setSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const chatBottomRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const markedReadRef = useRef(false);
 
@@ -309,9 +310,7 @@ export default function SupportTicket() {
   }, [ticket?.id]);
 
   const scrollToBottom = useCallback((behavior: ScrollBehavior = 'smooth') => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTo({ top: scrollRef.current.scrollHeight, behavior });
-    }
+    chatBottomRef.current?.scrollIntoView({ behavior, block: 'end' });
   }, []);
 
   useEffect(() => {
@@ -323,8 +322,8 @@ export default function SupportTicket() {
     if (!el) return;
     const observer = new ResizeObserver(() => {
       const { scrollTop, scrollHeight, clientHeight } = el;
-      if (scrollHeight - scrollTop - clientHeight < 200) {
-        el.scrollTop = scrollHeight;
+      if (scrollHeight - scrollTop - clientHeight < 300) {
+        chatBottomRef.current?.scrollIntoView({ block: 'end' });
       }
     });
     if (el.firstElementChild) observer.observe(el.firstElementChild);
@@ -520,6 +519,7 @@ export default function SupportTicket() {
               )}
             </Stack>
           )}
+          <div ref={chatBottomRef} />
         </Stack>
       </Box>
 
