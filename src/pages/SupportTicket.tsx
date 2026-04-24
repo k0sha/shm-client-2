@@ -134,7 +134,7 @@ function UserInfoPanel({ ticket }: { ticket: Ticket }) {
   useEffect(() => {
     supportApi.getUserInfo(ticket.userId)
       .then(setInfo)
-      .catch(() => {});
+      .catch((e) => console.error('[UserInfoPanel] getUserInfo failed:', e?.response?.status, e?.response?.data ?? e?.message));
   }, [ticket.userId]);
 
   const handleToggle = () => setOpen((v) => !v);
