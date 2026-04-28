@@ -465,7 +465,7 @@ export default function Profile() {
                 </Group>
               </div>
               <Button leftSection={<IconCreditCard size={18} />} color="cyan" onClick={() => { setPayModalAmount(forecast?.total ?? undefined); setPayModalOpen(true); }}>
-                {t('profile.topUpBalance')}
+                {t('profile.topUp')}
               </Button>
             </Group>
 
