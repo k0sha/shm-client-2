@@ -791,6 +791,8 @@ function ServiceCard({ service, onClick, isChild = false, isLastChild = false }:
       : null;
   const costText = service.service.cost > 0 ? `${service.service.cost} ${t('common.currency')}` : null;
   const isLoadingStatus = service.status === 'PROGRESS' || service.status === 'INIT';
+  const hideDate = service.status === 'PROGRESS' || service.status === 'NOT PAID' || service.status === 'BLOCK';
+  const showDate = !hideDate && dateText;
 
   let cta: { label: string; color: string } | null = null;
   if (service.status === 'NOT PAID' || service.status === 'BLOCK') {
@@ -813,25 +815,7 @@ function ServiceCard({ service, onClick, isChild = false, isLastChild = false }:
           <Group justify="space-between" wrap="nowrap" gap="md">
             <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
               <Text fw={500}>#{service.user_service_id} - {prettifyServiceName(service.service.name)}</Text>
-              {(dateText || costText) && (
-                  <Text size="xs" c="dimmed">
-                    {dateText && `${t('services.validUntilPrefix')} ${dateText}`}
-                    {dateText && costText && ' · '}
-                    {costText}
-                  </Text>
-              )}
-            </Stack>
-
-            <Box
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: '160px 200px',
-                  gap: 'var(--mantine-spacing-md)',
-                  alignItems: 'center',
-                  flexShrink: 0,
-                }}
-            >
-              <Group gap={6} wrap="nowrap">
+              <Group gap={6} wrap="nowrap" align="center" style={{ minWidth: 0 }}>
                 {isLoadingStatus ? (
                     <Loader size="xs" color={statusColor} />
                 ) : (
@@ -845,9 +829,15 @@ function ServiceCard({ service, onClick, isChild = false, isLastChild = false }:
                         }}
                     />
                 )}
-                <Text size="sm" c="dimmed">{statusLabel}</Text>
+                <Text size="xs" c="dimmed" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                  {statusLabel}
+                  {showDate && ` · ${t('services.validUntilPrefix')} ${dateText}`}
+                  {costText && ` · ${costText}`}
+                </Text>
               </Group>
+            </Stack>
 
+            <Box style={{ width: 200, flexShrink: 0 }}>
               {cta ? (
                   <Button
                       fullWidth
