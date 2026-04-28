@@ -12,6 +12,7 @@ import WithdrawHistoryModal from '../components/WithdrawHistoryModal';
 import SecuritySettings from '../components/security/SecuritySettings';
 import { useStore } from '../store/useStore';
 import { config } from '../config';
+import { prettifyServiceName } from '../utils/serviceName';
 
 const RESEND_COOLDOWN_MS = 3 * 60 * 1000;
 const RESEND_STORAGE_KEY = 'email_verify_last_sent';
@@ -610,7 +611,7 @@ export default function Profile() {
                   <Stack gap={4}>
                     <Group justify="space-between" wrap="nowrap">
                       <div style={{ flex: 1 }}>
-                        <Text size="sm" fw={500}>{item.name}</Text>
+                        <Text size="sm" fw={500}>{prettifyServiceName(item.name)}</Text>
                         { item.qnt > 1 && (
                           <Text size="xs" c="dimmed">
                             {item.months} {t('common.months')} × {item.qnt} {t('common.pieces')}
@@ -626,24 +627,6 @@ export default function Profile() {
                         </Text>
                       </div>
                     </Group>
-                    {item.next && (
-                      <Group justify="space-between" wrap="nowrap" pt={4} style={{ borderTop: '1px dashed var(--mantine-color-default-border)' }}>
-                        <div style={{ flex: 1 }}>
-                          <Text size="xs" c="dimmed">{t('profile.nextRenewal')}:</Text>
-                          <Text size="sm" fw={500}>{item.next.name}</Text>
-                          { item.next.qnt > 1 && (
-                            <Text size="xs" c="dimmed">
-                              {item.next.months} {t('common.months')} × {item.next.qnt} {t('common.pieces')}
-                            </Text>
-                          )}
-                        </div>
-                        <div style={{ textAlign: 'right' }}>
-                          <Text size="sm" fw={700} c="red">
-                            {item.next.total} {t('common.currency')}
-                          </Text>
-                        </div>
-                      </Group>
-                    )}
                   </Stack>
                 </Card>
               ))}
