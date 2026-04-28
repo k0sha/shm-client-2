@@ -802,85 +802,54 @@ function ServiceCard({ service, onClick, isChild = false, isLastChild = false }:
   }
 
   return (
-      <>
-        <Card
-            visibleFrom="sm"
-            withBorder
-            radius="md"
-            p="md"
-            className="service-card-desktop"
-            style={{ cursor: 'pointer' }}
-            onClick={onClick}
-        >
-          <Group justify="space-between" wrap="nowrap" gap="md">
-            <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
-              <Text fw={500}>#{service.user_service_id} - {prettifyServiceName(service.service.name)}</Text>
-              <Group gap={6} wrap="nowrap" align="center" style={{ minWidth: 0 }}>
-                {isLoadingStatus ? (
-                    <Loader size="xs" color={statusColor} />
-                ) : (
-                    <Box
-                        style={{
-                          width: 8,
-                          height: 8,
-                          borderRadius: '50%',
-                          backgroundColor: `var(--mantine-color-${statusColor}-6)`,
-                          flexShrink: 0,
-                        }}
-                    />
-                )}
-                <Text size="xs" c="dimmed" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                  {statusLabel}
-                  {showDate && ` · ${t('services.validUntilPrefix')} ${dateText}`}
-                  {costText && ` · ${costText}`}
-                </Text>
-              </Group>
-            </Stack>
-
-            <Box style={{ width: 200, flexShrink: 0 }}>
-              {cta ? (
-                  <Button
-                      fullWidth
-                      size="sm"
-                      color={cta.color}
-                      rightSection={<IconChevronRight size={16} />}
-                      onClick={(e) => { e.stopPropagation(); onClick(); }}
-                  >
-                    {cta.label}
-                  </Button>
-              ) : null}
-            </Box>
-          </Group>
-        </Card>
-
-        <Card
-            hiddenFrom="sm"
-            withBorder
-            radius="md"
-            p="md"
-            style={{ cursor: 'pointer' }}
-            onClick={onClick}
-        >
-          <Group justify="space-between">
-            <div>
-              <Text fw={500}>#{service.user_service_id} - {prettifyServiceName(service.service.name)}</Text>
-              {service.expire && (
-                  <Text size="xs" c="dimmed">
-                    {new Date(service.expire as string).toLocaleDateString(i18n.language === 'ru' ? 'ru-RU' : 'en-US')}
-                  </Text>
+      <Card
+          withBorder
+          radius="md"
+          p="md"
+          className="service-card-desktop"
+          style={{ cursor: 'pointer' }}
+          onClick={onClick}
+      >
+        <Group justify="space-between" wrap="nowrap" gap="md">
+          <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
+            <Text fw={500}>#{service.user_service_id} - {prettifyServiceName(service.service.name)}</Text>
+            <Group gap={6} wrap="nowrap" align="center" style={{ minWidth: 0 }}>
+              {isLoadingStatus ? (
+                  <Loader size="xs" color={statusColor} />
+              ) : (
+                  <Box
+                      style={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: '50%',
+                        backgroundColor: `var(--mantine-color-${statusColor}-6)`,
+                        flexShrink: 0,
+                      }}
+                  />
               )}
-            </div>
-            <Group gap="sm">
-              {service.service.cost > 0 && (
-                  <Text size="sm" c="dimmed">{service.service.cost} {t('common.currency')}</Text>
-              )}
-              <Badge color={statusColor} variant="light">
+              <Text size="xs" c="dimmed" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {statusLabel}
-              </Badge>
+                {showDate && ` · ${t('services.validUntilPrefix')} ${dateText}`}
+                {costText && ` · ${costText}`}
+              </Text>
             </Group>
-          </Group>
-        </Card>
-      </>
+          </Stack>
+
+          <Box style={{ width: 200, flexShrink: 0 }}>
+            {cta ? (
+                <Button
+                    fullWidth
+                    size="sm"
+                    color={cta.color}
+                    rightSection={<IconChevronRight size={16} />}
+                    onClick={(e) => { e.stopPropagation(); onClick(); }}
+                >
+                  {cta.label}
+                </Button>
+            ) : null}
+          </Box>
+        </Group>
+      </Card>
   );
 }
 
