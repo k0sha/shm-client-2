@@ -789,7 +789,6 @@ function ServiceCard({ service, onClick, isChild = false, isLastChild = false }:
   const dateText = service.expire
       ? new Date(service.expire as string).toLocaleDateString(i18n.language === 'ru' ? 'ru-RU' : 'en-US')
       : null;
-  const costText = service.service.cost > 0 ? `${service.service.cost} ${t('common.currency')}` : null;
   const isLoadingStatus = service.status === 'PROGRESS' || service.status === 'INIT';
   const hideDate = service.status === 'PROGRESS' || service.status === 'NOT PAID' || service.status === 'BLOCK';
   const showDate = !hideDate && dateText;
@@ -830,7 +829,6 @@ function ServiceCard({ service, onClick, isChild = false, isLastChild = false }:
               <Text size="xs" c="dimmed" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                 {statusLabel}
                 {showDate && ` · ${t('services.validUntilPrefix')} ${dateText}`}
-                {costText && ` · ${costText}`}
               </Text>
             </Group>
           </Stack>

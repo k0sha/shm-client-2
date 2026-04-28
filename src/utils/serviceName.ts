@@ -2,7 +2,7 @@ export const prettifyServiceName = (raw?: string) => {
     if (!raw) return '';
 
     const prefixMap: Record<string, string> = {
-        iOS: '📱 iOS (iPhone, iPad)',
+        iOS: '📱 iOS',
         Android: '📱 Android',
         Mac: '💻 macOS',
         PC: '🖥️ PC',
