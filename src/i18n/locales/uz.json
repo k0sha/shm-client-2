@@ -67,6 +67,7 @@
     "telegramBind": "Telegram muvaffaqiyatli bog'landi",
     "telegramBindError": "Telegramni bog'lab bo'lmadi",
     "loginWithTelegram": "Telegram orqali kirish",
+    "registerWithTelegram": "Telegram orqali ro'yxatdan o'tish",
     "useLoginPassword": "Login va paroldan foydalanish",
     "fillAllFields": "Barcha maydonlarni to'ldiring",
     "passwordsMismatch": "Parollar mos kelmaydi",

@@ -140,7 +140,6 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [passkeyLoading, setPasskeyLoading] = useState(false);
   const [loginOrEmail, setLoginOrEmail] = useState('');
-  const requireEmailRegister = config.EMAIL_REQUIRED === 'true';
   const [captcha, setCaptcha] = useState<{ image?: string; question?: string; token: string } | null>(null);
   const [captchaAnswer, setCaptchaAnswer] = useState('');
   const [showOtp, setShowOtp] = useState(false);
@@ -170,10 +169,7 @@ export default function Login() {
     validate: {
       login: (value) => {
         if (modeRef.current === 'register') {
-          if (requireEmailRegister) {
-            return isEmail(t('auth.invalidEmail'))(value);
-          }
-          return hasLength({ min: 6 }, t('auth.loginTooShort'))(value);
+          return isEmail(t('auth.invalidEmail'))(value);
         }
         return null;
       },
@@ -221,6 +217,10 @@ export default function Login() {
 
   useEffect(() => {
     if (!hasTelegramWebAppAutoAuthRuntime || autoAuthTriggeredRef.current || !telegramWebApp?.initData) {
+      return;
+    }
+
+    if (mode === 'register') {
       return;
     }
 
@@ -416,6 +416,10 @@ export default function Login() {
   };
 
   const handleTelegramWidgetAuth = async (telegramUser: TelegramUser) => {
+    if (modeRef.current === 'register' && hasLegalLinks && !acceptedLegal) {
+      notifications.show({ title: t('common.error'), message: t('auth.acceptDocumentsRequired'), color: 'red' });
+      return;
+    }
     setLoading(true);
     try {
       await auth.telegramWidgetAuth(telegramUser);
@@ -437,6 +441,11 @@ export default function Login() {
   };
 
   const handleTelegramWebAppAuth = async () => {
+    if (modeRef.current === 'register' && hasLegalLinks && !acceptedLegal) {
+      notifications.show({ title: t('common.error'), message: t('auth.acceptDocumentsRequired'), color: 'red' });
+      setShowLoginForm(true);
+      return;
+    }
     if (!telegramWebApp?.initData) {
       notifications.show({ title: t('common.error'), message: t('auth.telegramAuthError'), color: 'red' });
       setShowLoginForm(true);
@@ -601,6 +610,26 @@ export default function Login() {
               {mode === 'login' ? t('auth.loginTitle') : t('auth.registerTitle')}
           </Text>
 
+          {mode === 'register' && hasLegalLinks && (
+            <Checkbox
+              checked={acceptedLegal}
+              onChange={(e) => setAcceptedLegal(e.currentTarget.checked)}
+              label={
+                <Text size="sm">
+                  {t('auth.acceptLegal')}{' '}
+                  {legalLinks.map((link, index) => (
+                    <Text key={link.href} component="span" size="sm">
+                      {index > 0 ? ', ' : ''}
+                      <Text component="a" href={link.href} target="_blank" rel="noopener noreferrer" c="blue" td="underline" size="sm">
+                        {link.label}
+                      </Text>
+                    </Text>
+                  ))}
+                </Text>
+              }
+            />
+          )}
+
           {hasTelegramWebAppAuthRuntime && !showLoginForm && (
             <>
               <Button
@@ -610,7 +639,7 @@ export default function Login() {
                 fullWidth
                 loading={loading}
               >
-                {t('auth.loginWithTelegram')}
+                {t(mode === 'register' ? 'auth.registerWithTelegram' : 'auth.loginWithTelegram')}
               </Button>
 
               <Divider label={t('common.or')} labelPosition="center" />
@@ -625,7 +654,7 @@ export default function Login() {
             </>
           )}
 
-          {hasTelegramWidgetRuntime && mode === 'login' && (
+          {hasTelegramWidgetRuntime && (
             <>
               <Center>
                 <TelegramLoginButton
@@ -644,7 +673,7 @@ export default function Login() {
             <>
               <form onSubmit={handleSubmit}>
                 <Stack gap="sm">
-                  {mode === 'register' && requireEmailRegister ? (
+                  {mode === 'register' ? (
                     <TextInput
                       label={t('auth.emailLabel')}
                       placeholder={t('auth.emailPlaceholder')}
@@ -703,25 +732,6 @@ export default function Login() {
                       />
                     </Group>
                   )}
-                  {mode === 'register' && hasLegalLinks && (
-                    <Checkbox
-                      checked={acceptedLegal}
-                      onChange={(e) => setAcceptedLegal(e.currentTarget.checked)}
-                      label={
-                        <Text size="sm">
-                          {t('auth.acceptLegal')}{' '}
-                          {legalLinks.map((link, index) => (
-                            <Text key={link.href} component="span" size="sm">
-                              {index > 0 ? ', ' : ''}
-                              <Text component="a" href={link.href} target="_blank" rel="noopener noreferrer" c="blue" td="underline" size="sm">
-                                {link.label}
-                              </Text>
-                            </Text>
-                          ))}
-                        </Text>
-                      }
-                    />
-                  )}
                   <Button
                     type="submit"
                     leftSection={mode === 'login' ? <IconLogin size={18} /> : <IconUserPlus size={18} />}
@@ -779,7 +789,7 @@ export default function Login() {
                     fullWidth
                     loading={loading}
                   >
-                    {t('auth.loginWithTelegram')}
+                    {t(mode === 'register' ? 'auth.registerWithTelegram' : 'auth.loginWithTelegram')}
                   </Button>
                 </>
               )}

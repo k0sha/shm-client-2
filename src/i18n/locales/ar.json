@@ -67,6 +67,7 @@
     "telegramBind": "تم ربط Telegram بنجاح",
     "telegramBindError": "فشل ربط Telegram",
     "loginWithTelegram": "تسجيل الدخول عبر Telegram",
+    "registerWithTelegram": "إنشاء حساب عبر Telegram",
     "useLoginPassword": "استخدام اسم المستخدم وكلمة المرور",
     "fillAllFields": "يرجى ملء جميع الحقول",
     "passwordsMismatch": "كلمتا المرور غير متطابقتين",

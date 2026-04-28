@@ -67,6 +67,7 @@
     "telegramBind": "Telegram vinculado correctamente",
     "telegramBindError": "Error al vincular Telegram",
     "loginWithTelegram": "Iniciar sesión con Telegram",
+    "registerWithTelegram": "Registrarse con Telegram",
     "useLoginPassword": "Usar usuario y contraseña",
     "fillAllFields": "Completa todos los campos",
     "passwordsMismatch": "Las contraseñas no coinciden",
