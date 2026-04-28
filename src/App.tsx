@@ -204,6 +204,36 @@ const theme = createTheme({
         zIndex: 400,
       },
     },
+    Popover: {
+      defaultProps: {
+        zIndex: 500,
+      },
+    },
+    Menu: {
+      defaultProps: {
+        zIndex: 500,
+      },
+    },
+    Tooltip: {
+      defaultProps: {
+        zIndex: 500,
+      },
+    },
+    Select: {
+      defaultProps: {
+        comboboxProps: { zIndex: 500 },
+      },
+    },
+    MultiSelect: {
+      defaultProps: {
+        comboboxProps: { zIndex: 500 },
+      },
+    },
+    Autocomplete: {
+      defaultProps: {
+        comboboxProps: { zIndex: 500 },
+      },
+    },
   },
 });
 
