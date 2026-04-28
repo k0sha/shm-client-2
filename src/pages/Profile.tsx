@@ -611,7 +611,7 @@ export default function Profile() {
                   <Stack gap={4}>
                     <Group justify="space-between" wrap="nowrap">
                       <div style={{ flex: 1 }}>
-                        <Text size="sm" fw={500}>{prettifyServiceName(item.name)}</Text>
+                        <Text size="sm" fw={500}>#{item.user_service_id} - {prettifyServiceName(item.name)}</Text>
                         { item.qnt > 1 && (
                           <Text size="xs" c="dimmed">
                             {item.months} {t('common.months')} × {item.qnt} {t('common.pieces')}
