@@ -201,6 +201,7 @@ const theme = createTheme({
     Modal: {
       defaultProps: {
         lockScroll: false,
+        zIndex: 400,
       },
     },
   },
