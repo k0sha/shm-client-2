@@ -605,7 +605,7 @@ export default function Profile() {
                   p="sm"
                   bg={item.status === 'NOT PAID'
                     ? (colorScheme === 'dark' ? 'rgba(239, 68, 68, 0.15)' : 'red.0')
-                    : undefined
+                    : 'var(--mantine-color-body)'
                   }
                 >
                   <Stack gap={4}>
