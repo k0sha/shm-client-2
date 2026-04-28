@@ -226,7 +226,8 @@
     "profit": "Tu beneficio es {{amount}} ₽ considerando descuento y bonos",
     "emailNotVerifiedtitle": "Correo no verificado",
     "emailNotVerifiedDesc": "Para contratar servicios, debes verificar tu dirección de correo. Por favor verifica tu correo para continuar.",
-    "emailNotVerifiedAction": "Verificar correo"
+    "emailNotVerifiedAction": "Verificar correo",
+    "validUntilPrefix": "hasta"
   },
   "categories": {
     "vpn": "VPN",

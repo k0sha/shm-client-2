@@ -226,7 +226,8 @@
     "profit": "Chegirma va bonuslarni hisobga olgan holda foyda {{amount}} ₽",
     "emailNotVerifiedtitle": "Elektron pochta tasdiqlanmagan",
     "emailNotVerifiedDesc": "Xizmat buyurtma qilish uchun elektron pochta manzilingizni tasdiqlashingiz kerak. Davom etish uchun elektron pochtangizni tasdiqlang.",
-    "emailNotVerifiedAction": "Elektron pochtani tasdiqlash"
+    "emailNotVerifiedAction": "Elektron pochtani tasdiqlash",
+    "validUntilPrefix": "gacha"
   },
   "categories": {
     "vpn": "VPN",

@@ -8,3 +8,13 @@ body {
   min-width: 320px;
   min-height: 100vh;
 }
+
+.service-card-desktop {
+  transition: border-color 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+}
+
+.service-card-desktop:hover {
+  border-color: var(--mantine-color-cyan-5);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-1px);
+}

@@ -234,7 +234,8 @@
     "emailNotVerifiedAction": "Confirm email",
     "emailRequiredTitle": "Email is required",
     "emailRequiredDesc": "To connect a device, you need to add your email address. After adding it, you will need to verify it right away.",
-    "emailRequiredAction": "Add email"
+    "emailRequiredAction": "Add email",
+    "validUntilPrefix": "until"
   },
   "categories": {
     "vpn": "VPN",

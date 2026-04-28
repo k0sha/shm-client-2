@@ -226,7 +226,8 @@
     "profit": "Ihr Gewinn beträgt {{amount}} ₽ unter Berücksichtigung von Rabatt und Boni",
     "emailNotVerifiedtitle": "E-Mail nicht bestätigt",
     "emailNotVerifiedDesc": "Um Dienste zu bestellen, müssen Sie Ihre E-Mail-Adresse bestätigen. Bitte bestätigen Sie Ihre E-Mail, um fortzufahren.",
-    "emailNotVerifiedAction": "E-Mail bestätigen"
+    "emailNotVerifiedAction": "E-Mail bestätigen",
+    "validUntilPrefix": "bis"
   },
   "categories": {
     "vpn": "VPN",

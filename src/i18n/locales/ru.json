@@ -234,7 +234,8 @@
     "emailNotVerifiedAction": "Подтвердить email",
     "emailRequiredTitle": "Не удалось добавить email",
     "emailRequiredDesc": "Для подключения устройства необходимо добавить email.",
-    "emailRequiredAction": "Добавить email"
+    "emailRequiredAction": "Добавить email",
+    "validUntilPrefix": "до"
   },
   "categories": {
     "vpn": "VPN",

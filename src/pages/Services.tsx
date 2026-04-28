@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card, Timeline, Text, Stack, Group, Badge, Button, Divider, Modal, ActionIcon, Loader, Center, Paper, Title, Tabs, Code, Tooltip, Accordion, Box, Select, NumberInput, Pagination } from '@mantine/core';
-import { IconQrcode, IconCopy, IconCheck, IconDownload, IconRefresh, IconTrash, IconPlus, IconPlayerStop, IconExchange, IconCreditCard, IconWallet, IconDeviceMobileCog } from '@tabler/icons-react';
+import { Card, Timeline, Text, Stack, Group, Badge, Button, Divider, Modal, ActionIcon, Loader, Center, Paper, Title, Tabs, Code, Tooltip, Box, Select, NumberInput, Pagination } from '@mantine/core';
+import { IconQrcode, IconCopy, IconCheck, IconDownload, IconRefresh, IconTrash, IconPlus, IconPlayerStop, IconExchange, IconCreditCard, IconWallet, IconDeviceMobileCog, IconChevronRight } from '@tabler/icons-react';
 import { useDisclosure, useClipboard } from '@mantine/hooks';
 import { useTranslation } from 'react-i18next';
 import { api, servicesApi, userApi } from '../api/client';
@@ -786,33 +786,102 @@ function ServiceCard({ service, onClick, isChild = false, isLastChild = false }:
     );
   }
 
+  const dateText = service.expire
+      ? new Date(service.expire as string).toLocaleDateString(i18n.language === 'ru' ? 'ru-RU' : 'en-US')
+      : null;
+  const costText = service.service.cost > 0 ? `${service.service.cost} ${t('common.currency')}` : null;
+  const isLoadingStatus = service.status === 'PROGRESS' || service.status === 'INIT';
+
+  let cta: { label: string; color: string } | null = null;
+  if (service.status === 'NOT PAID') {
+    cta = { label: t('services.payService', { amount: service.service.cost }), color: 'red' };
+  } else if (service.status === 'ACTIVE') {
+    cta = { label: t('services.openSubLink'), color: 'cyan' };
+  }
+
   return (
-      <Card
-          withBorder
-          radius="md"
-          p="md"
-          style={{ cursor: 'pointer' }}
-          onClick={onClick}
-      >
-        <Group justify="space-between">
-          <div>
-            <Text fw={500}>#{service.user_service_id} - {prettifyServiceName(service.service.name)}</Text>
-            {service.expire && (
-                <Text size="xs" c="dimmed">
-                  {new Date(service.expire as string).toLocaleDateString(i18n.language === 'ru' ? 'ru-RU' : 'en-US')}
-                </Text>
-            )}
-          </div>
-          <Group gap="sm">
-            {service.service.cost > 0 && (
-                <Text size="sm" c="dimmed">{service.service.cost} {t('common.currency')}</Text>
-            )}
-            <Badge color={statusColor} variant="light">
-              {statusLabel}
-            </Badge>
+      <>
+        <Card
+            visibleFrom="sm"
+            withBorder
+            radius="md"
+            p="md"
+            className="service-card-desktop"
+            style={{ cursor: 'pointer' }}
+            onClick={onClick}
+        >
+          <Group justify="space-between" wrap="nowrap" gap="md">
+            <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
+              <Text fw={500}>#{service.user_service_id} - {prettifyServiceName(service.service.name)}</Text>
+              {(dateText || costText) && (
+                  <Text size="xs" c="dimmed">
+                    {dateText && `${t('services.validUntilPrefix')} ${dateText}`}
+                    {dateText && costText && ' · '}
+                    {costText}
+                  </Text>
+              )}
+            </Stack>
+
+            <Group gap="md" wrap="nowrap">
+              <Group gap={6} wrap="nowrap">
+                {isLoadingStatus ? (
+                    <Loader size="xs" color={statusColor} />
+                ) : (
+                    <Box
+                        style={{
+                          width: 8,
+                          height: 8,
+                          borderRadius: '50%',
+                          backgroundColor: `var(--mantine-color-${statusColor}-6)`,
+                          flexShrink: 0,
+                        }}
+                    />
+                )}
+                <Text size="sm" c="dimmed">{statusLabel}</Text>
+              </Group>
+
+              {cta && (
+                  <Button
+                      size="sm"
+                      color={cta.color}
+                      rightSection={<IconChevronRight size={16} />}
+                      onClick={(e) => { e.stopPropagation(); onClick(); }}
+                  >
+                    {cta.label}
+                  </Button>
+              )}
+            </Group>
           </Group>
-        </Group>
-      </Card>
+        </Card>
+
+        <Card
+            hiddenFrom="sm"
+            withBorder
+            radius="md"
+            p="md"
+            style={{ cursor: 'pointer' }}
+            onClick={onClick}
+        >
+          <Group justify="space-between">
+            <div>
+              <Text fw={500}>#{service.user_service_id} - {prettifyServiceName(service.service.name)}</Text>
+              {service.expire && (
+                  <Text size="xs" c="dimmed">
+                    {new Date(service.expire as string).toLocaleDateString(i18n.language === 'ru' ? 'ru-RU' : 'en-US')}
+                  </Text>
+              )}
+            </div>
+            <Group gap="sm">
+              {service.service.cost > 0 && (
+                  <Text size="sm" c="dimmed">{service.service.cost} {t('common.currency')}</Text>
+              )}
+              <Badge color={statusColor} variant="light">
+                {statusLabel}
+              </Badge>
+            </Group>
+          </Group>
+        </Card>
+      </>
   );
 }
 
@@ -999,66 +1068,48 @@ export default function Services() {
               </Center>
             </Paper>
         ) : (
-            <Accordion variant="separated" radius="md" multiple defaultValue={Object.keys(groupedServices)}>
+            <Stack gap="md">
               {Object.entries(groupedServices).map(([category, categoryServices]) => {
                 const page = categoryPages[category] || 1;
                 const totalPages = Math.ceil(categoryServices.length / perPage);
                 const paginatedServices = categoryServices.slice((page - 1) * perPage, page * perPage);
-                let categoryTitle;
-                if ( category === 'vpn' && config.VPN_CATEGORY_TITLE ) {
-                  categoryTitle = config.VPN_CATEGORY_TITLE
-                } else if ( category === 'proxy' && config.PROXY_CATEGORY_TITLE ) {
-                  categoryTitle = config.PROXY_CATEGORY_TITLE
-                } else {
-                  categoryTitle = t(`categories.${category}`, category);
-                }
                 return (
-                    <Accordion.Item key={category} value={category}>
-                      <Accordion.Control>
-                        <Group>
-                          <Text fw={500}>{ categoryTitle }</Text>
-                          <Badge variant="light" size="sm">{categoryServices.length}</Badge>
-                        </Group>
-                      </Accordion.Control>
-                      <Accordion.Panel>
-                        <Stack gap="sm">
-                          {paginatedServices.map((service) => (
-                              <Box key={service.user_service_id}>
-                                <ServiceCard
-                                    service={service}
-                                    onClick={() => handleServiceClick(service)}
-                                />
-                                {service.children && service.children.length > 0 && (
-                                    <Stack gap="xs" mt="xs" ml="md">
-                                      {service.children.map((child, index) => (
-                                          <ServiceCard
-                                              key={child.user_service_id}
-                                              service={child}
-                                              onClick={() => handleServiceClick(child)}
-                                              isChild
-                                              isLastChild={index === service.children!.length - 1}
-                                          />
-                                      ))}
-                                    </Stack>
-                                )}
-                              </Box>
-                          ))}
-                          {totalPages > 1 && (
-                              <Center mt="xs">
-                                <Pagination
-                                    total={totalPages}
-                                    value={page}
-                                    onChange={(p) => setCategoryPages(prev => ({ ...prev, [category]: p }))}
-                                    size="sm"
-                                />
-                              </Center>
-                          )}
-                        </Stack>
-                      </Accordion.Panel>
-                    </Accordion.Item>
+                    <Stack key={category} gap="sm">
+                      {paginatedServices.map((service) => (
+                          <Box key={service.user_service_id}>
+                            <ServiceCard
+                                service={service}
+                                onClick={() => handleServiceClick(service)}
+                            />
+                            {service.children && service.children.length > 0 && (
+                                <Stack gap="xs" mt="xs" ml="md">
+                                  {service.children.map((child, index) => (
+                                      <ServiceCard
+                                          key={child.user_service_id}
+                                          service={child}
+                                          onClick={() => handleServiceClick(child)}
+                                          isChild
+                                          isLastChild={index === service.children!.length - 1}
+                                      />
+                                  ))}
+                                </Stack>
+                            )}
+                          </Box>
+                      ))}
+                      {totalPages > 1 && (
+                          <Center mt="xs">
+                            <Pagination
+                                total={totalPages}
+                                value={page}
+                                onChange={(p) => setCategoryPages(prev => ({ ...prev, [category]: p }))}
+                                size="sm"
+                            />
+                          </Center>
+                      )}
+                    </Stack>
                 );
               })}
-            </Accordion>
+            </Stack>
         )}
 
         <Modal opened={opened} onClose={close} title={t('services.serviceDetails')} size="lg">

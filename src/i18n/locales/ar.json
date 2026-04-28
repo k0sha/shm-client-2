@@ -226,7 +226,8 @@
     "profit": "ربحك {{amount}} ₽ مع الخصم والمكافآت",
     "emailNotVerifiedtitle": "لم يتم التحقق من البريد الإلكتروني",
     "emailNotVerifiedDesc": "لطلب الخدمات، يجب التحقق من عنوان بريدك الإلكتروني. يرجى التحقق من بريدك للمتابعة.",
-    "emailNotVerifiedAction": "التحقق من البريد الإلكتروني"
+    "emailNotVerifiedAction": "التحقق من البريد الإلكتروني",
+    "validUntilPrefix": "حتى"
   },
   "categories": {
     "vpn": "VPN",
