@@ -656,6 +656,9 @@ export default function Login() {
 
           {hasTelegramWidgetRuntime && (
             <>
+              {mode === 'register' && (
+                <Text size="sm" c="dimmed" ta="center">{t('auth.registerWithTelegram')}</Text>
+              )}
               <Center>
                 <TelegramLoginButton
                   botName={config.TELEGRAM_BOT_NAME}
@@ -684,10 +687,10 @@ export default function Login() {
                     />
                   ) : (
                     <TextInput
-                      label={t('auth.loginLabel')}
-                      placeholder={t('auth.loginPlaceholder')}
-                      autoComplete="username"
-                      name="username"
+                      label={t('auth.emailLabel')}
+                      placeholder={t('auth.emailPlaceholder')}
+                      autoComplete="email"
+                      name="email"
                       {...form.getInputProps('login')}
                     />
                   )}
