@@ -835,13 +835,12 @@ function ServiceCard({ service, onClick, isChild = false, isLastChild = false }:
             </Group>
           </Stack>
 
-          <Box style={{ width: 200, flexShrink: 0 }}>
+          <Box style={{ width: 160, flexShrink: 0 }}>
             {cta ? (
                 <Button
                     fullWidth
                     size="sm"
                     color={cta.color}
-                    rightSection={<IconChevronRight size={16} />}
                     onClick={(e) => { e.stopPropagation(); onClick(); }}
                 >
                   {cta.label}

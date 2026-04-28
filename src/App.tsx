@@ -226,12 +226,6 @@ function WebAppHeader({ onShowVersion }: { onShowVersion?: () => void }) {
   const navigate = useNavigate();
   const { logout } = useStore();
   const longPressProps = useLongPress(onShowVersion ?? (() => {}));
-  const computedColorScheme = useComputedColorScheme('light');
-  const { setColorScheme } = useMantineColorScheme();
-
-  const handleThemeToggle = () => {
-    setColorScheme(computedColorScheme === 'light' ? 'dark' : 'light');
-  };
 
   const handleSupportLink = () => {
     if (config.SUPPORT_LINK) {
@@ -271,24 +265,15 @@ function WebAppHeader({ onShowVersion }: { onShowVersion?: () => void }) {
           <IconHeadset size={20} />
         </ActionIcon> }
         <LanguageSwitcher />
+        <ThemeToggle />
         <ActionIcon
-          onClick={handleThemeToggle}
-          variant="subtle"
+          onClick={handleLogout}
+          variant="default"
           size="lg"
-          color={computedColorScheme === 'dark' ? 'gray' : 'gray'}
+          aria-label="Logout"
         >
-          {computedColorScheme === 'light' ? <IconMoon size={20} /> : <IconSun size={20} />}
+          <IconLogout size={18} />
         </ActionIcon>
-        {(
-          <ActionIcon
-            onClick={handleLogout}
-            variant="subtle"
-            size="lg"
-            color="red"
-          >
-            <IconLogout size={20} />
-          </ActionIcon>
-        )}
       </Group>
     </Group>
   );
