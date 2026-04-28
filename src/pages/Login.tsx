@@ -581,7 +581,7 @@ export default function Login() {
   };
 
   return (
-    <Center h="80vh" style={{ position: 'relative' }}>
+    <Center mih="100dvh" py="md" style={{ position: 'relative' }}>
       <Card withBorder radius="md" p="xl" w={400}>
         <Stack gap="lg">
           <Group justify="space-between" align="center">
@@ -603,9 +603,6 @@ export default function Login() {
             </div>
 
           </Group>
-          {config.APP_DESCRIPTION && (
-            <Text size="sm" c="dimmed" ta="center" style={{ flex: 'auto' }}>{config.APP_DESCRIPTION}</Text>
-          )}
           <Text size="sm" c="dimmed" ta="center">
               {mode === 'login' ? t('auth.loginTitle') : t('auth.registerTitle')}
           </Text>
@@ -656,9 +653,6 @@ export default function Login() {
 
           {hasTelegramWidgetRuntime && (
             <>
-              {mode === 'register' && (
-                <Text size="sm" c="dimmed" ta="center">{t('auth.registerWithTelegram')}</Text>
-              )}
               <Center>
                 <TelegramLoginButton
                   botName={config.TELEGRAM_BOT_NAME}
