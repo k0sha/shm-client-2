@@ -848,18 +848,17 @@ function ServiceCard({ service, onClick, isChild = false, isLastChild = false }:
                 <Text size="sm" c="dimmed">{statusLabel}</Text>
               </Group>
 
-              <Group justify="flex-end" wrap="nowrap">
-                {cta && (
-                    <Button
-                        size="sm"
-                        color={cta.color}
-                        rightSection={<IconChevronRight size={16} />}
-                        onClick={(e) => { e.stopPropagation(); onClick(); }}
-                    >
-                      {cta.label}
-                    </Button>
-                )}
-              </Group>
+              {cta ? (
+                  <Button
+                      fullWidth
+                      size="sm"
+                      color={cta.color}
+                      rightSection={<IconChevronRight size={16} />}
+                      onClick={(e) => { e.stopPropagation(); onClick(); }}
+                  >
+                    {cta.label}
+                  </Button>
+              ) : null}
             </Box>
           </Group>
         </Card>
