@@ -793,7 +793,7 @@ function ServiceCard({ service, onClick, isChild = false, isLastChild = false }:
   const isLoadingStatus = service.status === 'PROGRESS' || service.status === 'INIT';
 
   let cta: { label: string; color: string } | null = null;
-  if (service.status === 'NOT PAID') {
+  if (service.status === 'NOT PAID' || service.status === 'BLOCK') {
     cta = { label: t('services.payService', { amount: service.service.cost }), color: 'red' };
   } else if (service.status === 'ACTIVE') {
     cta = { label: t('services.openSubLink'), color: 'cyan' };
@@ -822,7 +822,15 @@ function ServiceCard({ service, onClick, isChild = false, isLastChild = false }:
               )}
             </Stack>
 
-            <Group gap="md" wrap="nowrap">
+            <Box
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '160px 200px',
+                  gap: 'var(--mantine-spacing-md)',
+                  alignItems: 'center',
+                  flexShrink: 0,
+                }}
+            >
               <Group gap={6} wrap="nowrap">
                 {isLoadingStatus ? (
                     <Loader size="xs" color={statusColor} />
@@ -840,17 +848,19 @@ function ServiceCard({ service, onClick, isChild = false, isLastChild = false }:
                 <Text size="sm" c="dimmed">{statusLabel}</Text>
               </Group>
 
-              {cta && (
-                  <Button
-                      size="sm"
-                      color={cta.color}
-                      rightSection={<IconChevronRight size={16} />}
-                      onClick={(e) => { e.stopPropagation(); onClick(); }}
-                  >
-                    {cta.label}
-                  </Button>
-              )}
-            </Group>
+              <Group justify="flex-end" wrap="nowrap">
+                {cta && (
+                    <Button
+                        size="sm"
+                        color={cta.color}
+                        rightSection={<IconChevronRight size={16} />}
+                        onClick={(e) => { e.stopPropagation(); onClick(); }}
+                    >
+                      {cta.label}
+                    </Button>
+                )}
+              </Group>
+            </Box>
           </Group>
         </Card>
 
