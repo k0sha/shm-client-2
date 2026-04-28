@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, Timeline, Text, Stack, Group, Badge, Button, Divider, Modal, ActionIcon, Loader, Center, Paper, Title, Tabs, Code, Tooltip, Box, Select, NumberInput, Pagination } from '@mantine/core';
 import { IconQrcode, IconCopy, IconCheck, IconDownload, IconRefresh, IconTrash, IconPlus, IconPlayerStop, IconExchange, IconCreditCard, IconWallet, IconDeviceMobileCog } from '@tabler/icons-react';
-import { useDisclosure, useClipboard } from '@mantine/hooks';
+import { useDisclosure, useClipboard, useMediaQuery } from '@mantine/hooks';
 import { useTranslation } from 'react-i18next';
 import { api, servicesApi, userApi } from '../api/client';
 import { notifications } from '@mantine/notifications';
@@ -855,6 +855,7 @@ export default function Services() {
   const [loading, setLoading] = useState(true);
   const [selectedService, setSelectedService] = useState<UserService | null>(null);
   const [opened, { open, close }] = useDisclosure(false);
+  const isMobile = useMediaQuery('(max-width: 48em)');
   const [orderModalOpened, { open: openOrderModal, close: closeOrderModal }] = useDisclosure(false);
   const [changeModalOpened, { open: openChangeModal, close: closeChangeModal }] = useDisclosure(false);
   const [changeService, setChangeService] = useState<UserService | null>(null);
@@ -1077,7 +1078,7 @@ export default function Services() {
             </Stack>
         )}
 
-        <Modal opened={opened} onClose={close} title={t('services.serviceDetails')} size="lg">
+        <Modal opened={opened} onClose={close} title={t('services.serviceDetails')} size="lg" fullScreen={isMobile}>
           {selectedService && (
               <ServiceDetail
                   service={selectedService}
