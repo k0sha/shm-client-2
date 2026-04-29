@@ -174,7 +174,10 @@
     "partnerLink": "Lien partenaire",
     "partnerLinkDescription": "Invitez des amis et recevez des bonus pour leurs commandes et paiements.",
     "payHistory": "Historique des paiements",
-    "wdHistory": "Historique des retraits"
+    "wdHistory": "Historique des retraits",
+    "referrals": "Parrainages",
+    "referralsEmpty": "Vous n'avez encore invité personne",
+    "referralsTotal": "Total invité : {{count}}"
   },
   "services": {
     "title": "Mes services",

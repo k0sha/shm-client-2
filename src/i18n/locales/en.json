@@ -178,7 +178,10 @@
     "partnerLink": "Partner link",
     "partnerLinkDescription": "Invite friends and receive bonuses for their orders and payments.",
     "payHistory": "Payment history",
-    "wdHistory": "Withdrawal history"
+    "wdHistory": "Withdrawal history",
+    "referrals": "Referrals",
+    "referralsEmpty": "You haven't invited anyone yet",
+    "referralsTotal": "Total invited: {{count}}"
   },
   "services": {
     "title": "My Devices",

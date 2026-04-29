@@ -174,7 +174,10 @@
     "partnerLink": "Hamkor havolasi",
     "partnerLinkDescription": "Do'stlarni taklif qiling va ularning buyurtmalari va to'lovlari uchun bonuslar oling.",
     "payHistory": "To'lovlar tarixi",
-    "wdHistory": "Hisobdan chiqarishlar tarixi"
+    "wdHistory": "Hisobdan chiqarishlar tarixi",
+    "referrals": "Takliflar",
+    "referralsEmpty": "Hali hech kimni taklif qilmagansiz",
+    "referralsTotal": "Jami taklif qilingan: {{count}}"
   },
   "services": {
     "title": "Mening xizmatlarim",

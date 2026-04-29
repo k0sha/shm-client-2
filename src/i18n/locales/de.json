@@ -174,7 +174,10 @@
     "partnerLink": "Partnerlink",
     "partnerLinkDescription": "Laden Sie Freunde ein und erhalten Sie Boni für deren Bestellungen und Zahlungen.",
     "payHistory": "Zahlungsverlauf",
-    "wdHistory": "Abbuchungsverlauf"
+    "wdHistory": "Abbuchungsverlauf",
+    "referrals": "Empfehlungen",
+    "referralsEmpty": "Sie haben noch niemanden eingeladen",
+    "referralsTotal": "Insgesamt eingeladen: {{count}}"
   },
   "services": {
     "title": "Meine Dienste",

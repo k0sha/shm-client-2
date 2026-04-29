@@ -7,6 +7,8 @@ services:
       SHM_URL: "https://api.mydomain.com"
       APP_NAME: "My Company"
       APP_DESCRIPTION: "My Company Description"
+      # Имя публичного SHM-шаблона для списка рефералов (см. docs/referrals-setup.md)
+      REFERRALS_TEMPLATE_NAME: "user_referrals_list"
     restart: unless-stopped
 
   support-api:

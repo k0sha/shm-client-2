@@ -174,7 +174,10 @@
     "partnerLink": "Enlace de socio",
     "partnerLinkDescription": "Invita amigos y recibe bonos por sus pedidos y pagos.",
     "payHistory": "Historial de pagos",
-    "wdHistory": "Historial de retiros"
+    "wdHistory": "Historial de retiros",
+    "referrals": "Referidos",
+    "referralsEmpty": "Aún no has invitado a nadie",
+    "referralsTotal": "Total invitados: {{count}}"
   },
   "services": {
     "title": "Mis servicios",

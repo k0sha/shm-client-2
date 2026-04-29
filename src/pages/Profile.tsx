@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Card, Text, Stack, Group, Divider, Grid, Button, TextInput, Tooltip, ActionIcon, Avatar, Title, Modal, Loader, Center, Collapse, Alert, Skeleton, useMantineColorScheme } from '@mantine/core';
-import { IconUser, IconPhone, IconCopy, IconCheck, IconBrandTelegram, IconCreditCard, IconReceipt, IconChevronDown, IconChevronUp, IconMail, IconAlertCircle } from '@tabler/icons-react';
+import { Card, Text, Stack, Group, Divider, Grid, Button, TextInput, Tooltip, ActionIcon, Avatar, Title, Modal, Loader, Center, Collapse, Alert, Skeleton, useMantineColorScheme, SimpleGrid, ThemeIcon } from '@mantine/core';
+import { IconUser, IconPhone, IconCopy, IconCheck, IconBrandTelegram, IconCreditCard, IconReceipt, IconChevronDown, IconChevronUp, IconMail, IconAlertCircle, IconUsers } from '@tabler/icons-react';
 import { notifications } from '@mantine/notifications';
 import { useClipboard } from '@mantine/hooks';
 import { useTranslation } from 'react-i18next';
@@ -9,6 +9,7 @@ import PayModal from '../components/PayModal';
 import PromoModal from '../components/PromoModal';
 import PayHistoryModal from '../components/PayHistoryModal';
 import WithdrawHistoryModal from '../components/WithdrawHistoryModal';
+import ReferralsModal from '../components/ReferralsModal';
 import SecuritySettings from '../components/security/SecuritySettings';
 import { useStore } from '../store/useStore';
 import { config } from '../config';
@@ -91,6 +92,7 @@ export default function Profile() {
   const [promoModalOpen, setPromoModalOpen] = useState(false);
   const [payHistoryOpen, setPayHistoryOpen] = useState(false);
   const [withdrawHistoryOpen, setWithdrawHistoryOpen] = useState(false);
+  const [referralsOpen, setReferralsOpen] = useState(false);
   const [telegramModalOpen, setTelegramModalOpen] = useState(false);
   const [telegramInput, setTelegramInput] = useState('');
   const [telegramSaving, setTelegramSaving] = useState(false);
@@ -683,31 +685,41 @@ export default function Profile() {
       </>
     )}
 
-      <Card withBorder radius="md" p="lg">
-        <Text fw={500} mb="md">{t('nav.payments')} / {t('nav.withdrawals')}</Text>
-        <Group gap="sm">
-          <Button
-            variant="light"
-            leftSection={<IconCreditCard size={16} />}
-            onClick={() => setPayHistoryOpen(true)}
-          >
-            {t('nav.payments')}
-          </Button>
-          <Button
-            variant="light"
-            leftSection={<IconReceipt size={16} />}
-            onClick={() => setWithdrawHistoryOpen(true)}
-          >
-            {t('nav.withdrawals')}
-          </Button>
-        </Group>
-      </Card>
+      <SimpleGrid cols={{ base: 1, sm: 3 }} spacing="md">
+        {[
+          { id: 'payments', icon: IconCreditCard, color: 'blue', label: t('nav.payments'), onClick: () => setPayHistoryOpen(true) },
+          { id: 'withdrawals', icon: IconReceipt, color: 'cyan', label: t('nav.withdrawals'), onClick: () => setWithdrawHistoryOpen(true) },
+          { id: 'referrals', icon: IconUsers, color: 'grape', label: t('profile.referrals'), onClick: () => setReferralsOpen(true) },
+        ].map((card) => {
+          const Icon = card.icon;
+          return (
+            <Card
+              key={card.id}
+              withBorder
+              radius="md"
+              p="lg"
+              h="100%"
+              className="service-card-desktop"
+              style={{ cursor: 'pointer' }}
+              onClick={card.onClick}
+            >
+              <Stack gap="md" align="center" ta="center" h="100%" justify="center">
+                <ThemeIcon size={64} radius="md" variant="light" color={card.color}>
+                  <Icon size={36} />
+                </ThemeIcon>
+                <Text fw={600} size="lg">{card.label}</Text>
+              </Stack>
+            </Card>
+          );
+        })}
+      </SimpleGrid>
 
       <SecuritySettings />
 
       <PayModal opened={payModalOpen} onClose={() => setPayModalOpen(false)} initialAmount={payModalAmount} />
       <PayHistoryModal opened={payHistoryOpen} onClose={() => setPayHistoryOpen(false)} />
       <WithdrawHistoryModal opened={withdrawHistoryOpen} onClose={() => setWithdrawHistoryOpen(false)} />
+      <ReferralsModal opened={referralsOpen} onClose={() => setReferralsOpen(false)} />
 
       <PromoModal
         opened={promoModalOpen}

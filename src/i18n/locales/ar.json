@@ -174,7 +174,10 @@
     "partnerLink": "رابط الشريك",
     "partnerLinkDescription": "ادعُ أصدقاءك واحصل على مكافآت على طلباتهم ومدفوعاتهم.",
     "payHistory": "سجل المدفوعات",
-    "wdHistory": "سجل الخصومات"
+    "wdHistory": "سجل الخصومات",
+    "referrals": "الإحالات",
+    "referralsEmpty": "لم تقم بدعوة أي شخص بعد",
+    "referralsTotal": "إجمالي المدعوين: {{count}}"
   },
   "services": {
     "title": "خدماتي",
