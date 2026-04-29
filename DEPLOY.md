@@ -245,3 +245,68 @@ docker compose logs minio
 **nginx: `[emerg] unknown directive`**
 
 Location добавлен вне блока `server { }`. Проверить структуру конфига.
+
+---
+
+## 11. Рефералы (опционально)
+
+Раздел «Рефералы» в Профиле показывает список приглашённых текущим пользователем людей. Тянется через **SHM-шаблон** (обычное API `/user/referrals` отдаёт только число, не список).
+
+### 11.1 Создать шаблон в SHM
+
+В админке SHM создать шаблон с именем `user_referrals_list` (имя настраивается через env `REFERRALS_TEMPLATE_NAME` во фронте).
+
+**Тело шаблона** (TT-синтаксис, `{{ }}`):
+
+```tt
+{{ list = [] }}
+{{ FOREACH r IN user.referrals }}
+{{ list.push({
+    user_id = r.user_id,
+    full_name = r.full_name,
+    login = r.login,
+    login2 = r.login2,
+    created = r.created
+}) }}
+{{ END }}
+{{ toJson(count = list.size, items = list) }}
+```
+
+**Settings шаблона:**
+- `deny_for_http_user`: должно быть `false` или отсутствовать (иначе обычный юзер не сможет вызвать).
+- `allow_public`: **не нужен**. Фронт зовёт через роут `/template/*` (контекст текущего юзера), а не `/public/*` (контекст admin).
+
+### 11.2 Прописать env во фронте
+
+В `docker-compose.yml` секции `shm-client`:
+
+```yaml
+environment:
+  REFERRALS_TEMPLATE_NAME: "user_referrals_list"
+```
+
+Если имя шаблона совпадает с дефолтом (`user_referrals_list`) — env можно не задавать.
+
+После изменения env пересобрать контейнер:
+
+```bash
+docker compose up -d shm-client
+```
+
+### 11.3 Проверка
+
+```bash
+curl -s 'https://bill.yourdomain.com/shm/v1/template/user_referrals_list?format=json' \
+  -H 'Cookie: session=ВАША_СЕССИЯ' | jq
+```
+
+Ожидаемый ответ:
+```json
+{ "data": [{ "count": 3, "items": [
+  { "user_id": 1234, "full_name": "...", "login": "...", "created": "..." }
+]}] }
+```
+
+Если возвращается `count=0` для юзера, у которого точно есть рефералы:
+- Проверить что шаблон вызывается через `/template/*`, а не `/public/*` (последний работает в контексте admin).
+- Добавить в шаблон debug-поля `debug_current_user_id = user.id, debug_count_from_method = user.referrals_count` и сравнить с ожидаемым.
