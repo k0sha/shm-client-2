@@ -32,6 +32,7 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
   const { t } = useTranslation();
   const statusColor = STATUS_COLORS[ticket.status] || 'gray';
   const statusLabel = t(`tickets.status.${ticket.status}`);
+  const showStatus = ticket.status !== 'waiting';
   const isNewTicket = !ticket.assignedTo;
   const showBadge = isNewTicket || ticket.unread;
   const badgeLabel = isNewTicket ? t('tickets.newTicket') : t('tickets.newMessage');
@@ -44,17 +45,20 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
             {ticket.number ? `#${ticket.number} - ` : ''}{t(`tickets.ticketType.${ticket.type}`)}
           </Text>
           <Group gap={6} wrap="nowrap" align="center" style={{ minWidth: 0 }}>
-            <Box
-              style={{
-                width: 8,
-                height: 8,
-                borderRadius: '50%',
-                backgroundColor: `var(--mantine-color-${statusColor}-6)`,
-                flexShrink: 0,
-              }}
-            />
+            {showStatus && (
+              <Box
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  backgroundColor: `var(--mantine-color-${statusColor}-6)`,
+                  flexShrink: 0,
+                }}
+              />
+            )}
             <Text size="xs" c="dimmed" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {statusLabel} · {formatDate(ticket.updatedAt)} · #{ticket.userId} {displayUser(ticket)}
+              {showStatus && `${statusLabel} · `}
+              {formatDate(ticket.updatedAt)} · #{ticket.userId} {displayUser(ticket)}
               {ticket.assignedTo && ` · 🛡 ${ticket.assignedTo}`}
             </Text>
           </Group>
