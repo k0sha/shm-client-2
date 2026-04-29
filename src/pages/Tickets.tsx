@@ -40,7 +40,7 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
     <Card withBorder radius="md" p="md" className="service-card-desktop" style={{ cursor: 'pointer' }} onClick={() => navigate(`/tickets/${ticket.id}`)}>
       <Group justify="space-between" wrap="nowrap" gap="md">
         <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
-          <Text fw={500}>
+          <Text fw={500} truncate>
             {ticket.number ? `#${ticket.number} - ` : ''}{t(`tickets.ticketType.${ticket.type}`)}
           </Text>
           <Group gap={6} wrap="nowrap" align="center" style={{ minWidth: 0 }}>

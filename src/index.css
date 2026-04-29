@@ -9,6 +9,7 @@ body {
   min-height: 100vh;
   background: var(--mantine-color-body);
   color: var(--mantine-color-text);
+  overflow-x: hidden;
 }
 
 .service-card-desktop {

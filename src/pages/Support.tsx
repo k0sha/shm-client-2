@@ -39,7 +39,7 @@ function TicketCard({ ticket }: { ticket: Ticket }) {
     >
       <Group justify="space-between" wrap="nowrap" gap="md">
         <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
-          <Text fw={500}>
+          <Text fw={500} truncate>
             {ticket.number ? `#${ticket.number} - ` : ''}{t(`tickets.ticketType.${ticket.type}`)}
           </Text>
           <Group gap={6} wrap="nowrap" align="center" style={{ minWidth: 0 }}>
