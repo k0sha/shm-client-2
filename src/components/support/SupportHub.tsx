@@ -1,5 +1,5 @@
-import { Card, Stack, Text, Title, ThemeIcon, SimpleGrid, Group } from '@mantine/core';
-import { IconMessage, IconHelp, IconFileText, IconArrowRight } from '@tabler/icons-react';
+import { Card, Stack, Text, Title, ThemeIcon, SimpleGrid } from '@mantine/core';
+import { IconMessage, IconHelp, IconFileText } from '@tabler/icons-react';
 import type { Icon } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 
@@ -52,11 +52,12 @@ export function SupportHub({ onSelect }: { onSelect: (id: 'chat' | 'faq' | 'docs
               withBorder
               radius="md"
               p="lg"
+              h="100%"
               className="service-card-desktop"
               style={{ cursor: 'pointer' }}
               onClick={() => onSelect(card.id)}
             >
-              <Stack gap="md" align="center" ta="center">
+              <Stack gap="md" align="center" ta="center" h="100%" justify="center">
                 <ThemeIcon size={64} radius="md" variant="light" color={card.color}>
                   <Icon size={36} />
                 </ThemeIcon>
@@ -64,9 +65,6 @@ export function SupportHub({ onSelect }: { onSelect: (id: 'chat' | 'faq' | 'docs
                   <Text fw={600} size="lg">{card.title}</Text>
                   <Text size="sm" c="dimmed">{card.description}</Text>
                 </Stack>
-                <Group gap={4} c={card.color} mt="auto">
-                  <IconArrowRight size={16} />
-                </Group>
               </Stack>
             </Card>
           );

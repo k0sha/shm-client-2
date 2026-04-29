@@ -1,7 +1,6 @@
 import { useSearchParams } from 'react-router-dom';
-import { Tabs, Stack, Button } from '@mantine/core';
-import { useMediaQuery } from '@mantine/hooks';
-import { IconMessage, IconHelp, IconFileText, IconArrowLeft } from '@tabler/icons-react';
+import { Stack, Button } from '@mantine/core';
+import { IconArrowLeft } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import Support from './Support';
 import { SupportFAQ } from '../components/support/SupportFAQ';
@@ -22,7 +21,6 @@ function renderSection(section: SectionId) {
 export default function SupportPage() {
   const { t } = useTranslation();
   const [searchParams, setSearchParams] = useSearchParams();
-  const isDesktop = useMediaQuery('(min-width: 48em)', true);
 
   const rawTab = searchParams.get('tab');
   const activeTab = rawTab && VALID_TABS.has(rawTab) ? (rawTab as SectionId) : null;
@@ -37,55 +35,25 @@ export default function SupportPage() {
     setSearchParams(next, { replace: true });
   };
 
-  // Desktop hub: no tab selected → show landing with 3 cards
-  if (isDesktop && !activeTab) {
+  // No tab → hub landing (cards)
+  if (!activeTab) {
     return <SupportHub onSelect={(id) => setTab(id)} />;
   }
 
-  // Desktop drill-down: tab selected → show section + back link
-  if (isDesktop && activeTab) {
-    return (
-      <Stack gap="md">
-        <div>
-          <Button
-            variant="subtle"
-            size="compact-sm"
-            leftSection={<IconArrowLeft size={14} />}
-            onClick={() => setTab(null)}
-          >
-            {t('common.back')}
-          </Button>
-        </div>
-        {renderSection(activeTab)}
-      </Stack>
-    );
-  }
-
-  // Mobile: tabs (default chat)
-  const mobileTab: SectionId = activeTab ?? 'chat';
+  // Tab selected → section content with back link
   return (
-    <Tabs
-      value={mobileTab}
-      onChange={(value) => {
-        if (value && VALID_TABS.has(value)) setTab(value as SectionId);
-      }}
-      keepMounted={false}
-    >
-      <Tabs.List grow>
-        <Tabs.Tab value="chat" leftSection={<IconMessage size={16} />}>
-          {t('support.tabs.chat')}
-        </Tabs.Tab>
-        <Tabs.Tab value="faq" leftSection={<IconHelp size={16} />}>
-          {t('support.tabs.faq')}
-        </Tabs.Tab>
-        <Tabs.Tab value="docs" leftSection={<IconFileText size={16} />}>
-          {t('support.tabs.docs')}
-        </Tabs.Tab>
-      </Tabs.List>
-
-      <Tabs.Panel value="chat" pt="md"><Support /></Tabs.Panel>
-      <Tabs.Panel value="faq" pt="md"><SupportFAQ /></Tabs.Panel>
-      <Tabs.Panel value="docs" pt="md"><SupportDocs /></Tabs.Panel>
-    </Tabs>
+    <Stack gap="md">
+      <div>
+        <Button
+          variant="subtle"
+          size="compact-sm"
+          leftSection={<IconArrowLeft size={14} />}
+          onClick={() => setTab(null)}
+        >
+          {t('common.back')}
+        </Button>
+      </div>
+      {renderSection(activeTab)}
+    </Stack>
   );
 }
