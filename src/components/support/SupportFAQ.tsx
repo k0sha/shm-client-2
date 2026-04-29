@@ -1,4 +1,6 @@
-import { Accordion, Stack, Text } from '@mantine/core';
+import { useState } from 'react';
+import { Card, Collapse, Stack, Text, Group } from '@mantine/core';
+import { IconChevronDown } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import faqRu from '../../data/faq.ru.json';
 import faqEn from '../../data/faq.en.json';
@@ -40,6 +42,16 @@ export function SupportFAQ() {
   const lang = (i18n.language || 'en').split('-')[0];
   const data = FAQ_BY_LANG[lang] ?? FAQ_BY_LANG.en;
 
+  const [openIds, setOpenIds] = useState<Set<string>>(new Set());
+  const toggle = (id: string) => {
+    setOpenIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
   return (
     <Stack gap="lg">
       {data.categories.map((category) => {
@@ -49,27 +61,37 @@ export function SupportFAQ() {
         return (
           <Stack key={category.id} gap="xs">
             <Text fw={600} size="sm" c="dimmed" tt="uppercase">{category.title}</Text>
-            <Accordion
-              variant="separated"
-              radius="md"
-              styles={{
-                item: {
-                  backgroundColor: 'var(--mantine-color-body)',
-                  borderColor: 'var(--mantine-color-default-border)',
-                },
-                control: { backgroundColor: 'var(--mantine-color-body)' },
-                panel: { backgroundColor: 'var(--mantine-color-body)' },
-              }}
-            >
-              {items.map((item) => (
-                <Accordion.Item key={item.id} value={item.id}>
-                  <Accordion.Control>{item.q}</Accordion.Control>
-                  <Accordion.Panel>
-                    <Text size="sm" style={{ whiteSpace: 'pre-line' }}>{item.a}</Text>
-                  </Accordion.Panel>
-                </Accordion.Item>
-              ))}
-            </Accordion>
+            <Stack gap="sm">
+              {items.map((item) => {
+                const isOpen = openIds.has(item.id);
+                return (
+                  <Card
+                    key={item.id}
+                    withBorder
+                    radius="md"
+                    p="md"
+                    className="service-card-desktop"
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => toggle(item.id)}
+                  >
+                    <Group justify="space-between" wrap="nowrap" gap="md">
+                      <Text fw={500} style={{ flex: 1, minWidth: 0 }}>{item.q}</Text>
+                      <IconChevronDown
+                        size={18}
+                        style={{
+                          flexShrink: 0,
+                          transform: isOpen ? 'rotate(180deg)' : 'none',
+                          transition: 'transform 150ms ease',
+                        }}
+                      />
+                    </Group>
+                    <Collapse in={isOpen}>
+                      <Text size="sm" mt="md" c="dimmed" style={{ whiteSpace: 'pre-line' }}>{item.a}</Text>
+                    </Collapse>
+                  </Card>
+                );
+              })}
+            </Stack>
           </Stack>
         );
       })}
