@@ -46,7 +46,6 @@ export function useGlobalWebSocket(enabled: boolean) {
         }
 
         if (msg.type === 'new_ticket') {
-          incrementTicketsRef.current();
           window.dispatchEvent(new CustomEvent('ticket:new_ticket', { detail: { ticket: (msg as Record<string, unknown>).ticket } }));
           return;
         }

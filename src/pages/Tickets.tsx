@@ -83,7 +83,7 @@ export default function Tickets() {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
 
-  const { setTicketsUnreadCount, incrementTicketsUnread, openedTicketIds, clearOpenedTickets } = useStore();
+  const { setTicketsUnreadCount, openedTicketIds, clearOpenedTickets } = useStore();
 
   useEffect(() => {
     supportApi.listTickets()
@@ -135,7 +135,6 @@ export default function Tickets() {
         if (prev.some((t) => t.id === ticket.id)) return prev;
         return [ticket, ...prev];
       });
-      incrementTicketsUnread();
     };
     window.addEventListener('ticket:new_ticket', onNewTicket);
     return () => {
