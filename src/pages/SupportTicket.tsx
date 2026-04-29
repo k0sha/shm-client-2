@@ -261,7 +261,7 @@ export default function SupportTicket() {
   const isSpecialistView = location.pathname.startsWith('/tickets/');
   const isMobile = useMediaQuery('(max-width: 768px)') ?? true;
 
-  const { decrementSupportUnread, decrementTicketsUnread, markTicketOpened } = useStore();
+  const { decrementSupportUnread, decrementTicketsUnread, markTicketOpened, isSupportUser } = useStore();
 
   const [ticket, setTicket] = useState<Ticket | undefined>();
   const [loading, setLoading] = useState(true);
@@ -368,6 +368,12 @@ export default function SupportTicket() {
       });
       setReplyText('');
       setSelectedFiles([]);
+
+      if (isSupportUser && !ticket.assignedTo) {
+        try {
+          applyTicketUpdate(await supportApi.updateTicket(ticket.id, { take: true }));
+        } catch { /* silent: основной сценарий — отправка сообщения — успешен */ }
+      }
     } catch {
       notifications.show({ color: 'red', message: t('common.error') });
     } finally {
