@@ -442,5 +442,15 @@
   },
   "security": {
     "changePasswordDescription": "Changez votre mot de passe pour vous connecter à votre compte"
+  },
+  "support": {
+    "tabs": {
+      "chat": "Chat",
+      "faq": "FAQ",
+      "docs": "Documents"
+    },
+    "docs": {
+      "empty": "Aucun document configuré pour le moment"
+    }
   }
 }

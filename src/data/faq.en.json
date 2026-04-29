@@ -1,0 +1,58 @@
+{
+  "categories": [
+    { "id": "connection", "title": "Connection" },
+    { "id": "payment", "title": "Payment" },
+    { "id": "account", "title": "Account" },
+    { "id": "technical", "title": "Technical" }
+  ],
+  "items": [
+    {
+      "id": "ios_setup",
+      "category": "connection",
+      "q": "How do I set up VPN on iOS?",
+      "a": "Open «My Devices», select your iOS device and tap «Configure». Follow the instructions — the app will open automatically and import the subscription."
+    },
+    {
+      "id": "android_setup",
+      "category": "connection",
+      "q": "How do I set up VPN on Android?",
+      "a": "In «My Devices», pick your Android device, download the recommended app, then scan the QR code or paste the subscription link."
+    },
+    {
+      "id": "payment_methods",
+      "category": "payment",
+      "q": "What payment methods are available?",
+      "a": "We accept cards, SBP, cryptocurrency and Telegram payments. The exact set depends on your region and is shown in the payment window when topping up your balance."
+    },
+    {
+      "id": "renew",
+      "category": "payment",
+      "q": "How do I renew my subscription?",
+      "a": "Top up your balance on the Profile page. Renewal happens automatically when the current paid period ends."
+    },
+    {
+      "id": "telegram_link",
+      "category": "account",
+      "q": "How do I link Telegram to my account?",
+      "a": "On the Profile page click «Link Telegram» and confirm authorization through the widget. Once linked, payment and device notifications will arrive in the bot chat."
+    },
+    {
+      "id": "forgot_password",
+      "category": "account",
+      "q": "I forgot my password, what should I do?",
+      "a": "On the login page click «Forgot password?» and enter your email. A reset link will be sent to it. If no email is linked — message support chat."
+    },
+    {
+      "id": "platforms",
+      "category": "technical",
+      "q": "Which platforms are supported?",
+      "a": "iOS, Android, macOS, Windows, Linux. Each platform has its own clients — the list of apps is shown inside the device card."
+    },
+    {
+      "id": "multi_devices",
+      "category": "technical",
+      "q": "Can I connect from multiple devices?",
+      "a": "Yes. Each device is a separate subscription. Add a new device in «My Devices» and pay for it."
+    }
+  ]
+}

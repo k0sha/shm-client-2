@@ -487,5 +487,15 @@
   },
   "security": {
     "changePasswordDescription": "Измените пароль для входа в личный кабинет"
+  },
+  "support": {
+    "tabs": {
+      "chat": "Чат",
+      "faq": "FAQ",
+      "docs": "Документы"
+    },
+    "docs": {
+      "empty": "Документы пока не настроены"
+    }
   }
 }

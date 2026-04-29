@@ -487,5 +487,15 @@
   },
   "security": {
     "changePasswordDescription": "Change your password for logging into your account"
+  },
+  "support": {
+    "tabs": {
+      "chat": "Chat",
+      "faq": "FAQ",
+      "docs": "Documents"
+    },
+    "docs": {
+      "empty": "No documents configured yet"
+    }
   }
 }

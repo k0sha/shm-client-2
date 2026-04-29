@@ -442,5 +442,15 @@
   },
   "security": {
     "changePasswordDescription": "Ändern Sie Ihr Passwort für die Anmeldung in Ihrem Konto"
+  },
+  "support": {
+    "tabs": {
+      "chat": "Chat",
+      "faq": "FAQ",
+      "docs": "Dokumente"
+    },
+    "docs": {
+      "empty": "Noch keine Dokumente konfiguriert"
+    }
   }
 }

@@ -1,0 +1,58 @@
+{
+  "categories": [
+    { "id": "connection", "title": "Ulanish" },
+    { "id": "payment", "title": "To'lov" },
+    { "id": "account", "title": "Hisob" },
+    { "id": "technical", "title": "Texnik savollar" }
+  ],
+  "items": [
+    {
+      "id": "ios_setup",
+      "category": "connection",
+      "q": "iOS-da VPN ni qanday sozlash mumkin?",
+      "a": "«Mening qurilmalarim» bo'limini oching, iOS qurilmangizni tanlang va «Sozlash» tugmasini bosing. Ko'rsatmalarga rioya qiling — ilova avtomatik ravishda ochiladi va obunani import qiladi."
+    },
+    {
+      "id": "android_setup",
+      "category": "connection",
+      "q": "Android-da VPN ni qanday sozlash mumkin?",
+      "a": "«Mening qurilmalarim» bo'limida Android qurilmangizni tanlang, tavsiya qilingan ilovani yuklab oling, so'ng QR-kodni skanerlang yoki obuna havolasini joylashtiring."
+    },
+    {
+      "id": "payment_methods",
+      "category": "payment",
+      "q": "Qanday to'lov usullari mavjud?",
+      "a": "Kartalar, SBP, kriptovalyuta va Telegram orqali to'lovlarni qabul qilamiz. Aniq to'plam mintaqangizga bog'liq va to'lov oynasida ko'rsatiladi."
+    },
+    {
+      "id": "renew",
+      "category": "payment",
+      "q": "Obunani qanday yangilash mumkin?",
+      "a": "Profil sahifasida balansingizni to'ldiring. Yangilanish joriy to'langan davr tugagach avtomatik amalga oshadi."
+    },
+    {
+      "id": "telegram_link",
+      "category": "account",
+      "q": "Telegramni hisobimga qanday bog'lash mumkin?",
+      "a": "Profil sahifasida «Telegramni bog'lash» tugmasini bosing va avtorizatsiyani tasdiqlang. Bog'langandan keyin bildirishnomalar bot bilan suhbatga keladi."
+    },
+    {
+      "id": "forgot_password",
+      "category": "account",
+      "q": "Parolni unutdim, nima qilishim kerak?",
+      "a": "Kirish sahifasida «Parolni unutdingizmi?» tugmasini bosing va elektron pochtangizni kiriting. Tiklash havolasi unga yuboriladi. Agar elektron pochta bog'lanmagan bo'lsa — qo'llab-quvvatlash chatiga yozing."
+    },
+    {
+      "id": "platforms",
+      "category": "technical",
+      "q": "Qaysi platformalar qo'llab-quvvatlanadi?",
+      "a": "iOS, Android, macOS, Windows, Linux. Har bir platformaning o'z mijozlari bor — ilovalar ro'yxati qurilma kartasi ichida ko'rsatilgan."
+    },
+    {
+      "id": "multi_devices",
+      "category": "technical",
+      "q": "Bir nechta qurilmadan ulanish mumkinmi?",
+      "a": "Ha. Har bir qurilma alohida obunadir. «Mening qurilmalarim» bo'limida yangi qurilma qo'shing va uning uchun to'lang."
+    }
+  ]
+}

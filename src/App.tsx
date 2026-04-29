@@ -142,7 +142,7 @@ function useTelegramOpenState() {
 
 import Services from './pages/Services';
 import Profile from './pages/Profile';
-import Support from './pages/Support';
+import SupportPage from './pages/SupportPage';
 import Tickets from './pages/Tickets';
 import SupportTicket from './pages/SupportTicket';
 import Login from './pages/Login';
@@ -780,7 +780,7 @@ function AppContent() {
             <Routes>
               <Route path="/" element={<Services />} />
               <Route path="/profile" element={<Profile />} />
-              {isSupportUser && <Route path="/support" element={<Support />} />}
+              {isSupportUser && <Route path="/support" element={<SupportPage />} />}
               {isSupportUser && <Route path="/support/:ticketId" element={<SupportTicket />} />}
               {isSupportUser && <Route path="/tickets" element={<Tickets />} />}
               {isSupportUser && <Route path="/tickets/:ticketId" element={<SupportTicket />} />}
@@ -889,7 +889,7 @@ function AppContent() {
             <Routes>
               <Route path="/" element={<Services />} />
               <Route path="/profile" element={<Profile />} />
-              {isSupportUser && <Route path="/support" element={<Support />} />}
+              {isSupportUser && <Route path="/support" element={<SupportPage />} />}
               {isSupportUser && <Route path="/support/:ticketId" element={<SupportTicket />} />}
               {isSupportUser && <Route path="/tickets" element={<Tickets />} />}
               {isSupportUser && <Route path="/tickets/:ticketId" element={<SupportTicket />} />}

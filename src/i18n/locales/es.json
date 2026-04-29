@@ -442,5 +442,15 @@
   },
   "security": {
     "changePasswordDescription": "Cambia tu contraseña para iniciar sesión en tu cuenta"
+  },
+  "support": {
+    "tabs": {
+      "chat": "Chat",
+      "faq": "FAQ",
+      "docs": "Documentos"
+    },
+    "docs": {
+      "empty": "Aún no hay documentos configurados"
+    }
   }
 }

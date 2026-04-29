@@ -442,5 +442,15 @@
   },
   "security": {
     "changePasswordDescription": "Hisobingizga kirish parolini o'zgartiring"
+  },
+  "support": {
+    "tabs": {
+      "chat": "Chat",
+      "faq": "FAQ",
+      "docs": "Hujjatlar"
+    },
+    "docs": {
+      "empty": "Hujjatlar hali sozlanmagan"
+    }
   }
 }

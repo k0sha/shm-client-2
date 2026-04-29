@@ -1,0 +1,58 @@
+{
+  "categories": [
+    { "id": "connection", "title": "Conexión" },
+    { "id": "payment", "title": "Pago" },
+    { "id": "account", "title": "Cuenta" },
+    { "id": "technical", "title": "Técnico" }
+  ],
+  "items": [
+    {
+      "id": "ios_setup",
+      "category": "connection",
+      "q": "¿Cómo configuro el VPN en iOS?",
+      "a": "Abre «Mis dispositivos», selecciona tu dispositivo iOS y toca «Configurar». Sigue las instrucciones — la aplicación se abrirá automáticamente e importará la suscripción."
+    },
+    {
+      "id": "android_setup",
+      "category": "connection",
+      "q": "¿Cómo configuro el VPN en Android?",
+      "a": "En «Mis dispositivos» elige tu dispositivo Android, descarga la aplicación recomendada y escanea el QR o pega el enlace de suscripción."
+    },
+    {
+      "id": "payment_methods",
+      "category": "payment",
+      "q": "¿Qué métodos de pago hay disponibles?",
+      "a": "Aceptamos tarjetas, SBP, criptomonedas y pagos por Telegram. El conjunto exacto depende de tu región y se muestra en la ventana de pago."
+    },
+    {
+      "id": "renew",
+      "category": "payment",
+      "q": "¿Cómo renuevo mi suscripción?",
+      "a": "Recarga tu saldo en la página Perfil. La renovación se realiza automáticamente al final del período pagado."
+    },
+    {
+      "id": "telegram_link",
+      "category": "account",
+      "q": "¿Cómo vinculo Telegram a mi cuenta?",
+      "a": "En la página Perfil pulsa «Vincular Telegram» y confirma la autorización. Después las notificaciones llegarán al chat con el bot."
+    },
+    {
+      "id": "forgot_password",
+      "category": "account",
+      "q": "Olvidé mi contraseña, ¿qué hago?",
+      "a": "En la página de inicio de sesión pulsa «¿Olvidaste tu contraseña?» e introduce tu correo. Se enviará un enlace de restablecimiento. Si no hay correo vinculado — escribe al soporte."
+    },
+    {
+      "id": "platforms",
+      "category": "technical",
+      "q": "¿Qué plataformas son compatibles?",
+      "a": "iOS, Android, macOS, Windows, Linux. Cada plataforma tiene sus propios clientes — la lista de aplicaciones se muestra dentro de la tarjeta del dispositivo."
+    },
+    {
+      "id": "multi_devices",
+      "category": "technical",
+      "q": "¿Puedo conectarme desde varios dispositivos?",
+      "a": "Sí. Cada dispositivo es una suscripción separada. Añade un nuevo dispositivo en «Mis dispositivos» y págalo."
+    }
+  ]
+}

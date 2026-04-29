@@ -1,0 +1,58 @@
+{
+  "categories": [
+    { "id": "connection", "title": "Connexion" },
+    { "id": "payment", "title": "Paiement" },
+    { "id": "account", "title": "Compte" },
+    { "id": "technical", "title": "Technique" }
+  ],
+  "items": [
+    {
+      "id": "ios_setup",
+      "category": "connection",
+      "q": "Comment configurer le VPN sur iOS ?",
+      "a": "Ouvrez «Mes appareils», sélectionnez votre appareil iOS et appuyez sur «Configurer». Suivez les instructions — l'application s'ouvrira automatiquement et importera l'abonnement."
+    },
+    {
+      "id": "android_setup",
+      "category": "connection",
+      "q": "Comment configurer le VPN sur Android ?",
+      "a": "Dans «Mes appareils», sélectionnez votre appareil Android, téléchargez l'application recommandée, puis scannez le QR-code ou collez le lien d'abonnement."
+    },
+    {
+      "id": "payment_methods",
+      "category": "payment",
+      "q": "Quelles méthodes de paiement sont disponibles ?",
+      "a": "Nous acceptons les cartes, SBP, cryptomonnaies et paiements via Telegram. L'ensemble exact dépend de votre région et s'affiche lors du paiement."
+    },
+    {
+      "id": "renew",
+      "category": "payment",
+      "q": "Comment renouveler mon abonnement ?",
+      "a": "Rechargez votre solde sur la page Profil. Le renouvellement se fait automatiquement à la fin de la période payée."
+    },
+    {
+      "id": "telegram_link",
+      "category": "account",
+      "q": "Comment lier Telegram à mon compte ?",
+      "a": "Sur la page Profil, cliquez sur «Lier Telegram» et confirmez l'autorisation. Ensuite, les notifications arriveront dans le chat avec le bot."
+    },
+    {
+      "id": "forgot_password",
+      "category": "account",
+      "q": "J'ai oublié mon mot de passe, que faire ?",
+      "a": "Sur la page de connexion, cliquez sur «Mot de passe oublié ?» et entrez votre e-mail. Un lien de réinitialisation y sera envoyé. Si aucun e-mail n'est lié — écrivez au support."
+    },
+    {
+      "id": "platforms",
+      "category": "technical",
+      "q": "Quelles plateformes sont prises en charge ?",
+      "a": "iOS, Android, macOS, Windows, Linux. Chaque plateforme a ses propres clients — la liste des applications est affichée dans la carte de l'appareil."
+    },
+    {
+      "id": "multi_devices",
+      "category": "technical",
+      "q": "Puis-je me connecter depuis plusieurs appareils ?",
+      "a": "Oui. Chaque appareil est un abonnement séparé. Ajoutez un nouvel appareil dans «Mes appareils» et payez-le."
+    }
+  ]
+}
