@@ -1008,7 +1008,7 @@ export default function Services() {
   }
 
   return (
-      <Stack gap="lg">
+      <Stack gap="md">
         <Group justify="space-between">
           <Title order={2}>{t('services.title')}</Title>
           <Group>

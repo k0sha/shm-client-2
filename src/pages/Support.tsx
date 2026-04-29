@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Stack, Group, Title, Button, Tabs, Text, Card,
+  Stack, Group, Button, Tabs, Text, Card,
   Box, Badge, Loader, Center,
 } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
@@ -123,9 +123,8 @@ export default function Support() {
   }
 
   return (
-    <Stack gap="lg">
-      <Group justify="space-between" align="center">
-        <Title order={2}>{t('nav.support')}</Title>
+    <Stack gap="md">
+      <Group justify="flex-end" align="center">
         <Button leftSection={<IconPlus size={16} />} onClick={() => setCreateOpen(true)}>
           {t('tickets.createTicket')}
         </Button>

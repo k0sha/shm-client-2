@@ -417,7 +417,7 @@ export default function Profile() {
   }
 
   return (
-    <Stack gap="lg">
+    <Stack gap="md">
       <Title order={2}>{t('profile.title')}</Title>
 
 

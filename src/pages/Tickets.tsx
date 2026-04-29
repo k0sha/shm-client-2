@@ -147,7 +147,7 @@ export default function Tickets() {
   if (loading) return <Center py="xl"><Loader /></Center>;
 
   return (
-    <Stack gap="lg">
+    <Stack gap="md">
       <Title order={2}>{t('nav.tickets')}</Title>
 
       <TextInput
