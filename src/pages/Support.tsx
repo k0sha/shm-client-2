@@ -51,6 +51,7 @@ function TicketCard({ ticket }: { ticket: Ticket }) {
             />
             <Text size="xs" c="dimmed" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
               {statusLabel} · {formatDate(ticket.updatedAt)}
+              {ticket.assignedTo && ` · 🛡 ${ticket.assignedTo}`}
             </Text>
           </Group>
         </Stack>
