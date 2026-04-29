@@ -451,6 +451,12 @@
     },
     "docs": {
       "empty": "Hujjatlar hali sozlanmagan"
+    },
+    "hub": {
+      "title": "Qanday yordam bera olamiz?",
+      "chatDesc": "Jamoamizga yozing — imkon qadar tez javob beramiz",
+      "faqDesc": "Eng mashhur savollarga javoblar",
+      "docsDesc": "Yuridik ma'lumotlar va foydalanish shartlari"
     }
   }
 }

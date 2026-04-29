@@ -496,6 +496,12 @@
     },
     "docs": {
       "empty": "No documents configured yet"
+    },
+    "hub": {
+      "title": "How can we help?",
+      "chatDesc": "Reach out to our team — we'll reply as soon as possible",
+      "faqDesc": "Answers to the most popular questions",
+      "docsDesc": "Legal information and terms of use"
     }
   }
 }

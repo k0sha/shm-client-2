@@ -451,6 +451,12 @@
     },
     "docs": {
       "empty": "Aún no hay documentos configurados"
+    },
+    "hub": {
+      "title": "¿Cómo podemos ayudar?",
+      "chatDesc": "Contacta con nuestro equipo — responderemos lo antes posible",
+      "faqDesc": "Respuestas a las preguntas más populares",
+      "docsDesc": "Información legal y condiciones de uso"
     }
   }
 }
