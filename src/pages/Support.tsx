@@ -2,12 +2,12 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Stack, Group, Title, Button, Tabs, Text, Card,
-  Box, ActionIcon, Badge, Loader, Center,
+  Box, Badge, Loader, Center,
 } from '@mantine/core';
-import { IconPlus, IconChevronRight } from '@tabler/icons-react';
+import { IconPlus } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useStore } from '../store/useStore';
-import { TicketStatusBadge } from '../components/support/TicketStatusBadge';
+import { STATUS_COLORS } from '../components/support/TicketStatusBadge';
 import { TicketCreateModal } from '../components/support/TicketCreateModal';
 import { supportApi } from '../api/supportApi';
 import type { Ticket } from '../types/tickets';
@@ -24,6 +24,8 @@ function formatDate(iso: string): string {
 function TicketCard({ ticket }: { ticket: Ticket }) {
   const navigate = useNavigate();
   const { t } = useTranslation();
+  const statusColor = STATUS_COLORS[ticket.status] || 'gray';
+  const statusLabel = t(`tickets.status.${ticket.status}`);
 
   return (
     <Card
@@ -32,30 +34,31 @@ function TicketCard({ ticket }: { ticket: Ticket }) {
       style={{ cursor: 'pointer' }}
       onClick={() => navigate(`/support/${ticket.id}`)}
     >
-      <Group justify="space-between" wrap="nowrap" gap="xs">
-        <Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
-          <Group gap="xs" wrap="nowrap">
-            {ticket.unread && (
-              <Box style={{ width: 8, height: 8, borderRadius: '50%', flexShrink: 0, background: 'var(--mantine-color-blue-6)' }} />
-            )}
-            {ticket.number && <Text size="xs" c="dimmed" style={{ flexShrink: 0 }}>#{ticket.number}</Text>}
-            <Text fw={ticket.unread ? 700 : 500} size="sm" truncate>
-              {t(`tickets.ticketType.${ticket.type}`)}
+      <Group justify="space-between" wrap="nowrap" gap="md">
+        <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
+          <Text fw={500}>
+            {ticket.number ? `#${ticket.number} - ` : ''}{t(`tickets.ticketType.${ticket.type}`)}
+          </Text>
+          <Group gap={6} wrap="nowrap" align="center" style={{ minWidth: 0 }}>
+            <Box
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                backgroundColor: `var(--mantine-color-${statusColor}-6)`,
+                flexShrink: 0,
+              }}
+            />
+            <Text size="xs" c="dimmed" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {statusLabel} · {formatDate(ticket.updatedAt)}
             </Text>
           </Group>
-          <Group gap="xs">
-            <TicketStatusBadge status={ticket.status} />
-          </Group>
-          {ticket.lastMessage && (
-            <Text size="xs" c="dimmed" lineClamp={1}>{ticket.lastMessage}</Text>
-          )}
         </Stack>
-        <Group gap="xs" wrap="nowrap" style={{ flexShrink: 0 }}>
-          <Text size="xs" c="dimmed">{formatDate(ticket.updatedAt)}</Text>
-          <ActionIcon variant="subtle" color="gray" size="sm">
-            <IconChevronRight size={14} />
-          </ActionIcon>
-        </Group>
+        {ticket.unread && (
+          <Badge color="blue" variant="filled" size="sm" style={{ flexShrink: 0 }}>
+            {t('tickets.newMessage')}
+          </Badge>
+        )}
       </Group>
     </Card>
   );
