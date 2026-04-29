@@ -5,7 +5,6 @@ import type { TicketStatus } from '../../types/tickets';
 export const STATUS_COLORS: Record<TicketStatus, string> = {
   open: 'blue',
   in_progress: 'orange',
-  waiting: 'yellow',
   resolved: 'green',
   closed: 'gray',
 };

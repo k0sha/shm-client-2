@@ -1,4 +1,4 @@
-export type TicketStatus = 'open' | 'in_progress' | 'waiting' | 'resolved' | 'closed';
+export type TicketStatus = 'open' | 'in_progress' | 'resolved' | 'closed';
 export type TicketType = 'vpn' | 'setup' | 'payment' | 'account' | 'other';
 
 export interface TicketAttachment {

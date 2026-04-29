@@ -451,7 +451,6 @@
     "status": {
       "open": "Open",
       "in_progress": "In Progress",
-      "waiting": "Awaiting Reply",
       "resolved": "Resolved",
       "closed": "Closed",
       "archived": "Archived"

@@ -425,7 +425,6 @@ export default function SupportTicket() {
   const statusOptions = [
     { value: 'open', label: t('tickets.status.open') },
     { value: 'in_progress', label: t('tickets.status.in_progress') },
-    { value: 'waiting', label: t('tickets.status.waiting') },
     { value: 'resolved', label: t('tickets.status.resolved') },
     { value: 'closed', label: t('tickets.status.closed') },
   ];

@@ -32,7 +32,6 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
   const { t } = useTranslation();
   const statusColor = STATUS_COLORS[ticket.status] || 'gray';
   const statusLabel = t(`tickets.status.${ticket.status}`);
-  const showStatus = ticket.status !== 'waiting';
   const isNewTicket = !ticket.assignedTo;
   const showBadge = isNewTicket || ticket.unread;
   const badgeLabel = isNewTicket ? t('tickets.newTicket') : t('tickets.newMessage');
@@ -45,20 +44,17 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
             {ticket.number ? `#${ticket.number} - ` : ''}{t(`tickets.ticketType.${ticket.type}`)}
           </Text>
           <Group gap={6} wrap="nowrap" align="center" style={{ minWidth: 0 }}>
-            {showStatus && (
-              <Box
-                style={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: '50%',
-                  backgroundColor: `var(--mantine-color-${statusColor}-6)`,
-                  flexShrink: 0,
-                }}
-              />
-            )}
+            <Box
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                backgroundColor: `var(--mantine-color-${statusColor}-6)`,
+                flexShrink: 0,
+              }}
+            />
             <Text size="xs" c="dimmed" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {showStatus && `${statusLabel} · `}
-              {formatDate(ticket.updatedAt)} · #{ticket.userId} {displayUser(ticket)}
+              {statusLabel} · {formatDate(ticket.updatedAt)} · #{ticket.userId} {displayUser(ticket)}
               {ticket.assignedTo && ` · 🛡 ${ticket.assignedTo}`}
             </Text>
           </Group>
@@ -180,7 +176,7 @@ export default function Tickets() {
         </Tabs.List>
 
         <Tabs.Panel value="all" pt="md"><TicketList tickets={filter()} /></Tabs.Panel>
-        <Tabs.Panel value="in_progress" pt="md"><TicketList tickets={filter(['in_progress', 'waiting'])} /></Tabs.Panel>
+        <Tabs.Panel value="in_progress" pt="md"><TicketList tickets={filter(['in_progress'])} /></Tabs.Panel>
         <Tabs.Panel value="resolved" pt="md"><TicketList tickets={filter(['resolved'])} /></Tabs.Panel>
         <Tabs.Panel value="closed" pt="md"><TicketList tickets={filter(['closed'])} /></Tabs.Panel>
       </Tabs>

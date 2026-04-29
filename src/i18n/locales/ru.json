@@ -451,7 +451,6 @@
     "status": {
       "open": "Открыто",
       "in_progress": "В работе",
-      "waiting": "Ожидает ответа",
       "resolved": "Решено",
       "closed": "Закрыто",
       "archived": "В архиве"

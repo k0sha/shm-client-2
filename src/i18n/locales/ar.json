@@ -409,7 +409,6 @@
     "status": {
       "open": "مفتوح",
       "in_progress": "قيد المعالجة",
-      "waiting": "في انتظار الرد",
       "closed": "مغلق",
       "archived": "مؤرشف"
     },

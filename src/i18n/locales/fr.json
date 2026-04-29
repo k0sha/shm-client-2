@@ -409,7 +409,6 @@
     "status": {
       "open": "Ouvert",
       "in_progress": "En cours",
-      "waiting": "En attente de réponse",
       "closed": "Fermé",
       "archived": "Archivé"
     },
