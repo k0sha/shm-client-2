@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Stack, Group, Title, Tabs, Text, Paper, Badge, Box, ActionIcon, TextInput, Loader, Center,
+  Stack, Group, Title, Tabs, Text, Card, Badge, Box, ActionIcon, TextInput, Loader, Center,
 } from '@mantine/core';
 import { IconChevronRight, IconSearch } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
@@ -32,7 +32,7 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
   const { t } = useTranslation();
 
   return (
-    <Paper withBorder p="md" radius="md" style={{ cursor: 'pointer' }} onClick={() => navigate(`/tickets/${ticket.id}`)}>
+    <Card withBorder radius="md" p="md" className="service-card-desktop" style={{ cursor: 'pointer' }} onClick={() => navigate(`/tickets/${ticket.id}`)}>
       <Group justify="space-between" wrap="nowrap" gap="xs">
         <Stack gap={4} style={{ flex: 1, minWidth: 0 }}>
           <Group gap="xs" wrap="nowrap">
@@ -62,7 +62,7 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
           </ActionIcon>
         </Group>
       </Group>
-    </Paper>
+    </Card>
   );
 }
 

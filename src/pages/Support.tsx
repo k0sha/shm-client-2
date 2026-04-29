@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-  Stack, Group, Title, Button, Tabs, Text, Paper,
+  Stack, Group, Title, Button, Tabs, Text, Card,
   Box, ActionIcon, Badge, Loader, Center,
 } from '@mantine/core';
 import { IconPlus, IconChevronRight } from '@tabler/icons-react';
@@ -26,8 +26,9 @@ function TicketCard({ ticket }: { ticket: Ticket }) {
   const { t } = useTranslation();
 
   return (
-    <Paper
-      withBorder p="md" radius="md"
+    <Card
+      withBorder radius="md" p="md"
+      className="service-card-desktop"
       style={{ cursor: 'pointer' }}
       onClick={() => navigate(`/support/${ticket.id}`)}
     >
@@ -56,7 +57,7 @@ function TicketCard({ ticket }: { ticket: Ticket }) {
           </ActionIcon>
         </Group>
       </Group>
-    </Paper>
+    </Card>
   );
 }
 

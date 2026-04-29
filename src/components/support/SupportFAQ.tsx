@@ -49,7 +49,18 @@ export function SupportFAQ() {
         return (
           <Stack key={category.id} gap="xs">
             <Text fw={600} size="sm" c="dimmed" tt="uppercase">{category.title}</Text>
-            <Accordion variant="separated" radius="md">
+            <Accordion
+              variant="separated"
+              radius="md"
+              styles={{
+                item: {
+                  backgroundColor: 'var(--mantine-color-body)',
+                  borderColor: 'var(--mantine-color-default-border)',
+                },
+                control: { backgroundColor: 'var(--mantine-color-body)' },
+                panel: { backgroundColor: 'var(--mantine-color-body)' },
+              }}
+            >
               {items.map((item) => (
                 <Accordion.Item key={item.id} value={item.id}>
                   <Accordion.Control>{item.q}</Accordion.Control>
