@@ -9,21 +9,46 @@ interface Props {
   onClose: () => void;
 }
 
+function extractItems(raw: unknown): ReferralUser[] {
+  if (!raw || typeof raw !== 'object') return [];
+  const obj = raw as Record<string, unknown>;
+  if (Array.isArray(obj.items)) return obj.items as ReferralUser[];
+  if (Array.isArray(obj.data)) {
+    const first = obj.data[0];
+    if (first && typeof first === 'object' && Array.isArray((first as Record<string, unknown>).items)) {
+      return (first as { items: ReferralUser[] }).items;
+    }
+    if (obj.data.length > 0 && typeof obj.data[0] === 'object') {
+      return obj.data as ReferralUser[];
+    }
+  }
+  return [];
+}
+
 export default function ReferralsModal({ opened, onClose }: Props) {
   const { t, i18n } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [items, setItems] = useState<ReferralUser[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!opened) return;
     setLoading(true);
+    setError(null);
     userApi
       .getReferrals()
       .then((res) => {
-        const payload = res.data?.data?.[0];
-        setItems(payload?.items ?? []);
+        const data = res.data;
+        // Diagnostic: surface the raw shape in the console for ops debugging
+        // eslint-disable-next-line no-console
+        console.debug('[ReferralsModal] response:', data);
+        const list = extractItems(data);
+        setItems(list);
       })
-      .catch(() => {
+      .catch((e) => {
+        // eslint-disable-next-line no-console
+        console.error('[ReferralsModal] failed:', e);
+        setError(e?.response?.status ? `HTTP ${e.response.status}` : 'request failed');
         setItems([]);
       })
       .finally(() => setLoading(false));
@@ -44,7 +69,10 @@ export default function ReferralsModal({ opened, onClose }: Props) {
         </Center>
       ) : items.length === 0 ? (
         <Center py="xl">
-          <Text c="dimmed">{t('profile.referralsEmpty')}</Text>
+          <Stack gap="xs" align="center">
+            <Text c="dimmed">{t('profile.referralsEmpty')}</Text>
+            {error && <Text size="xs" c="red">{error}</Text>}
+          </Stack>
         </Center>
       ) : (
         <Stack gap="md">
