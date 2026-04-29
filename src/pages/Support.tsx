@@ -21,11 +21,12 @@ function formatDate(iso: string): string {
   });
 }
 
-function TicketCard({ ticket }: { ticket: Ticket }) {
+function TicketCard({ ticket, hideBadge = false }: { ticket: Ticket; hideBadge?: boolean }) {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const statusColor = STATUS_COLORS[ticket.status] || 'gray';
   const statusLabel = t(`tickets.status.${ticket.status}`);
+  const badgeLabel = ticket.assignedTo ? t('tickets.newMessage') : t('tickets.newTicket');
 
   return (
     <Card
@@ -55,9 +56,9 @@ function TicketCard({ ticket }: { ticket: Ticket }) {
             </Text>
           </Group>
         </Stack>
-        {ticket.unread && (
+        {ticket.unread && !hideBadge && (
           <Badge color="blue" variant="filled" size="sm" style={{ flexShrink: 0 }}>
-            {t('tickets.newMessage')}
+            {badgeLabel}
           </Badge>
         )}
       </Group>
@@ -161,7 +162,7 @@ export default function Support() {
           <Stack gap="sm">
             {tickets.length === 0
               ? <Text c="dimmed" ta="center" py="xl">{t('tickets.noTickets')}</Text>
-              : tickets.map((tk) => <TicketCard key={tk.id} ticket={tk} />)}
+              : tickets.map((tk) => <TicketCard key={tk.id} ticket={tk} hideBadge />)}
           </Stack>
         </Tabs.Panel>
       </Tabs>

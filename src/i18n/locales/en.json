@@ -393,7 +393,7 @@
     "noTickets": "You don't have any support requests yet",
     "noActiveTickets": "No active requests",
     "closedAndArchived": "Closed and Archived",
-    "newMessage": "New",
+    "newMessage": "New message",
     "subject": "Subject",
     "subjectPlaceholder": "Enter subject",
     "message": "Message",
@@ -468,7 +468,8 @@
       "payment": "Payment & balance",
       "account": "Account & access",
       "other": "Other"
-    }
+    },
+    "newTicket": "New ticket"
   },
   "passwordAuth": {
     "title": "Password Login",

@@ -383,7 +383,7 @@
     "noTickets": "Sie haben noch keine Support-Anfragen",
     "noActiveTickets": "Keine aktiven Anfragen",
     "closedAndArchived": "Geschlossen und archiviert",
-    "newMessage": "Neu",
+    "newMessage": "Neue Nachricht",
     "subject": "Betreff",
     "subjectPlaceholder": "Betreff eingeben",
     "message": "Nachricht",
@@ -423,7 +423,8 @@
       "service": "Dienstproblem",
       "payment": "Zahlung / Guthaben",
       "other": "Sonstiges"
-    }
+    },
+    "newTicket": "Neues Ticket"
   },
   "passwordAuth": {
     "title": "Anmeldung mit Passwort",

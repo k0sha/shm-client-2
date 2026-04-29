@@ -27,11 +27,12 @@ function displayUser(ticket: Ticket): string {
   return `#${ticket.userId}`;
 }
 
-function TicketRow({ ticket }: { ticket: Ticket }) {
+function TicketRow({ ticket, hideBadge = false }: { ticket: Ticket; hideBadge?: boolean }) {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const statusColor = STATUS_COLORS[ticket.status] || 'gray';
   const statusLabel = t(`tickets.status.${ticket.status}`);
+  const badgeLabel = ticket.assignedTo ? t('tickets.newMessage') : t('tickets.newTicket');
 
   return (
     <Card withBorder radius="md" p="md" className="service-card-desktop" style={{ cursor: 'pointer' }} onClick={() => navigate(`/tickets/${ticket.id}`)}>
@@ -56,9 +57,9 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
             </Text>
           </Group>
         </Stack>
-        {ticket.unread && (
+        {ticket.unread && !hideBadge && (
           <Badge color="blue" variant="filled" size="sm" style={{ flexShrink: 0 }}>
-            {t('tickets.newMessage')}
+            {badgeLabel}
           </Badge>
         )}
       </Group>
@@ -66,12 +67,12 @@ function TicketRow({ ticket }: { ticket: Ticket }) {
   );
 }
 
-function TicketList({ tickets }: { tickets: Ticket[] }) {
+function TicketList({ tickets, hideBadge = false }: { tickets: Ticket[]; hideBadge?: boolean }) {
   const { t } = useTranslation();
   if (tickets.length === 0) {
     return <Text c="dimmed" ta="center" py="xl">{t('tickets.noActiveTickets')}</Text>;
   }
-  return <Stack gap="sm">{tickets.map((tk) => <TicketRow key={tk.id} ticket={tk} />)}</Stack>;
+  return <Stack gap="sm">{tickets.map((tk) => <TicketRow key={tk.id} ticket={tk} hideBadge={hideBadge} />)}</Stack>;
 }
 
 export default function Tickets() {
@@ -180,7 +181,7 @@ export default function Tickets() {
           <Tabs.Tab value="closed">{t('tickets.status.closed')}</Tabs.Tab>
         </Tabs.List>
 
-        <Tabs.Panel value="all" pt="md"><TicketList tickets={filter()} /></Tabs.Panel>
+        <Tabs.Panel value="all" pt="md"><TicketList tickets={filter()} hideBadge /></Tabs.Panel>
         <Tabs.Panel value="in_progress" pt="md"><TicketList tickets={filter(['in_progress', 'waiting'])} /></Tabs.Panel>
         <Tabs.Panel value="resolved" pt="md"><TicketList tickets={filter(['resolved'])} /></Tabs.Panel>
         <Tabs.Panel value="closed" pt="md"><TicketList tickets={filter(['closed'])} /></Tabs.Panel>

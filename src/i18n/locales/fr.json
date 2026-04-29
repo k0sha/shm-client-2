@@ -383,7 +383,7 @@
     "noTickets": "Vous n'avez pas encore de demandes de support",
     "noActiveTickets": "Aucune demande active",
     "closedAndArchived": "Fermées et archivées",
-    "newMessage": "Nouveau",
+    "newMessage": "Nouveau message",
     "subject": "Sujet",
     "subjectPlaceholder": "Entrez le sujet",
     "message": "Message",
@@ -423,7 +423,8 @@
       "service": "Problème de service",
       "payment": "Paiement / Solde",
       "other": "Autre"
-    }
+    },
+    "newTicket": "Nouveau ticket"
   },
   "passwordAuth": {
     "title": "Connexion par mot de passe",

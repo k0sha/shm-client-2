@@ -383,7 +383,7 @@
     "noTickets": "Sizda hali qo'llab-quvvatlash so'rovlari yo'q",
     "noActiveTickets": "Faol so'rovlar yo'q",
     "closedAndArchived": "Yopilgan va arxivlangan",
-    "newMessage": "Yangi",
+    "newMessage": "Yangi xabar",
     "subject": "Mavzu",
     "subjectPlaceholder": "Mavzuni kiriting",
     "message": "Xabar",
@@ -423,7 +423,8 @@
       "service": "Xizmat muammosi",
       "payment": "To'lov / Balans",
       "other": "Boshqa"
-    }
+    },
+    "newTicket": "Yangi tiket"
   },
   "passwordAuth": {
     "title": "Parol bilan kirish",

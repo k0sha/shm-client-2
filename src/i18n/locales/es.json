@@ -383,7 +383,7 @@
     "noTickets": "Aún no tienes solicitudes de soporte",
     "noActiveTickets": "No hay solicitudes activas",
     "closedAndArchived": "Cerradas y archivadas",
-    "newMessage": "Nuevo",
+    "newMessage": "Nuevo mensaje",
     "subject": "Asunto",
     "subjectPlaceholder": "Introduce el asunto",
     "message": "Mensaje",
@@ -423,7 +423,8 @@
       "service": "Problema con el servicio",
       "payment": "Pago / Saldo",
       "other": "Otro"
-    }
+    },
+    "newTicket": "Nuevo ticket"
   },
   "passwordAuth": {
     "title": "Acceso con contraseña",

@@ -393,7 +393,7 @@
     "noTickets": "У вас пока нет обращений",
     "noActiveTickets": "Нет активных обращений",
     "closedAndArchived": "Закрытые и архивные",
-    "newMessage": "Новое",
+    "newMessage": "Новое сообщение",
     "subject": "Тема",
     "subjectPlaceholder": "Введите тему обращения",
     "message": "Сообщение",
@@ -468,7 +468,8 @@
       "payment": "Оплата и баланс",
       "account": "Аккаунт и доступ",
       "other": "Другое"
-    }
+    },
+    "newTicket": "Новый тикет"
   },
   "passwordAuth": {
     "title": "Вход по паролю",

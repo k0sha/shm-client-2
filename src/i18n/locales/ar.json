@@ -383,7 +383,7 @@
     "noTickets": "ليس لديك أي طلبات دعم بعد",
     "noActiveTickets": "لا توجد طلبات نشطة",
     "closedAndArchived": "المغلقة والمؤرشفة",
-    "newMessage": "جديد",
+    "newMessage": "رسالة جديدة",
     "subject": "الموضوع",
     "subjectPlaceholder": "أدخل الموضوع",
     "message": "الرسالة",
@@ -423,7 +423,8 @@
       "service": "مشكلة في الخدمة",
       "payment": "الدفع / الرصيد",
       "other": "أخرى"
-    }
+    },
+    "newTicket": "تذكرة جديدة"
   },
   "passwordAuth": {
     "title": "تسجيل الدخول بكلمة المرور",
