@@ -67,6 +67,7 @@ interface AppConfig {
   ANDROID_PROXY_URL_SCHEMA: string;
   CAPTCHA_ENABLED: string;
   ORDER_SORTING: string;
+  REFERRALS_TEMPLATE_NAME: string;
 }
 
 declare global {
@@ -147,6 +148,7 @@ function getConfig(): AppConfig {
     IOS_PROXY_URL_SCHEMA: runtimeConfig?.IOS_PROXY_URL_SCHEMA || import.meta.env.VITE_IOS_PROXY_URL_SCHEMA || '',
     ANDROID_PROXY_URL_SCHEMA: runtimeConfig?.ANDROID_PROXY_URL_SCHEMA || import.meta.env.VITE_ANDROID_PROXY_URL_SCHEMA || '',
     CAPTCHA_ENABLED: runtimeConfig?.CAPTCHA_ENABLED || import.meta.env.VITE_CAPTCHA_ENABLED || 'false',
+    REFERRALS_TEMPLATE_NAME: runtimeConfig?.REFERRALS_TEMPLATE_NAME || import.meta.env.VITE_REFERRALS_TEMPLATE_NAME || 'user_referrals_list',
 
   };
 }

@@ -151,7 +151,26 @@ export const userApi = {
     const { filter, ...rest } = params || {};
     return api.get('/user/withdraw', { params: { ...rest, ...(filter ? { filter: JSON.stringify(filter) } : {}) } });
   },
+  getReferralsCount: () =>
+    api.get<{ data: Array<{ total: number }> }>('/user/referrals'),
+  getReferrals: () =>
+    api.get<{ data: Array<{
+      count?: number;
+      total_paid?: number;
+      items: ReferralUser[];
+    }> }>(`/public/${config.REFERRALS_TEMPLATE_NAME}?format=json`),
 };
+
+export interface ReferralUser {
+  user_id: number;
+  full_name?: string;
+  login?: string;
+  login2?: string;
+  created?: string;
+  block?: number;
+  discount?: number;
+  paid?: number;
+}
 
 export const userEmailApi = {
   getEmail: () => api.get<{ data: { email: string, email_verified: number } }>('/user/email'),
