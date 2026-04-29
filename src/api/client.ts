@@ -157,7 +157,7 @@ export const userApi = {
     api.get<{ data: Array<{
       count?: number;
       items: ReferralUser[];
-    }> }>(`/public/${config.REFERRALS_TEMPLATE_NAME}?format=json`),
+    }> }>(`/template/${config.REFERRALS_TEMPLATE_NAME}?format=json`),
 };
 
 export interface ReferralUser {
