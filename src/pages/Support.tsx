@@ -21,12 +21,14 @@ function formatDate(iso: string): string {
   });
 }
 
-function TicketCard({ ticket, hideBadge = false }: { ticket: Ticket; hideBadge?: boolean }) {
+function TicketCard({ ticket }: { ticket: Ticket }) {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const statusColor = STATUS_COLORS[ticket.status] || 'gray';
   const statusLabel = t(`tickets.status.${ticket.status}`);
-  const badgeLabel = ticket.assignedTo ? t('tickets.newMessage') : t('tickets.newTicket');
+  const isNewTicket = !ticket.assignedTo;
+  const showBadge = isNewTicket || ticket.unread;
+  const badgeLabel = isNewTicket ? t('tickets.newTicket') : t('tickets.newMessage');
 
   return (
     <Card
@@ -56,7 +58,7 @@ function TicketCard({ ticket, hideBadge = false }: { ticket: Ticket; hideBadge?:
             </Text>
           </Group>
         </Stack>
-        {ticket.unread && !hideBadge && (
+        {showBadge && (
           <Badge color="blue" variant="filled" size="sm" style={{ flexShrink: 0 }}>
             {badgeLabel}
           </Badge>
@@ -115,7 +117,6 @@ export default function Support() {
 
   const activeTickets = tickets.filter((tk) => ACTIVE_STATUSES.has(tk.status));
   const closedTickets = tickets.filter((tk) => CLOSED_STATUSES.has(tk.status));
-  const openCount = tickets.filter((tk) => tk.status === 'open').length;
 
   if (loading) {
     return <Center py="xl"><Loader /></Center>;
@@ -132,14 +133,7 @@ export default function Support() {
 
       <Tabs defaultValue="active">
         <Tabs.List>
-          <Tabs.Tab
-            value="active"
-            rightSection={openCount > 0
-              ? <Badge size="xs" variant="filled" color="blue" circle>{openCount}</Badge>
-              : undefined}
-          >
-            {t('tickets.tabActive')}
-          </Tabs.Tab>
+          <Tabs.Tab value="active">{t('tickets.tabActive')}</Tabs.Tab>
           <Tabs.Tab value="closed">{t('tickets.tabClosed')}</Tabs.Tab>
           <Tabs.Tab value="all">{t('tickets.tabAll')}</Tabs.Tab>
         </Tabs.List>
@@ -162,7 +156,7 @@ export default function Support() {
           <Stack gap="sm">
             {tickets.length === 0
               ? <Text c="dimmed" ta="center" py="xl">{t('tickets.noTickets')}</Text>
-              : tickets.map((tk) => <TicketCard key={tk.id} ticket={tk} hideBadge />)}
+              : tickets.map((tk) => <TicketCard key={tk.id} ticket={tk} />)}
           </Stack>
         </Tabs.Panel>
       </Tabs>

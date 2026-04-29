@@ -27,12 +27,14 @@ function displayUser(ticket: Ticket): string {
   return `#${ticket.userId}`;
 }
 
-function TicketRow({ ticket, hideBadge = false }: { ticket: Ticket; hideBadge?: boolean }) {
+function TicketRow({ ticket }: { ticket: Ticket }) {
   const navigate = useNavigate();
   const { t } = useTranslation();
   const statusColor = STATUS_COLORS[ticket.status] || 'gray';
   const statusLabel = t(`tickets.status.${ticket.status}`);
-  const badgeLabel = ticket.assignedTo ? t('tickets.newMessage') : t('tickets.newTicket');
+  const isNewTicket = !ticket.assignedTo;
+  const showBadge = isNewTicket || ticket.unread;
+  const badgeLabel = isNewTicket ? t('tickets.newTicket') : t('tickets.newMessage');
 
   return (
     <Card withBorder radius="md" p="md" className="service-card-desktop" style={{ cursor: 'pointer' }} onClick={() => navigate(`/tickets/${ticket.id}`)}>
@@ -57,7 +59,7 @@ function TicketRow({ ticket, hideBadge = false }: { ticket: Ticket; hideBadge?: 
             </Text>
           </Group>
         </Stack>
-        {ticket.unread && !hideBadge && (
+        {showBadge && (
           <Badge color="blue" variant="filled" size="sm" style={{ flexShrink: 0 }}>
             {badgeLabel}
           </Badge>
@@ -67,12 +69,12 @@ function TicketRow({ ticket, hideBadge = false }: { ticket: Ticket; hideBadge?: 
   );
 }
 
-function TicketList({ tickets, hideBadge = false }: { tickets: Ticket[]; hideBadge?: boolean }) {
+function TicketList({ tickets }: { tickets: Ticket[] }) {
   const { t } = useTranslation();
   if (tickets.length === 0) {
     return <Text c="dimmed" ta="center" py="xl">{t('tickets.noActiveTickets')}</Text>;
   }
-  return <Stack gap="sm">{tickets.map((tk) => <TicketRow key={tk.id} ticket={tk} hideBadge={hideBadge} />)}</Stack>;
+  return <Stack gap="sm">{tickets.map((tk) => <TicketRow key={tk.id} ticket={tk} />)}</Stack>;
 }
 
 export default function Tickets() {
@@ -153,8 +155,6 @@ export default function Tickets() {
     });
   }
 
-  const newCount = allTickets.filter((tk) => tk.status === 'open').length;
-
   if (loading) return <Center py="xl"><Loader /></Center>;
 
   return (
@@ -170,18 +170,13 @@ export default function Tickets() {
 
       <Tabs defaultValue="all">
         <Tabs.List>
-          <Tabs.Tab value="all" rightSection={newCount > 0
-            ? <Badge size="xs" variant="filled" color="red" circle>{newCount}</Badge>
-            : undefined}
-          >
-            {t('tickets.tabAll')}
-          </Tabs.Tab>
+          <Tabs.Tab value="all">{t('tickets.tabAll')}</Tabs.Tab>
           <Tabs.Tab value="in_progress">{t('tickets.status.in_progress')}</Tabs.Tab>
           <Tabs.Tab value="resolved">{t('tickets.status.resolved')}</Tabs.Tab>
           <Tabs.Tab value="closed">{t('tickets.status.closed')}</Tabs.Tab>
         </Tabs.List>
 
-        <Tabs.Panel value="all" pt="md"><TicketList tickets={filter()} hideBadge /></Tabs.Panel>
+        <Tabs.Panel value="all" pt="md"><TicketList tickets={filter()} /></Tabs.Panel>
         <Tabs.Panel value="in_progress" pt="md"><TicketList tickets={filter(['in_progress', 'waiting'])} /></Tabs.Panel>
         <Tabs.Panel value="resolved" pt="md"><TicketList tickets={filter(['resolved'])} /></Tabs.Panel>
         <Tabs.Panel value="closed" pt="md"><TicketList tickets={filter(['closed'])} /></Tabs.Panel>
