@@ -7,6 +7,7 @@ import { IconSearch } from '@tabler/icons-react';
 import { useTranslation } from 'react-i18next';
 import { useStore } from '../store/useStore';
 import { STATUS_COLORS } from '../components/support/TicketStatusBadge';
+import { displayUser } from '../utils/ticketDisplay';
 import { supportApi } from '../api/supportApi';
 import type { Ticket, TicketStatus } from '../types/tickets';
 
@@ -14,17 +15,6 @@ function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString('ru-RU', {
     day: '2-digit', month: '2-digit', year: '2-digit',
   });
-}
-
-function displayUser(ticket: Ticket): string {
-  if (ticket.userFullName) return ticket.userFullName;
-  const email = ticket.userLogin2 && !ticket.userLogin2.startsWith('@') ? ticket.userLogin2 : null;
-  const tg = ticket.userLogin?.startsWith('@') ? ticket.userLogin : null;
-  if (email && tg) return `${tg} · ${email}`;
-  if (email) return email;
-  if (tg) return tg;
-  if (ticket.userLogin) return ticket.userLogin;
-  return `#${ticket.userId}`;
 }
 
 function TicketRow({ ticket }: { ticket: Ticket }) {

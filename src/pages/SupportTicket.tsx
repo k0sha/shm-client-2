@@ -9,7 +9,8 @@ import { IconArrowLeft, IconSend, IconChevronDown, IconChevronUp, IconPaperclip,
 import { useTranslation } from 'react-i18next';
 import { notifications } from '@mantine/notifications';
 import { useComputedColorScheme } from '@mantine/core';
-import { TicketStatusBadge } from '../components/support/TicketStatusBadge';
+import { STATUS_COLORS } from '../components/support/TicketStatusBadge';
+import { displayUser } from '../utils/ticketDisplay';
 import { supportApi } from '../api/supportApi';
 import { useTicketWebSocket, type TicketUpdate } from '../hooks/useTicketWebSocket';
 import { useStore } from '../store/useStore';
@@ -451,23 +452,30 @@ export default function SupportTicket() {
       display: 'flex', flexDirection: 'column', overflow: 'hidden',
     }}>
       {/* Header */}
-      <Group gap="sm" wrap="nowrap">
-        <ActionIcon variant="subtle" size="lg" onClick={() => navigate(backPath)}>
+      <Group gap="sm" wrap="nowrap" align="flex-start">
+        <ActionIcon variant="subtle" size="lg" onClick={() => navigate(backPath)} style={{ flexShrink: 0 }}>
           <IconArrowLeft size={18} />
         </ActionIcon>
         <Stack gap={2} style={{ flex: 1, minWidth: 0 }}>
-          <Group gap="xs" wrap="nowrap" align="center">
-            <Text size="xs" c="dimmed" style={{ flexShrink: 0 }}>
-              #{ticket.number ?? ticket.id.slice(0, 8)}
+          <Text fw={700} size="lg" truncate>
+            #{ticket.number ?? ticket.id.slice(0, 8)} - {t(`tickets.ticketType.${ticket.type}`)}
+          </Text>
+          <Group gap={6} wrap="nowrap" align="center" style={{ minWidth: 0 }}>
+            <Box
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                backgroundColor: `var(--mantine-color-${STATUS_COLORS[ticket.status] || 'gray'}-6)`,
+                flexShrink: 0,
+              }}
+            />
+            <Text size="xs" c="dimmed" style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {t(`tickets.status.${ticket.status}`)} · {formatDate(ticket.updatedAt)}
+              {isSpecialistView && ` · #${ticket.userId} ${displayUser(ticket)}`}
+              {ticket.assignedTo && ` · 🛡 ${ticket.assignedTo}`}
             </Text>
-            <Text fw={700} size="lg" truncate style={{ minWidth: 0 }}>
-              {t(`tickets.ticketType.${ticket.type}`)}
-            </Text>
-            <TicketStatusBadge status={ticket.status} />
           </Group>
-          {ticket.assignedTo && (
-            <Text size="xs" c="dimmed">🛡 {ticket.assignedTo}</Text>
-          )}
         </Stack>
         {!isSpecialistView && !isClosed && (
           <Button size="xs" variant="light" color="red" onClick={handleCloseTicket} style={{ flexShrink: 0 }}>
