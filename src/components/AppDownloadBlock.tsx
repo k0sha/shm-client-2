@@ -42,6 +42,8 @@ function detectPlatform(): string {
   if (/Android/i.test(ua)) return 'androidtv';
   if (/Windows NT/i.test(ua)) return 'windows';
   if (/Linux/i.test(ua)) return 'linux';
+  // iPadOS 13+ маскируется под Mac в UA — ловим по наличию тачскрина
+  if (/Macintosh|Mac OS X/i.test(ua) && navigator.maxTouchPoints > 1) return 'ios';
   if (/Macintosh|Mac OS X/i.test(ua)) return 'macos';
   return '';
 }

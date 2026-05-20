@@ -283,6 +283,8 @@ function ServiceDetail({ service, onDelete, onChangeTariff }: ServiceDetailProps
     if (/Android/i.test(ua) && /Mobile/i.test(ua)) return 'ANDROID';
     if (/Windows NT/i.test(ua)) return 'WINDOWS';
     if (/Linux/i.test(ua)) return 'LINUX';
+    // iPadOS 13+ маскируется под Mac в UA — ловим по наличию тачскрина
+    if (/Macintosh|Mac OS X/i.test(ua) && navigator.maxTouchPoints > 1) return 'IOS';
     if (/Macintosh|Mac OS X/i.test(ua)) return 'MAC';
     return '';
   }
